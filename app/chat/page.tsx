@@ -5,10 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Send } from "lucide-react";
-import { useChat } from "@ai-sdk/react"; // ✅ Correct import (new AI SDK 4.2)
+import { useChat } from "@ai-sdk/react"; 
 
 export default function ChatPage() {
-  const [model, setModel] = useState("gpt-3.5-turbo"); // ✅ Model selection state
+  const [model, setModel] = useState("gpt-3.5-turbo"); 
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
