@@ -5,24 +5,35 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Send } from "lucide-react";
-
-// Define the structure for chat messages
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-}
+import { useChat } from "@ai-sdk/react"; 
 
 export default function ChatPage() {
-  // State management for chat functionality
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  // Initialize with Gemini 2.0 Flash as the default model
-  const [model, setModel] = useState("gemini-2.0-flash");
-  // Reference to automatically scroll to the bottom of the chat
+  const [model, setModel] = useState("gemini-2.0-flash"); 
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Function to scroll to the most recent message
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading,
+    error,
+    stop,
+    reload,
+    setInput,
+    append,
+    setMessages,
+  } = useChat({
+    api: "/api/chat",
+    body: {
+      model,  
+    },
+    onFinish: (message) => {
+      console.log("Finished receiving:", message);
+    },
+  });
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -31,93 +42,6 @@ export default function ChatPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim()) return;
-
-    // Create and add the user's message to the chat
-    const userMessage: Message = {
-      role: "user",
-      content: input,
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-    setIsLoading(true);
-
-    try {
-      // Send the conversation history and selected model to the API
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messages: [...messages, userMessage],
-          model, // The selected AI model from the dropdown
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to get response");
-      }
-
-      // Create an empty placeholder for the assistant's response
-      // This will be filled incrementally as we receive the streaming response
-      const assistantMessage: Message = {
-        role: "assistant",
-        content: "",
-      };
-      
-      // Add the empty assistant message to the messages array
-      // This creates a placeholder that will be incrementally filled
-      // as the streaming response comes in from the API
-      // The spread operator (...) creates a copy of the previous messages array
-      // and then adds the assistantMessage as a new item at the end
-      setMessages((prev) => [...prev, assistantMessage]);
-      
-      // Set up streaming response handling
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      
-      if (!reader) {
-        throw new Error("No response body");
-      }
-      
-      // Process the stream chunk by chunk
-      let done = false;
-      while (!done) {
-        // Read the next chunk from the stream
-        const { value, done: doneReading } = await reader.read();
-        done = doneReading;
-        
-        if (value) {
-          // Decode the chunk and append it to the assistant's message
-          const text = decoder.decode(value);
-          setMessages((prev) => {
-            const newMessages = [...prev];
-            // Find the last message (which should be the assistant's)
-            const lastMessage = newMessages[newMessages.length - 1];
-            if (lastMessage.role === "assistant") {
-              // Append the new text to the existing content
-              lastMessage.content += text;
-            }
-            return newMessages;
-          });
-        }
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      // Add an error message if the request fails
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Sorry, there was an error processing your request." },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="flex flex-col h-screen w-[75%] mx-auto p-4">
@@ -175,7 +99,7 @@ export default function ChatPage() {
       <form onSubmit={handleSubmit} className="flex gap-2">
         <Input
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={handleInputChange}
           placeholder="Type your message..."
           disabled={isLoading}
           className="flex-1"

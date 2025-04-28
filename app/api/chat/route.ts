@@ -9,7 +9,6 @@ interface Message {
 
 export async function POST(req: Request) {
     const { messages, model } = await req.json();
-
     try {
         let modelProvider;
 
@@ -38,7 +37,7 @@ export async function POST(req: Request) {
             })),
         });
 
-        return stream.toTextStreamResponse();
+        return stream.toDataStreamResponse();
     } catch (error) {
         console.error('Error processing chat request:', error);
         return new Response(JSON.stringify({ 
