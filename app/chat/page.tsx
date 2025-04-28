@@ -15,7 +15,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [model, setModel] = useState("gpt-3.5-turbo");
+  const [model, setModel] = useState("gemini-2.0-flash");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -40,7 +40,6 @@ export default function ChatPage() {
     setIsLoading(true);
 
     try {
-      // Replace with your actual API endpoint
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
@@ -56,12 +55,39 @@ export default function ChatPage() {
         throw new Error("Failed to get response");
       }
 
-      const data = await response.json();
+      // Create a placeholder for the assistant's message
+      const assistantMessage: Message = {
+        role: "assistant",
+        content: "",
+      };
       
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: data.message },
-      ]);
+      setMessages((prev) => [...prev, assistantMessage]);
+      
+      // Process the stream
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      
+      if (!reader) {
+        throw new Error("No response body");
+      }
+      
+      let done = false;
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        
+        if (value) {
+          const text = decoder.decode(value);
+          setMessages((prev) => {
+            const newMessages = [...prev];
+            const lastMessage = newMessages[newMessages.length - 1];
+            if (lastMessage.role === "assistant") {
+              lastMessage.content += text;
+            }
+            return newMessages;
+          });
+        }
+      }
     } catch (error) {
       console.error("Error:", error);
       setMessages((prev) => [
@@ -83,6 +109,7 @@ export default function ChatPage() {
               <SelectValue placeholder="Select a model" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="gemini-2.0-flash">Gemini 2.0 Flash</SelectItem>
               <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
               <SelectItem value="gpt-4">GPT-4</SelectItem>
               <SelectItem value="claude-2">Claude 2</SelectItem>
