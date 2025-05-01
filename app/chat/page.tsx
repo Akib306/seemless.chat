@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Send } from "lucide-react";
 import { useChat } from "@ai-sdk/react"; 
+import Markdown from "react-markdown";
 
 export default function ChatPage() {
   const [model, setModel] = useState("gemini-2.0-flash"); 
@@ -86,7 +87,9 @@ export default function ChatPage() {
                     : "bg-muted"
                 }`}
               >
-                <p className="whitespace-pre-wrap">{message.content}</p>
+                <p className="whitespace-pre-wrap">
+                  <Markdown>{message.content}</Markdown>
+                </p>
               </div>
             </div>
           ))
