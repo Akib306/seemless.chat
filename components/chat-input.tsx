@@ -121,6 +121,12 @@ export function ChatInput({
             className="flex-1 bg-transparent border-none resize-none outline-none min-h-[48px] max-h-[200px] px-3 py-2"
             style={{ color: "#F5F5F5" }}
             rows={1}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
           />
           
           <div className="flex items-center gap-2 mt-2">
