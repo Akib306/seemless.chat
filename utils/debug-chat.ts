@@ -1,6 +1,8 @@
 import { type Message } from "@ai-sdk/react";
 
-export const DEBUG_MODE = true;
+
+// utils/debug-chat.ts
+export const DEBUG_MODE = process.env.NEXT_PUBLIC_DEBUG_MODE === "true";
 
 const debugResponses = [
     "I'm a debug response. This is a placeholder message that would normally come from the AI model.",
