@@ -132,8 +132,8 @@ export function ChatInput({
           <div className="flex items-center gap-2 mt-2">
             <Select value={model} onValueChange={setModel}>
               <SelectTrigger 
-                className="w-auto min-w-[140px] h-9 border-none bg-transparent"
-                style={{ color: "#F5F5F5" }}
+  className="w-auto min-w-[140px] h-9 px-3 rounded-md  bg-transparent text-[#F5F5F5] hover:bg-[#3A3A3A] focus:outline-none focus:ring-0 focus:ring-offset-0 transition-colors"
+  style={{ color: "#F5F5F5" }}
               >
                 <SelectValue placeholder="Select a model" />
               </SelectTrigger>
