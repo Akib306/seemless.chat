@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import { useChat, type Message } from "@ai-sdk/react";
 import { FormMessage, Message as FormMessageType } from "@/components/form-message";
 import { ChatInput } from "@/components/chat-input";
+import { Badge } from "@/components/ui/badge";
+import { DEBUG_MODE, handleDebugSubmit } from "@/utils/debug-chat";
 
 export default function ChatPage() {
   const [model, setModel] = useState("gemini-2.0-flash");
@@ -14,7 +16,7 @@ export default function ChatPage() {
     messages,
     input,
     handleInputChange,
-    handleSubmit,
+    handleSubmit: originalHandleSubmit,
     isLoading,
     error,
     stop,
@@ -32,16 +34,35 @@ export default function ChatPage() {
     },
   });
 
+  // Custom submit handler that uses debug mode when enabled
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (DEBUG_MODE) {
+      await handleDebugSubmit(input, messages, setMessages, setInput);
+    } else {
+      originalHandleSubmit(e);
+    }
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Auto-scroll whenever messages are updated
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
   return (
     <div className="flex flex-col h-screen w-full mx-auto p-0" style={{ backgroundColor: "#1A1A1A" }}>
+      {/* Debug mode indicator */}
+      
+      { DEBUG_MODE && <div className="w-full flex justify-center p-2" style={{ backgroundColor: "#2A2A2A" }}>
+        <Badge variant="secondary" className="text-xs">
+          Debug Mode Active
+        </Badge>
+      </div> }
+
       {/* Chat message display area */}
       <div className="flex-1 overflow-y-auto p-4 mb-4" style={{ color: "#F5F5F5" }}>
         {messages.length === 0 ? (
@@ -52,7 +73,9 @@ export default function ChatPage() {
           messages.map((message, index) => (
             <div
               key={index}
-              className={`mb-6 ${message.role === "user" ? "text-right" : "text-left"}`}
+              className={`mb-6 ${
+                message.role === "user" ? "text-right" : "text-left"
+              }`}
             >
               <div
                 className={`inline-block p-4 rounded-2xl max-w-[80%] ${

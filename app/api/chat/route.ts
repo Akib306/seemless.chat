@@ -1,14 +1,19 @@
 import { streamText } from "ai"
 import { google } from "@ai-sdk/google"
 import { openai } from '@ai-sdk/openai';
+import { createDebugStream, DEBUG_MODE } from "@/utils/debug-chat";
+import { type Message } from "@ai-sdk/react";
 
-interface Message {
-    role: "user" | "assistant";
-    content: string;
-}
+// Set this to true to use debug responses instead of real AI calls
 
 export async function POST(req: Request) {
     const { messages, model } = await req.json();
+
+    // If debug mode is active, return a placeholder response
+    if (DEBUG_MODE) {
+        return createDebugStream(messages);
+    }
+
     try {
         let modelProvider;
 
