@@ -102,13 +102,18 @@ export default function ChatPage() {
                 >
                   
                 {/* Render Markdown with code highlighting and LaTeX */}
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm,remarkMath]}
-                  rehypePlugins={[rehypeKatex]}
-                  components={markdownComponents}
-                >
-                  {message.content}
-                </ReactMarkdown>
+                
+                {message.role === "user" ? (
+                  <p className="whitespace-pre-wrap">{message.content}</p>
+                  ) : (
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm,remarkMath]}
+                    rehypePlugins={[rehypeKatex]}
+                    components={markdownComponents}
+                  >
+                    {message.content}
+                    </ReactMarkdown>
+                )}
 
                 </div>
               </div>
