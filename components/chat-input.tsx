@@ -79,7 +79,7 @@ export function ChatInput({
   };
 
   return (
-    <div className="p-4 border-t flex justify-center" style={{ borderColor: "#333333" }}>
+    <div className="p-4 flex justify-center" style={{ borderColor: "#333333" }}>
       <form onSubmit={onSubmit} className="relative w-full max-w-3xl">
         {/* File previews */}
         {files.length > 0 && (
