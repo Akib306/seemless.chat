@@ -14,7 +14,7 @@ import rehypeKatex from "rehype-katex";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import "katex/dist/katex.min.css";
-
+import remarkGfm from "remark-gfm";
 
 
 export default function ChatPage() {
@@ -55,6 +55,21 @@ export default function ChatPage() {
 
   // Use CodeProps for proper typing of the code renderer
   const markdownComponents: Components = {
+    table: ({ children, ...props }) => (
+      <table className="table-auto w-full border-collapse mb-4 border-2" {...props}>
+        {children}
+      </table>
+    ),
+    th: ({ children, ...props }) => (
+      <th className="border-2 border-gray-400 px-4 py-2 bg-gray-700 text-white text-left font-bold" {...props}>
+        {children}
+      </th>
+    ),
+    td: ({ children, ...props }) => (
+      <td className="border-2 border-gray-300 px-4 py-2" {...props}>
+        {children}
+      </td>
+    ),
     code: ({ inline, className, children, ...props }: any) => {
       const match = /language-(\w+)/.exec(className || "");
       // State to track if code has been copied to the clipboard
@@ -165,7 +180,7 @@ export default function ChatPage() {
                 
                 {/* Render Markdown with code highlighting and LaTeX */}
                 <ReactMarkdown
-                  remarkPlugins={[remarkMath]}
+                  remarkPlugins={[remarkGfm,remarkMath]}
                   rehypePlugins={[rehypeKatex]}
                   components={markdownComponents}
                 >
