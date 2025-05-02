@@ -64,35 +64,39 @@ export default function ChatPage() {
       </div> }
 
       {/* Chat message display area */}
-      <div className="flex-1 overflow-y-auto p-4 mb-4 mt-16" style={{ color: "#F5F5F5" }}>
-        {messages.length === 0 ? (
-          <div className="text-center h-full flex items-center justify-center" style={{ color: "#CCCCCC" }}>
-            <p>Start a conversation by typing a message below.</p>
-          </div>
-        ) : (
-          messages.map((message, index) => (
-            <div
-              key={index}
-              className={`mb-6 ${
-                message.role === "user" ? "text-right" : "text-left"
-              }`}
-            >
-              <div
-                className={`inline-block p-4 rounded-2xl max-w-[80%] ${
-                  message.role === "user"
-                    ? "bg-[#6A8DAD] text-[#F5F5F5]"
-                    : "bg-[#2A2A2A] text-[#F5F5F5]"
-                }`}
-                style={{ 
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
-                  animation: "fadeIn 0.3s ease-in-out"
-                }}
-              >
-                <p className="whitespace-pre-wrap">{message.content}</p>
-              </div>
+      <div className="flex-1 overflow-y-auto mt-16 p-4 mb-4 flex justify-center" style={{ color: "#F5F5F5" }}>
+        <div className="w-full max-w-3xl">
+
+          {messages.length === 0 ? (
+            <div className="text-center h-full flex items-center justify-center" style={{ color: "#CCCCCC" }}>
+              <p>Start a conversation by typing a message below.</p>
             </div>
-          ))
-        )}
+          ) : (
+            
+            messages.map((message, index) => (
+              <div
+                key={index}
+                className={`mb-6 ${
+                  message.role === "user" ? "text-right" : "text-left"
+                }`}
+              >
+                <div
+                  className={`inline-block p-4 rounded-2xl max-w-[80%] ${
+                    message.role === "user"
+                      ? "bg-[#6A8DAD] text-[#F5F5F5]"
+                      : "bg-[#2A2A2A] text-[#F5F5F5]"
+                  }`}
+                  style={{ 
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
+                    animation: "fadeIn 0.3s ease-in-out"
+                  }}
+                >
+                  <p className="whitespace-pre-wrap">{message.content}</p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
         <div ref={messagesEndRef} />
       </div>
 
