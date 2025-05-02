@@ -64,7 +64,7 @@ export default function ChatPage() {
       </div> }
 
       {/* Chat message display area */}
-      <div className="flex-1 overflow-y-auto p-4 mb-4" style={{ color: "#F5F5F5" }}>
+      <div className="flex-1 overflow-y-auto p-4 mb-4 mt-16" style={{ color: "#F5F5F5" }}>
         {messages.length === 0 ? (
           <div className="text-center h-full flex items-center justify-center" style={{ color: "#CCCCCC" }}>
             <p>Start a conversation by typing a message below.</p>
