@@ -81,10 +81,10 @@ export default function ChatPage() {
                 }`}
               >
                 <div
-                  className={`inline-block p-4 rounded-2xl max-w-[80%] ${
+                  className={`${
                     message.role === "user"
-                      ? "bg-[#6A8DAD] text-[#F5F5F5]"
-                      : "bg-[#2A2A2A] text-[#F5F5F5]"
+                      ? "inline-block p-4 rounded-2xl max-w-[80%] bg-[#6A8DAD] text-[#F5F5F5]"
+                      : "text-left w-full py-2"
                   }`}
                   style={{ 
                     boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
