@@ -6,7 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Send } from "lucide-react";
 import { useChat } from "@ai-sdk/react"; 
-import Markdown from "react-markdown";
+
+// Markdown and syntax highlighting
+import ReactMarkdown, { Components } from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import "katex/dist/katex.min.css";
+
+
 
 export default function ChatPage() {
   const [model, setModel] = useState("gemini-2.0-flash"); 
@@ -43,6 +52,30 @@ export default function ChatPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Use CodeProps for proper typing of the code renderer
+  const markdownComponents: Components = {
+    code: ({ inline, className, children, ...props }: any) => {
+      const match = /language-(\w+)/.exec(className || "");
+      if (!inline && match) {
+        return (
+          <SyntaxHighlighter
+            style={vscDarkPlus}
+            language={match[1]}
+            PreTag="div"
+            {...props}
+          >
+            {String(children).replace(/\n$/, "")}
+          </SyntaxHighlighter>
+        );
+      }
+      return (
+        <code className={className} {...props}>
+          {children}
+        </code>
+      );
+    },
+  };
 
   return (
     <div className="flex flex-col h-screen w-[75%] mx-auto p-4">
@@ -87,9 +120,16 @@ export default function ChatPage() {
                     : "bg-muted"
                 }`}
               >
-                <p className="whitespace-pre-wrap">
-                  <Markdown>{message.content}</Markdown>
-                </p>
+                
+                {/* Render Markdown with code highlighting and LaTeX */}
+                <ReactMarkdown
+                  remarkPlugins={[remarkMath]}
+                  rehypePlugins={[rehypeKatex]}
+                  components={markdownComponents}
+                >
+                  {message.content}
+                </ReactMarkdown>
+
               </div>
             </div>
           ))
