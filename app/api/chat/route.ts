@@ -40,8 +40,15 @@ export async function POST(req: Request) {
                 role: role === "user" ? "user" : "assistant",
                 content
             })),
+            onFinish: ({ usage }) => {
+                const { promptTokens, completionTokens, totalTokens } = usage;
+                // for saving the chat history or recording usage
+                console.log('Prompt tokens:', promptTokens);
+                console.log('Completion tokens:', completionTokens);
+                console.log('Total tokens:', totalTokens);
+            }
         });
-
+        console.log(stream.usage);
         return stream.toDataStreamResponse();
     } catch (error) {
         console.error('Error processing chat request:', error);
