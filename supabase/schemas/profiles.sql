@@ -6,7 +6,31 @@ create table profiles (
     updated_at          timestamptz not null default now()
 );
 
--- Trigger to auto-stamp updated_at on each UPDATE
+-- 2) Enable Row-Level Security
+alter table profiles enable row level security;
+
+-- 3) RLS policies
+
+-- Allow users to select their own profile
+create policy "profiles: select own"
+    on profiles
+    for select
+    using ( id = auth.uid() );
+
+-- Allow users to insert only with their own Auth ID
+create policy "profiles: insert own"
+    on profiles
+    for insert
+    with check ( id = auth.uid() );
+
+-- Allow users to update only their own profile
+create policy "profiles: update own"
+    on profiles
+    for update
+    using ( id = auth.uid() )
+    with check ( id = auth.uid() );
+
+-- 4) Trigger to auto-stamp updated_at on each UPDATE
 
 -- Trigger function
 create or replace function set_updated_at()
