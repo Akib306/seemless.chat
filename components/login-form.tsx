@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { OAuthButtons } from '@/components/oauth-buttons'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -88,6 +89,9 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
                 {isLoading ? 'Logging in...' : 'Login'}
               </Button>
             </div>
+
+            <OAuthButtons className='flex flex-col mt-6 w-full' />
+
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{' '}
               <Link href="/auth/sign-up" className="underline underline-offset-4">
