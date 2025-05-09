@@ -42,7 +42,7 @@ export default function RootLayout({
                   <Link href={"/"}>Seamless Chat</Link>
                 </div>
                 <div className="flex items-center gap-4">
-                  <LogoutButton />
+                  {/* <LogoutButton /> */}
                   <ThemeSwitcher />
                 </div>
               </div>
