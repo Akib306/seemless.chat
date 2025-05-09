@@ -43,7 +43,10 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/auth') &&
     request.nextUrl.pathname !== '/'
   ) {
-    // no user, potentially respond by redirecting the user to the login page
+    // This check protects all routes that aren't explicitly excluded.
+    // Protected routes include: /chat, /protected, etc.
+    // Any route that isn't the homepage ('/'), doesn't start with '/login',
+    // and doesn't start with '/auth' will redirect unauthenticated users to login.
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
     return NextResponse.redirect(url)
