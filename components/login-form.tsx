@@ -90,7 +90,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
               </Button>
             </div>
 
-            <OAuthButtons className='flex flex-col mt-6 w-full' />
+            <OAuthButtons className='flex flex-col mt-4 w-full' />
 
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{' '}

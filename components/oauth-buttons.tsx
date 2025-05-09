@@ -49,6 +49,7 @@ export function OAuthButtons({ className, ...props }: React.ComponentPropsWithou
       {error && <p className="text-sm text-red-500">{error}</p>}
 
       <Button
+        className='mb-4'
         variant='outline'
         onClick={() => handleOAuthLogin('github')}
         disabled={isLoading.github}
@@ -57,6 +58,14 @@ export function OAuthButtons({ className, ...props }: React.ComponentPropsWithou
         
       </Button>
 
+      <Button
+        className='mb-4'
+        variant='outline'
+        onClick={() => handleOAuthLogin('google')}
+        disabled={isLoading.google}
+      >
+        {isLoading.google ? 'Logging in with Google...' : 'Login with Google'}
+      </Button>
 
     </div>
   )
