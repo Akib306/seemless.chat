@@ -1,4 +1,4 @@
-import HeaderAuth from "@/components/header-auth";
+import { LogoutButton } from "@/components/logout-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
@@ -42,7 +42,7 @@ export default function RootLayout({
                   <Link href={"/"}>Seamless Chat</Link>
                 </div>
                 <div className="flex items-center gap-4">
-                  <HeaderAuth />
+                  <LogoutButton />
                   <ThemeSwitcher />
                 </div>
               </div>
