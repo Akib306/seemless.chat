@@ -260,6 +260,16 @@ redirect_uri = ""
 url = ""
 skip_nonce_check = false
 
+[auth.external.google]
+enabled = true
+client_id = "608011618331-7kigfm2vvghu78lhtce6h4mpu5vae2gi.apps.googleusercontent.com"
+# DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
+redirect_uri = "http://localhost:54321/auth/v1/callback"
+url = ""
+# This should be false for production, but can be true for local development
+skip_nonce_check = false
+
 # Use Firebase Auth as a third-party provider alongside Supabase Auth.
 [auth.third_party.firebase]
 enabled = false
