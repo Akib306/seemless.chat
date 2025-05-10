@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import { GoogleLogo, GitHubLogo } from '@/components/ui/icons'
 
 export function OAuthButtons({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
   const redirectedTo: string = '/chat'
@@ -46,21 +47,23 @@ export function OAuthButtons({ className, ...props }: React.ComponentPropsWithou
       {error && <p className="text-sm text-red-500">{error}</p>}
 
       <Button
-        className='mb-4'
+        className='mb-4 flex items-center justify-center'
         variant='outline'
         onClick={() => handleOAuthLogin('google')}
         disabled={isLoading.google}
       >
-        {isLoading.google ? 'Waiting on Google...' : 'Continue with Google instead'}
+        {!isLoading.google && <GoogleLogo />}
+        {isLoading.google ? 'Waiting on Google...' : 'Continue with Google'}
       </Button>
 
       <Button
-        className='mb-4'
+        className='mb-4 flex items-center justify-center'
         variant='outline'
         onClick={() => handleOAuthLogin('github')}
         disabled={isLoading.github}
       >
-        {isLoading.github ? 'Waiting on GitHub...' : 'Continue with GitHub instead'}
+        {!isLoading.github && <GitHubLogo />}
+        {isLoading.github ? 'Waiting on GitHub...' : 'Continue with GitHub'}
       </Button>
     </div>
   )
