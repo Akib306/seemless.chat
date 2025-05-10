@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { OAuthButtons } from '@/components/oauth-buttons'
 
 export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
   const [email, setEmail] = useState('')
@@ -103,6 +104,18 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                 {isLoading ? 'Creating an account...' : 'Sign up'}
               </Button>
             </div>
+
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">or</span>
+              </div>
+            </div>
+
+            <OAuthButtons className='flex flex-col w-full' />
+
             <div className="mt-4 text-center text-sm">
               Already have an account?{' '}
               <Link href="/auth/login" className="underline underline-offset-4">
