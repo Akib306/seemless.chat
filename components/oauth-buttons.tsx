@@ -10,15 +10,13 @@ export function OAuthButtons({ className, ...props }: React.ComponentPropsWithou
   const [isLoading, setIsLoading] = useState<{
     github: boolean
     google: boolean
-    apple: boolean
   }>({
     github: false,
     google: false,
-    apple: false
   })
   const [error, setError] = useState<string | null>(null)
 
-  const handleOAuthLogin = async (provider: 'github' | 'google' | 'apple') => {
+  const handleOAuthLogin = async (provider: 'github' | 'google') => {
     const supabase = createClient()
 
     setIsLoading((prev) => ({ ...prev, [provider]: true }))
@@ -38,7 +36,6 @@ export function OAuthButtons({ className, ...props }: React.ComponentPropsWithou
       setIsLoading({
         github: false,
         google: false,
-        apple: false
       })
     }
   
