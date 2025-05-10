@@ -51,22 +51,20 @@ export function OAuthButtons({ className, ...props }: React.ComponentPropsWithou
       <Button
         className='mb-4'
         variant='outline'
-        onClick={() => handleOAuthLogin('github')}
-        disabled={isLoading.github}
+        onClick={() => handleOAuthLogin('google')}
+        disabled={isLoading.google}
       >
-        {isLoading.github ? 'Logging in with GitHub...' : 'Login with GitHub'}
-        
+        {isLoading.google ? 'Waiting on Google...' : 'Continue with Google instead'}
       </Button>
 
       <Button
         className='mb-4'
         variant='outline'
-        onClick={() => handleOAuthLogin('google')}
-        disabled={isLoading.google}
+        onClick={() => handleOAuthLogin('github')}
+        disabled={isLoading.github}
       >
-        {isLoading.google ? 'Logging in with Google...' : 'Login with Google'}
+        {isLoading.github ? 'Waiting on GitHub...' : 'Continue with GitHub instead'}
       </Button>
-
     </div>
   )
 }
