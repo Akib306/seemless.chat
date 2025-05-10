@@ -15,7 +15,6 @@ import "katex/dist/katex.min.css";
 import remarkGfm from "remark-gfm";
 import { markdownComponents } from "@/components/markdown-components";
 
-
 export default function ChatPage() {
   const [model, setModel] = useState("gemini-2.0-flash");
   const [statusMessage, setStatusMessage] = useState<FormMessageType | null>(null);
@@ -63,25 +62,24 @@ export default function ChatPage() {
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-screen w-full mx-auto p-0" style={{ backgroundColor: "#1A1A1A" }}>
+    <div className="flex flex-col h-full" style={{ backgroundColor: "#1A1A1A" }}>
       {/* Debug mode indicator */}
-      
-      { DEBUG_MODE && <div className="w-full flex justify-center p-2" style={{ backgroundColor: "#2A2A2A" }}>
-        <Badge variant="secondary" className="text-xs">
-          Debug Mode Active
-        </Badge>
-      </div> }
+      {DEBUG_MODE && (
+        <div className="w-full flex justify-center p-2" style={{ backgroundColor: "#2A2A2A" }}>
+          <Badge variant="secondary" className="text-xs">
+            Debug Mode Active
+          </Badge>
+        </div>
+      )}
 
       {/* Chat message display area */}
-      <div className="flex-1 overflow-y-auto mt-16 p-4 mb-4 flex justify-center" style={{ color: "#F5F5F5" }}>
+      <div className="flex-1 overflow-y-auto p-4 mb-4 flex justify-center" style={{ color: "#F5F5F5" }}>
         <div className="w-full max-w-3xl">
-
           {messages.length === 0 ? (
             <div className="text-center h-full flex items-center justify-center" style={{ color: "#CCCCCC" }}>
               <p>Start a conversation by typing a message below.</p>
             </div>
           ) : (
-            
             messages.map((message, index) => (
               <div
                 key={index}
@@ -100,21 +98,17 @@ export default function ChatPage() {
                     animation: "fadeIn 0.3s ease-in-out"
                   }}
                 >
-                  
-                {/* Render Markdown with code highlighting and LaTeX */}
-                
-                {message.role === "user" ? (
-                  <p className="whitespace-pre-wrap">{message.content}</p>
+                  {message.role === "user" ? (
+                    <p className="whitespace-pre-wrap">{message.content}</p>
                   ) : (
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm,remarkMath]}
-                    rehypePlugins={[rehypeKatex]}
-                    components={markdownComponents}
-                  >
-                    {message.content}
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm, remarkMath]}
+                      rehypePlugins={[rehypeKatex]}
+                      components={markdownComponents}
+                    >
+                      {message.content}
                     </ReactMarkdown>
-                )}
-
+                  )}
                 </div>
               </div>
             ))

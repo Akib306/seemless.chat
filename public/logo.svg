@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background circle -->
+    <circle cx="100" cy="100" r="90" fill="#4F46E5" opacity="0.1"/>
+    
+    <!-- Main chat bubble -->
+    <path d="M60 80C60 68.954 68.954 60 80 60H120C131.046 60 140 68.954 140 80V120C140 131.046 131.046 140 120 140H80C68.954 140 60 131.046 60 120V80Z" fill="#4F46E5"/>
+    
+    <!-- Chat bubble tail -->
+    <path d="M100 140L80 160H120L100 140Z" fill="#4F46E5"/>
+    
+    <!-- Message lines -->
+    <rect x="75" y="85" width="50" height="4" rx="2" fill="white"/>
+    <rect x="75" y="95" width="30" height="4" rx="2" fill="white"/>
+    <rect x="75" y="105" width="40" height="4" rx="2" fill="white"/>
+</svg> 
