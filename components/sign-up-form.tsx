@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import supabase from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -38,7 +38,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { error } = await createClient().auth.signUp({
         email,
         password,
         options: {

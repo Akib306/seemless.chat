@@ -1,7 +1,8 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import supabase from '@/lib/supabase/client'
+import { Github } from "lucide-react"
+import { createClient } from '@/lib/supabase/client'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { GoogleLogo, GitHubLogo } from '@/components/ui/icons'
@@ -22,10 +23,11 @@ export function OAuthButtons({ className, ...props }: React.ComponentPropsWithou
     setIsLoading((prev) => ({ ...prev, [provider]: true }))
     setError(null)
 
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
+          try {
+        const supabase = createClient()
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider,
+          options: {
           redirectTo: `${window.location.origin}/auth/oauth?next=${redirectedTo}`,
         },
       })
