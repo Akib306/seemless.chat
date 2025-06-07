@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { createClient } from '@/lib/supabase/client'
+import supabase from '@/lib/supabase/client'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { GoogleLogo, GitHubLogo } from '@/components/ui/icons'
@@ -18,7 +18,6 @@ export function OAuthButtons({ className, ...props }: React.ComponentPropsWithou
   const [error, setError] = useState<string | null>(null)
 
   const handleOAuthLogin = async (provider: 'github' | 'google') => {
-    const supabase = createClient()
 
     setIsLoading((prev) => ({ ...prev, [provider]: true }))
     setError(null)
