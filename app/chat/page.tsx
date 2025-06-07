@@ -6,6 +6,7 @@ import { FormMessage, Message as FormMessageType } from "@/components/form-messa
 import { ChatInput } from "@/components/chat-input";
 import { Badge } from "@/components/ui/badge";
 import { DEBUG_MODE, handleDebugSubmit } from "@/utils/debug-chat";
+import supabase from "@/lib/supabase/client";
 
 // Markdown and syntax highlighting
 import ReactMarkdown from "react-markdown";
@@ -42,6 +43,8 @@ export default function ChatPage() {
     },
   });
 
+  
+  
   // Custom submit handler that uses debug mode when enabled
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
