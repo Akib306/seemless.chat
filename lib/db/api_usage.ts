@@ -1,0 +1,29 @@
+import { ApiUsage } from "@/utils/types";
+import supabase from "../supabase/client";
+
+
+/**
+ * Log API usage for tracking and billing purposes
+ */
+export async function logApiUsage({
+  user_id,
+  chat_id,
+  endpoint,
+  model,
+  prompt_tokens,
+  completion_tokens,
+  total_tokens,
+}: ApiUsage) {
+  const { data, error } = await supabase.from("api_usage").insert({
+    user_id,
+    chat_id,
+    endpoint,
+    model,
+    prompt_tokens,
+    completion_tokens,
+    total_tokens,
+  });
+
+  if (error) throw error;
+  return data;
+}
