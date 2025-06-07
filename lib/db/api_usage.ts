@@ -1,4 +1,4 @@
-import { ApiUsage } from "@/utils/types";
+import { ApiUsage } from "@/types/db";
 import { createClient } from "../supabase/server";
 
 
