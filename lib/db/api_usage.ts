@@ -1,5 +1,5 @@
 import { ApiUsage } from "@/utils/types";
-import supabase from "../supabase/client";
+import { createClient } from "../supabase/server";
 
 
 /**
@@ -14,6 +14,7 @@ export async function logApiUsage({
   completion_tokens,
   total_tokens,
 }: ApiUsage) {
+  const supabase = await createClient();
   const { data, error } = await supabase.from("api_usage").insert({
     user_id,
     chat_id,

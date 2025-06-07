@@ -3,7 +3,7 @@ import { google } from "@ai-sdk/google"
 import { openai } from '@ai-sdk/openai';
 import { createDebugStream, DEBUG_MODE } from "@/utils/debug-chat";
 import { type Message } from "@ai-sdk/react";
-import supabase from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/server";
 
 // Set this to true to use debug responses instead of real AI calls
 
@@ -15,7 +15,9 @@ export async function POST(req: Request) {
         return createDebugStream(messages);
     }
 
-    console.log(supabase.auth.getUser());
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    console.log(data);
     try {
         let modelProvider;
 

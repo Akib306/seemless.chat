@@ -1,7 +1,8 @@
-import supabase from "../supabase/client";
+import { createClient } from "../supabase/server";
 
 // Create a new message
 export async function createMessage(chatid: string, message: string, userId: string, role: 'user' | 'ai', modelUsed?: string) {
+    const supabase = await createClient();
     const { data, error } = await supabase.from("messages").insert({ 
         chat_id: chatid, 
         content: message,
@@ -16,6 +17,7 @@ export async function createMessage(chatid: string, message: string, userId: str
 
 // Get all messages for a specific chat
 export async function getMessagesByChatId(chatId: string) {
+    const supabase = await createClient();
     const { data, error } = await supabase
         .from("messages")
         .select("*")
@@ -28,6 +30,7 @@ export async function getMessagesByChatId(chatId: string) {
 
 // Get a specific message by ID
 export async function getMessageById(messageId: string) {
+    const supabase = await createClient();
     const { data, error } = await supabase
         .from("messages")
         .select("*")
@@ -40,6 +43,7 @@ export async function getMessageById(messageId: string) {
 
 // Update a message (only users can update their own messages)
 export async function updateMessage(messageId: string, newContent: string) {
+    const supabase = await createClient();
     const { data, error } = await supabase
         .from("messages")
         .update({ content: newContent })
@@ -52,6 +56,7 @@ export async function updateMessage(messageId: string, newContent: string) {
 
 // Delete a message
 export async function deleteMessage(messageId: string) {
+    const supabase = await createClient();
     const { error } = await supabase
         .from("messages")
         .delete()
@@ -63,6 +68,7 @@ export async function deleteMessage(messageId: string) {
 
 // Update tokens used for a message
 export async function updateTokensUsed(messageId: string, tokensUsed: number) {
+    const supabase = await createClient();
     const { data, error } = await supabase
         .from("messages")
         .update({ tokens_used: tokensUsed })
