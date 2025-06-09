@@ -1,4 +1,3 @@
-"use client"
 
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/chat-sidebar"
@@ -16,6 +15,7 @@ export default function ChatLayout({
           {children}
         </main>
       </SidebarProvider>
+
     </div>
   )
 } 
