@@ -1,27 +1,21 @@
+"use client"
 import { useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Send, Paperclip, X } from "lucide-react";
-import { Message } from "@/components/form-message";
+import { useChatContext } from "@/contexts/chat-context";
 
-interface ChatInputProps {
-  input: string;
-  handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  handleSubmit: (e: React.FormEvent) => void;
-  isLoading: boolean;
-  model: string;
-  setModel: (model: string) => void;
-}
+export function ChatInput() {
+  const { 
+    input, 
+    handleInputChange, 
+    handleSubmit, 
+    isLoading, 
+    model, 
+    setModel 
+  } = useChatContext();
 
-export function ChatInput({
-  input,
-  handleInputChange,
-  handleSubmit,
-  isLoading,
-  model,
-  setModel,
-}: ChatInputProps) {
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
