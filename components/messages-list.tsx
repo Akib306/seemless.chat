@@ -7,6 +7,7 @@ import rehypeKatex from "rehype-katex";
 import { markdownComponents } from "@/components/markdown-components";
 import { useEffect, useRef } from "react";
 import { useChatContext } from "@/contexts/chat-context";
+import "katex/dist/katex.min.css";
 
 export function MessagesList() {
     const { messages } = useChatContext();
