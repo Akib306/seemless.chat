@@ -11,7 +11,14 @@ export async function createMessage(chatid: string, message: string, userId: str
         model_used: modelUsed
     });
     
-    if (error) throw error;
+    if (error) {
+        throw new Error(`Failed to create message: ${error.message}`);
+    }
+    
+    if (!data || data.length === 0) {
+        throw new Error('Message creation returned no data');
+    }
+    
     return data;
 }
 
@@ -22,6 +29,19 @@ export async function getMessagesByChatId(chatId: string) {
         .from("messages")
         .select("*")
         .eq("chat_id", chatId)
+        .order("created_at", { ascending: true });
+    
+    if (error) throw error;
+    return data;
+}
+
+// Get all messages for a specific chat
+export async function getMessagesByUserId(userId: string) {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("user_id", userId)
         .order("created_at", { ascending: true });
     
     if (error) throw error;
