@@ -3,30 +3,40 @@
 import { createContext, useContext, useState } from "react";
 import { useChat, UseChatHelpers } from "@ai-sdk/react";
 import { Message } from "@/types/db";
-import { Message as MessageType } from "@ai-sdk/react";
+import * as db from "@/lib/db/client";
 
 type ChatContextType = UseChatHelpers & {
     model: string,
     setModel: React.Dispatch<React.SetStateAction<string>>
+    chatId: string | null,
+    setChatId: React.Dispatch<React.SetStateAction<string | null>>
 }
 
 const ChatContext = createContext<ChatContextType | null>(null);
 
-export const ChatProvider = ({ children, initialMessages }: { children: React.ReactNode, initialMessages: Message[] }) => {
-
+export const ChatProvider = ({ children, initialMessages, chatId }: { children: React.ReactNode, initialMessages: Message[], chatId: string | null }) => {
     const [model, setModel] = useState('gemini-2.0-flash');
+    const [chatIdState, setChatId] = useState(chatId);
+
     const chat = useChat({
         api: "/api/chat",
         body: {
-            model
+            model,
+            chatId: chatIdState
         },
         initialMessages: initialMessages.map((message) => ({
             id: message.id,
-            role: message.role as "user" | "assistant",
+            role: message.role as "user" | "assistant" | "system" | "data",
             content: message.content,
         })),
-    })
-    return <ChatContext.Provider value={{ ...chat, model, setModel }}>{children}</ChatContext.Provider>;
+        onFinish: async (message, options) => {
+            if (chatIdState) {
+                await db.messages.createMessage(chatIdState, message.content, message.role as "user" | "assistant", model)
+            }
+        }
+    });
+
+    return <ChatContext.Provider value={{ ...chat, model, setModel, chatId: chatIdState, setChatId }}>{children}</ChatContext.Provider>;
 };
 
 export const useChatContext = () => {

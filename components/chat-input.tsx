@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Send, Paperclip, X } from "lucide-react";
 import { useChatContext } from "@/contexts/chat-context";
+import * as db from "@/lib/db/client";
+import { useRouter } from "next/navigation";
 
 export function ChatInput() {
   const { 
@@ -13,13 +15,15 @@ export function ChatInput() {
     handleSubmit, 
     isLoading, 
     model, 
-    setModel 
+    setModel,
+    chatId,
+    setChatId
   } = useChatContext();
 
+  const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
   // Auto-resize textarea as content grows
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     handleInputChange(e);
@@ -56,19 +60,37 @@ export function ChatInput() {
     e.preventDefault();
   };
 
-  // Custom submit handler to include files
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() && files.length === 0) return;
-    
-    // Here you would handle file uploads and include them in the chat
-    // For now, we'll just add a message about the files
-    if (files.length > 0) {
-      const fileNames = files.map(f => f.name).join(", ");
+
+    try {
+      let currentChatId = chatId;
+
+      if (!currentChatId) {
+        const chat = await db.chats.createChat("New Chat");
+        currentChatId = chat.id;
+        console.log(currentChatId)
+
+        setChatId(currentChatId);
+      }
+      
+      // Navigate to the chat page immediately
+      router.push(`/chat/${currentChatId}`);
+      
+      await db.messages.createMessage(currentChatId, input, 'user', model);
+
+      if (files.length > 0) {
+        const fileNames = files.map(f => f.name).join(", ");
+        console.log("Files to upload:", fileNames);
+      }
+
       handleSubmit(e);
+      
       setFiles([]);
-    } else {
-      handleSubmit(e);
+
+    } catch (error) {
+      console.error("Error in chat submission:", error);
     }
   };
 
@@ -117,8 +139,7 @@ export function ChatInput() {
             rows={1}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit(e);
+                onSubmit(e);
               }
             }}
           />
