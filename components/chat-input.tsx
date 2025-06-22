@@ -65,27 +65,16 @@ export function ChatInput() {
     if (!input.trim() && files.length === 0) return;
 
     try {
-      let currentChatId = chatId;
-
-      if (!currentChatId) {
-        const chat = await db.chats.createChat("New Chat");
-        currentChatId = chat.id;
-        console.log(currentChatId)
-
-        setChatId(currentChatId);
-      }
       
-      // Navigate to the chat page immediately
-      router.push(`/chat/${currentChatId}`);
-      
-      await db.messages.createMessage(currentChatId, input, 'user', model);
-
       if (files.length > 0) {
         const fileNames = files.map(f => f.name).join(", ");
         console.log("Files to upload:", fileNames);
       }
 
+      const message = input;
       handleSubmit(e);
+
+      handleMessage(message)
       
       setFiles([]);
 
@@ -94,9 +83,28 @@ export function ChatInput() {
     }
   };
 
+  const handleMessage = async (msg: string) => {
+    let currentChatId = chatId;
+
+    if (!currentChatId) {
+      const chat = await db.chats.createChat("New Chat");
+      currentChatId = chat.id
+      setChatId(currentChatId)
+    }
+    await db.messages.createMessage(currentChatId, msg, 'user', model);
+
+
+
+
+
+  }
+
   return (
     <div className="p-4 flex justify-center" style={{ borderColor: "#333333" }}>
-      <form onSubmit={onSubmit} className="relative w-full max-w-3xl">
+      <form onSubmit={() => {
+        handleSubmit();
+        
+      }} className="relative w-full max-w-3xl">
         {/* File previews */}
         {files.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-2">
@@ -201,3 +209,4 @@ export function ChatInput() {
     </div>
   );
 } 
+
