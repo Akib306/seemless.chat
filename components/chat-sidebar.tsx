@@ -23,6 +23,7 @@ import * as db from "@/lib/db/client";
 import { Chat } from "@/types/db"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 import { createClient } from "@/lib/supabase/client"
 const supabase = createClient();
@@ -33,7 +34,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   useEffect(() => {
     const fetchChatHistory = async () => {
-      const userId = await db.getCurrentUserId();
+      const userId = await db.getCurrentUserId(); 
       const chats = await db.chats.getChatsByUserId(userId)
       setChatHistory(chats)
     }
@@ -107,12 +108,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {chatHistory.map((chat) => (
               <SidebarMenuItem className="px-3" key={chat.id}>
                 <SidebarMenuButton asChild className="flex flex-col items-start">
-                  <a href={`/chat/${chat.id}`} className="w-full">
+                  <Link href={`/chat/${chat.id}`} className="w-full">
                     <div className="w-full">
                       <span className="font-medium">{chat.title}</span>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground line-clamp-1">{chat.updated_at}</p>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
@@ -123,3 +124,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     </>
   )
 }
+
+
+
