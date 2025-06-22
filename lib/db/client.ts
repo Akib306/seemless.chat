@@ -4,7 +4,7 @@ import type { Chat, Message, Profile } from "@/types/db";
 const supabase = createClient();
 
 // Helper function to get current user ID
-async function getCurrentUserId(): Promise<string> {
+export async function getCurrentUserId(): Promise<string> {
   const { data: { user }, error } = await supabase.auth.getUser();
   
   if (error || !user) {
@@ -85,6 +85,17 @@ export const chats = {
     }
     
     return data;
+  },
+
+  async getChatsByUserId(userId: string): Promise<Chat[]> {
+    const { data, error } = await supabase
+      .from('chats')
+      .select('*')
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false });
+
+    if (error) throw new Error(`Failed to get chats by user ID: ${error.message}`);
+    return data || [];
   },
 
   async updateChatTitle(chatId: string, title: string): Promise<Chat> {
