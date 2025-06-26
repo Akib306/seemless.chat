@@ -27,7 +27,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
-    const supabase = createClient()
+
     setIsLoading(true)
     setError(null)
 
@@ -38,7 +38,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { error } = await createClient().auth.signUp({
         email,
         password,
         options: {

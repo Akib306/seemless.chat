@@ -1,21 +1,15 @@
-import { streamText } from "ai"
+import { streamText, generateText } from "ai"
 import { google } from "@ai-sdk/google"
 import { openai } from '@ai-sdk/openai';
-import { createDebugStream, DEBUG_MODE } from "@/utils/debug-chat";
 import { type Message } from "@ai-sdk/react";
-
 // Set this to true to use debug responses instead of real AI calls
 
 export async function POST(req: Request) {
-    const { messages, model } = await req.json();
-
-    // If debug mode is active, return a placeholder response
-    if (DEBUG_MODE) {
-        return createDebugStream(messages);
-    }
+    let { messages, model } = await req.json();
 
     try {
         let modelProvider;
+
 
         switch (model) {
             case "gemini-2.0-flash":
@@ -48,8 +42,10 @@ export async function POST(req: Request) {
                 console.log('Total tokens:', totalTokens);
             }
         });
-        console.log(stream.usage);
+        
+
         return stream.toDataStreamResponse();
+
     } catch (error) {
         console.error('Error processing chat request:', error);
         return new Response(JSON.stringify({ 
@@ -62,3 +58,5 @@ export async function POST(req: Request) {
         });
     }
 }
+
+

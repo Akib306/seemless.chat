@@ -41,8 +41,6 @@ export async function updateSession(request: NextRequest) {
     !user &&
     !request.nextUrl.pathname.startsWith('/login') &&
     !request.nextUrl.pathname.startsWith('/auth') &&
-    // !request.nextUrl.pathname.startsWith('/chat') &&
-    // !request.nextUrl.pathname.startsWith('/api') &&
     request.nextUrl.pathname !== '/'
   ) {
     // This check protects all routes that aren't explicitly excluded.

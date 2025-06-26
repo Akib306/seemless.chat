@@ -1,31 +1,29 @@
+"use client"
 import { useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Send, Paperclip, X } from "lucide-react";
-import { Message } from "@/components/form-message";
+import { useChatContext } from "@/contexts/chat-context";
+import * as db from "@/lib/db/client";
+import { useRouter } from "next/navigation";
 
-interface ChatInputProps {
-  input: string;
-  handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  handleSubmit: (e: React.FormEvent) => void;
-  isLoading: boolean;
-  model: string;
-  setModel: (model: string) => void;
-}
+export function ChatInput() {
+  const { 
+    input, 
+    handleInputChange, 
+    handleSubmit, 
+    isLoading, 
+    model, 
+    setModel,
+    chatId,
+    setChatId
+  } = useChatContext();
 
-export function ChatInput({
-  input,
-  handleInputChange,
-  handleSubmit,
-  isLoading,
-  model,
-  setModel,
-}: ChatInputProps) {
+  const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
   // Auto-resize textarea as content grows
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     handleInputChange(e);
@@ -62,25 +60,51 @@ export function ChatInput({
     e.preventDefault();
   };
 
-  // Custom submit handler to include files
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() && files.length === 0) return;
-    
-    // Here you would handle file uploads and include them in the chat
-    // For now, we'll just add a message about the files
-    if (files.length > 0) {
-      const fileNames = files.map(f => f.name).join(", ");
+
+    try {
+      
+      if (files.length > 0) {
+        const fileNames = files.map(f => f.name).join(", ");
+        console.log("Files to upload:", fileNames);
+      }
+
+      const message = input;
       handleSubmit(e);
+
+      handleMessage(message)
+      
       setFiles([]);
-    } else {
-      handleSubmit(e);
+
+    } catch (error) {
+      console.error("Error in chat submission:", error);
     }
   };
 
+  const handleMessage = async (msg: string) => {
+    let currentChatId = chatId;
+
+    if (!currentChatId) {
+      const chat = await db.chats.createChat("New Chat");
+      currentChatId = chat.id
+      setChatId(currentChatId)
+    }
+    await db.messages.createMessage(currentChatId, msg, 'user', model);
+
+
+
+
+
+  }
+
   return (
     <div className="p-4 flex justify-center" style={{ borderColor: "#333333" }}>
-      <form onSubmit={onSubmit} className="relative w-full max-w-3xl">
+      <form onSubmit={() => {
+        handleSubmit();
+        
+      }} className="relative w-full max-w-3xl">
         {/* File previews */}
         {files.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-2">
@@ -123,8 +147,7 @@ export function ChatInput({
             rows={1}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit(e);
+                onSubmit(e);
               }
             }}
           />
@@ -186,3 +209,4 @@ export function ChatInput({
     </div>
   );
 } 
+
