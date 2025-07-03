@@ -1,5 +1,4 @@
 'use client'
-
 import { createContext, useContext, useRef, useState } from "react";
 import { useChat, UseChatHelpers } from "@ai-sdk/react";
 import { Message } from "@/types/db";
@@ -46,7 +45,6 @@ export const ChatProvider = ({ children, initialMessages, chatId }: { children: 
             if (latestChatId.current) {
                 await db.messages.createMessage(latestChatId.current, message.content, message.role as "user" | "assistant", model)
                 router.push(`/chat/${latestChatId.current}`)
-                   
             }
         }
     });
@@ -55,9 +53,9 @@ export const ChatProvider = ({ children, initialMessages, chatId }: { children: 
 };
 
 export const useChatContext = () => {
-  const context = useContext(ChatContext);
-  if (context === null) {
-    throw new Error('useChatContext must be used within a ChatProvider');
-  }
-  return context;
+    const context = useContext(ChatContext);
+    if (context === null) {
+        throw new Error('useChatContext must be used within a ChatProvider');
+    }
+    return context;
 };
