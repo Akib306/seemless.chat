@@ -92,11 +92,6 @@ export function ChatInput() {
       setChatId(currentChatId)
     }
     await db.messages.createMessage(currentChatId, msg, 'user', model);
-
-
-
-
-
   }
 
   return (

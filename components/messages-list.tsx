@@ -38,7 +38,7 @@ export function MessagesList() {
 							>
 								<div
 									className={`${message.role === "user"
-										? "inline-block p-4 rounded-2xl max-w-[80%] bg-[#6A8DAD] text-[#F5F5F5] text-lg"
+										? "inline-block p-4 rounded-2xl max-w-[80%] bg-[#6A8DAD] text-[#F5F5F5] text-lg text-left"
 										: "text-left w-full text-lg py-2"
 										}`}
 									style={{
