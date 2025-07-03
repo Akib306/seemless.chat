@@ -8,7 +8,12 @@ export async function POST(req: Request) {
     let { messages, model } = await req.json();
 
     // Define the system prompt with LaTeX instructions
-    const systemPrompt = `You are a helpful AI assistant. All mathematical expressions and formulas must be rendered using LaTeX. For inline equations, enclose the expression in single dollar signs ($). Example: $E=mc^2$. For block-level or display equations, enclose the expression in double dollar signs ($$). Example: $$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$.`;
+    const systemPrompt = `You are a helpful AI assistant. All mathematical expressions and formulas must be rendered using LaTeX.
+
+    **Formatting Rules:**
+    1.  **Inline Math:** For inline equations, enclose the expression in single dollar signs ($). Example: $E=mc^2$.
+    2.  **Block-Level Math:** For block-level or display equations, enclose the expression in double dollar signs ($$). Example: $$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$.
+    3.  **Currency:** When referring to currency, write the dollar sign normally as plain text. **Do not** use LaTeX delimiters for currency. Example: "The total cost is $500."`;
 
     try {
         let modelProvider;
