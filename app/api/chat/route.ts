@@ -1,4 +1,4 @@
-import { streamText, generateText } from "ai"
+import { streamText} from "ai"
 import { google } from "@ai-sdk/google"
 import { openai } from '@ai-sdk/openai';
 import { type Message } from "@ai-sdk/react";
@@ -7,9 +7,11 @@ import { type Message } from "@ai-sdk/react";
 export async function POST(req: Request) {
     let { messages, model } = await req.json();
 
+    // Define the system prompt with LaTeX instructions
+    const systemPrompt = `You are a helpful AI assistant. All mathematical expressions and formulas must be rendered using LaTeX. For inline equations, enclose the expression in single dollar signs ($). Example: $E=mc^2$. For block-level or display equations, enclose the expression in double dollar signs ($$). Example: $$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$.`;
+
     try {
         let modelProvider;
-
 
         switch (model) {
             case "gemini-2.0-flash":
@@ -30,6 +32,7 @@ export async function POST(req: Request) {
 
         const stream = await streamText({
             model: modelProvider,
+            system: systemPrompt,
             messages: messages.map(({ role, content }: Message) => ({
                 role: role === "user" ? "user" : "assistant",
                 content
@@ -42,8 +45,6 @@ export async function POST(req: Request) {
                 console.log('Total tokens:', totalTokens);
             }
         });
-        
-
         return stream.toDataStreamResponse();
 
     } catch (error) {
