@@ -14,13 +14,15 @@ export function MessagesList() {
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 
 	const scrollToBottom = () => {
-			messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-		};
+		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+	};
 	
-		// Auto-scroll whenever messages are updated
-		useEffect(() => {
+	// Auto-scroll only when new messages are added
+	useEffect(() => {
+		if (messages.length > 0) {
 			scrollToBottom();
-		}, [messages]);
+		}
+	}, [messages.length]);
     
 	return (
 		<div className="flex-1 overflow-y-auto p-4 mb-4 flex justify-center" style={{ color: "#F5F5F5" }}>

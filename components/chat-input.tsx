@@ -64,16 +64,19 @@ export function ChatInput() {
     if (!input.trim() && files.length === 0) return;
 
     try {
-      
       if (files.length > 0) {
         const fileNames = files.map(f => f.name).join(", ");
         console.log("Files to upload:", fileNames);
       }
 
-      const message = input;
-      handleSubmit(e);
+      // Handle chat creation for new chats
+      if (!chatId) {
+        const chat = await db.chats.createChat("New Chat");
+        setChatId(chat.id);
+      }
 
-      handleMessage(message)
+      // Let useChat handle the submission
+      handleSubmit(e);
       
       setFiles([]);
 
@@ -82,16 +85,7 @@ export function ChatInput() {
     }
   };
 
-  const handleMessage = async (msg: string) => {
-    let currentChatId = chatId;
 
-    if (!currentChatId) {
-      const chat = await db.chats.createChat("New Chat");
-      currentChatId = chat.id
-      setChatId(currentChatId)
-    }
-    await db.messages.createMessage(currentChatId, msg, 'user', model);
-  }
 
   return (
     <div className="p-4 flex justify-center" style={{ borderColor: "#333333" }}>
