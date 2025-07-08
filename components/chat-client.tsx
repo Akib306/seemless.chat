@@ -15,7 +15,7 @@ export default function ChatClient({
 }) {
     return (
         <ChatProvider initialMessages={initialMessages} chatId={chatId}>
-            <div className="flex flex-col h-full" style={{ backgroundColor: "#1A1A1A" }}>
+            <div className="flex flex-col" style={{ backgroundColor: "#1A1A1A" }}>
                 <MessagesList />
                 <ChatInput />
             </div>
