@@ -25,17 +25,18 @@ export function MessagesList() {
 	}, [messages.length]);
     
 	return (
-		<div className="flex-1 overflow-y-auto p-4 mb-4 flex justify-center" style={{ color: "#F5F5F5" }}>
-			<div className="w-full max-w-3xl">
+		<div className="flex-1 overflow-y-auto p-4 flex justify-center" style={{ color: "#F5F5F5" }}>
+			<div className="w-full max-w-3xl h-full">
 				{messages.length === 0 ? (
-					<div className="text-center h-full flex items-center justify-center" style={{ color: "#CCCCCC" }}>
-						<p>Start a conversation by typing a message below.</p>
+					<div className="h-full flex items-center justify-center" style={{ color: "#CCCCCC" }}>
+						<p className="text-center">Start a conversation by typing a message below.</p>
 					</div>
 				) : (
-						messages.map((message, index) => (
+					<div className="space-y-6">
+						{messages.map((message, index) => (
 							<div
 								key={index}
-								className={`mb-6 ${message.role === "user" ? "text-right" : "text-left"
+								className={`${message.role === "user" ? "text-right" : "text-left"
 								}`}
 							>
 								<div
@@ -61,9 +62,10 @@ export function MessagesList() {
 									)}
 								</div>
 							</div>
-						))
+						))}
+						<div ref={messagesEndRef} />
+					</div>
 				)}
-				<div ref={messagesEndRef} />
 			</div>
 		</div>
 	)
