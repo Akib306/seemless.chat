@@ -95,10 +95,7 @@ export function ChatInput() {
 
   return (
     <div className="p-4 flex justify-center" style={{ borderColor: "#333333" }}>
-      <form onSubmit={() => {
-        handleSubmit();
-        
-      }} className="relative w-full max-w-3xl">
+      <form onSubmit={onSubmit} className="relative w-full max-w-3xl">
         {/* File previews */}
         {files.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-2">
