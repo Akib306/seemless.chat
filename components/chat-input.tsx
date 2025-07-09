@@ -70,9 +70,16 @@ export function ChatInput() {
       }
 
       // Handle chat creation for new chats
-      if (!chatId) {
+      let currentChatId = chatId;
+      if (!currentChatId) {
         const chat = await db.chats.createChat("New Chat");
+        currentChatId = chat.id;
         setChatId(chat.id);
+      }
+
+      // Persist the user's message so it isn’t lost on refresh 
+      if (currentChatId) {
+        await db.messages.createMessage(currentChatId, input.trim(), "user", model);
       }
 
       // Let useChat handle the submission
@@ -84,8 +91,6 @@ export function ChatInput() {
       console.error("Error in chat submission:", error);
     }
   };
-
-
 
   return (
     <div className="p-4 flex justify-center" style={{ borderColor: "#333333" }}>
