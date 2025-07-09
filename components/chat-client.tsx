@@ -21,7 +21,7 @@ export default function ChatClient({
                     minHeight: "0", // for proper scroll
                 }}
             >
-                <div className="overflow-auto max-h-0 flex justify-center">
+                <div className="flex-1 overflow-auto flex justify-center">
                     <MessagesList />
                 </div>
 

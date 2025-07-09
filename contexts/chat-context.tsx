@@ -39,12 +39,19 @@ export const ChatProvider = ({ children, initialMessages, chatId }: { children: 
         },
         initialMessages: initialMessages.map((message) => ({
             id: message.id,
+            // No mapping needed; use the role from the database directly.
             role: message.role as "user" | "assistant" | "system" | "data",
             content: message.content,
         })),
         onFinish: async (message, options) => {
             if (latestChatId.current) {
-                await db.messages.createMessage(latestChatId.current, message.content, message.role as "user" | "assistant", model)
+                // Persist assistant response. TODO: replace 'system' with actual userId once auth context is integrated.
+                await db.messages.createMessage(
+                    latestChatId.current,
+                    message.content,
+                    "assistant",
+                    model
+                );
                 // Navigate to the chat URL only when we are not already on it and avoid automatic scroll reset
                 const targetPath = `/chat/${latestChatId.current}`;
                 if (pathname !== targetPath) {
