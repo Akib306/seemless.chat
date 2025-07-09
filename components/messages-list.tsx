@@ -25,7 +25,7 @@ export function MessagesList() {
 	}, [messages.length]);
     
 	return (
-		<div className="flex-1 overflow-y-auto p-4 flex justify-center" style={{ color: "#F5F5F5" }}>
+		<div className="flex-1 p-4 flex justify-center" style={{ color: "#F5F5F5" }}>
 			<div className="w-full max-w-3xl h-full">
 				{messages.length === 0 ? (
 					<div className="h-full flex items-center justify-center" style={{ color: "#CCCCCC" }}>

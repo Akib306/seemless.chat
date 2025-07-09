@@ -11,7 +11,7 @@ export default function ChatLayout({
     <div className="flex h-full w-full">
       <SidebarProvider>
         <AppSidebar />
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1">
           {children}
         </main>
       </SidebarProvider>
