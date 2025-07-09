@@ -45,7 +45,6 @@ export function MessagesList() {
 										: "text-left w-full text-lg py-2"
 										}`}
 									style={{
-										boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
 										animation: "fadeIn 0.3s ease-in-out"
 									}}
 								>
