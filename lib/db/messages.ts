@@ -15,11 +15,7 @@ export async function createMessage(chatid: string, message: string, userId: str
         throw new Error(`Failed to create message: ${error.message}`);
     }
     
-    if (!data || data.length === 0) {
-        throw new Error('Message creation returned no data');
-    }
-    
-    return data;
+    return { success: true };
 }
 
 // Get all messages for a specific chat
