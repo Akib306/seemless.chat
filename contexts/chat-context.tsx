@@ -4,7 +4,7 @@ import { useChat, UseChatHelpers } from "@ai-sdk/react";
 import { Message } from "@/types/db";
 import * as db from "@/lib/db/client";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 type ChatContextType = UseChatHelpers & {
     model: string,
@@ -19,6 +19,7 @@ export const ChatProvider = ({ children, initialMessages, chatId }: { children: 
     const [model, setModel] = useState('gemini-2.0-flash');
     const [chatIdState, setChatId] = useState(chatId);
     const router = useRouter();
+    const pathname = usePathname();
 
     const latestChatId = useRef(chatIdState);
     const isNewChat = useRef(chatId === null); 
@@ -44,7 +45,11 @@ export const ChatProvider = ({ children, initialMessages, chatId }: { children: 
         onFinish: async (message, options) => {
             if (latestChatId.current) {
                 await db.messages.createMessage(latestChatId.current, message.content, message.role as "user" | "assistant", model)
-                router.push(`/chat/${latestChatId.current}`)
+                // Navigate to the chat URL only when we are not already on it and avoid automatic scroll reset
+                const targetPath = `/chat/${latestChatId.current}`;
+                if (pathname !== targetPath) {
+                    router.push(targetPath, { scroll: false });
+                }
             }
         }
     });
