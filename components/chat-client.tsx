@@ -1,9 +1,7 @@
 import { ChatInput } from "@/components/chat-input";
-import { createClient } from "@/lib/supabase/server";
 
 import { MessagesList } from "@/components/messages-list";
 import { ChatProvider } from "@/contexts/chat-context";
-import * as db  from "@/lib/db/index";
 import { Message } from "@/types/db";
 
 export default function ChatClient({
@@ -26,6 +24,7 @@ export default function ChatClient({
                 <div className="overflow-auto max-h-0 flex justify-center">
                     <MessagesList />
                 </div>
+
                 {/* 
                     This div is styled to always stay glued to the bottom of the viewport (visible area).
                     We use position: sticky and bottom: 0 so it remains visible at the bottom as you scroll.
