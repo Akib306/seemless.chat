@@ -17,7 +17,6 @@ export default function ChatClient({
                 className="h-screen w-full flex flex-col overflow-hidden"
                 style={{
                     backgroundColor: "#1A1A1A",
-                  
                 }}
             >
                 <div className="flex-1 min-h-0 overflow-auto flex justify-center">
