@@ -26,12 +26,6 @@ export function MessagesList() {
 		}
 	}, [messages]);
 
-	// or, scroll only when the latest message changes
-	useEffect(() => {
-		if (messages.length) {
-			scrollToBottom();
-		}
-	}, [messages[messages.length - 1]?.content]);
     
 	return (
 		<div className="flex-1 p-4 flex justify-center" style={{ color: "#F5F5F5" }}>

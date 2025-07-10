@@ -14,14 +14,14 @@ export default function ChatClient({
     return (
         <ChatProvider initialMessages={initialMessages} chatId={chatId}>
             <div
-                className="h-full w-full grid"
+                className="h-full grid"
                 style={{
                     backgroundColor: "#1A1A1A",
                     gridTemplateRows: "1fr auto",
                     minHeight: "0", // for proper scroll
                 }}
             >
-                <div className="flex-1 overflow-auto flex justify-center">
+                <div className="flex flex-1 h-full overflow-auto justify-center" >
                     <MessagesList />
                 </div>
 
