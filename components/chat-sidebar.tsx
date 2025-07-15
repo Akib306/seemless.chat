@@ -135,7 +135,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       </div>
                       
                       <DropdownMenu>
-                        <DropdownMenuTrigger>
+                        <DropdownMenuTrigger
+                          className="md:opacity-0 group-hover/menu-item:opacity-100
+                                    group-focus-within/menu-item:opacity-100">
                           <EllipsisVertical />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent side="right" align="start" sideOffset={20}>
