@@ -17,6 +17,24 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+import { EllipsisVertical } from 'lucide-react';
+
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import * as db from "@/lib/db/client";
@@ -103,16 +121,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </div>
           <SearchForm placeholder="Search chat history..." />
         </SidebarHeader>
+
         <SidebarContent>
           <SidebarMenu>
             {chatHistory.map((chat) => (
               <SidebarMenuItem className="px-3" key={chat.id}>
                 <SidebarMenuButton asChild className="flex flex-col items-start">
                   <Link href={`/chat/${chat.id}`} className="w-full">
-                    <div className="w-full">
-                      <span className="font-medium">{chat.title}</span>
+                    <div className="w-full flex justify-between items-start">
+                      <div className="flex-1">
+                        <span className="font-medium">{chat.title}</span>
+                        <p className="mt-1 text-xs text-muted-foreground line-clamp-1">{chat.updated_at}</p>
+                      </div>
+                      
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <EllipsisVertical />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent side="right" align="start" sideOffset={20}>
+                          <DropdownMenuItem>Pin</DropdownMenuItem>
+                          <DropdownMenuItem>Rename</DropdownMenuItem>
+                          <DropdownMenuItem>Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
-                    <p className="mt-1 text-xs text-muted-foreground line-clamp-1">{chat.updated_at}</p>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
