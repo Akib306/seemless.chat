@@ -46,6 +46,17 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 const supabase = createClient();
 
+const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
+  e.preventDefault()
+  e.stopPropagation()
+
+  try {
+    await db.chats.deleteChat(chatId)
+  } catch (error) {
+    console.error('Failed to delete chat:', error)
+  }
+}
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const router = useRouter()
   const [chatHistory, setChatHistory] = useState<Chat[]>([]);
@@ -143,7 +154,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         <DropdownMenuContent side="right" align="start" sideOffset={20}>
                           <DropdownMenuItem>Pin</DropdownMenuItem>
                           <DropdownMenuItem>Rename</DropdownMenuItem>
-                          <DropdownMenuItem>Delete</DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={(e) => handleDeleteChat(chat.id, e)}
+                          > Delete
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
