@@ -12,6 +12,7 @@ async function generateTitle(message: string): Promise<string> {
       - Be specific and descriptive
       - Avoid generic words like "chat", "conversation", "help"
       - Focus on the main topic or question
+      - Avoid using any punctuation
       - Examples: "React Authentication Setup", "Database Schema Design", "Python Error Debug"
 
       Title:`,
