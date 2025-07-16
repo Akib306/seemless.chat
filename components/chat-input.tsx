@@ -59,6 +59,23 @@ export function ChatInput() {
     e.preventDefault();
   };
 
+  async function generateTitleAsync(chatId: string, message: string) {
+    try {
+      const response = await fetch('/api/generate-title', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, chatId })
+      });
+      
+      if (!response.ok) {
+        console.warn('Title generation failed, keeping default title');
+      }
+    } catch (error) {
+      console.warn('Title generation error:', error);
+      // Fail silently, keep "New Chat"
+    }
+  }
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() && files.length === 0) return;
@@ -80,6 +97,12 @@ export function ChatInput() {
       // Persist the user's message so it isn’t lost on refresh 
       if (currentChatId) {
         await db.messages.createMessage(currentChatId, input.trim(), "user", model);
+      }
+
+      // After creating the chat and storing the first message
+      if (!chatId && currentChatId) {
+        // This is the first message in a new chat
+        generateTitleAsync(currentChatId, input.trim());
       }
 
       // Let useChat handle the submission
