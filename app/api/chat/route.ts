@@ -29,7 +29,7 @@ export async function POST(req: Request) {
                 modelProvider = google("models/gemini-1.5-pro");
                 break;
             case "gpt-4.1-nano":
-                modelProvider = openai("gpt-4.1-nano");
+                modelProvider = openai("gpt-4.1-nano-2025-04-14");
                 break;
             default:
                 modelProvider = google("models/gemini-2.0-flash")

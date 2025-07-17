@@ -178,8 +178,6 @@ export function ChatInput() {
                 <SelectItem value="gemini-1.5-flash">Gemini 1.5 Flash</SelectItem>
                 <SelectItem value="gemini-1.5-pro">Gemini 1.5 Pro</SelectItem>
                 <SelectItem value="gpt-4.1-nano">GPT 4.1 Nano</SelectItem>
-                <SelectItem value="claude-3">Claude 3</SelectItem>
-                <SelectItem value="llama-3">Llama 3</SelectItem>
               </SelectContent>
             </Select>
             
