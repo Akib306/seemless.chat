@@ -43,7 +43,6 @@ export async function POST(req: Request) {
                 content
             })),
             onFinish: ({ usage }) => {
-                const { promptTokens, completionTokens, totalTokens } = usage;
                 // for saving the chat history or recording usage
                 console.log()
                 console.log(usage)
