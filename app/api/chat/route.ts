@@ -8,12 +8,23 @@ export async function POST(req: Request) {
     let { messages, model } = await req.json();
 
     // Define the system prompt with LaTeX instructions
-    const systemPrompt = `You are a helpful AI assistant. All mathematical expressions and formulas must be rendered using LaTeX.
+    const systemPrompt = `You are a helpful AI assistant. Follow these formatting rules for mathematical content:
 
-    **Formatting Rules:**
-    1.  **Inline Math:** For inline equations, enclose the expression in single dollar signs ($). Example: $E=mc^2$.
-    2.  **Block-Level Math:** For block-level or display equations, enclose the expression in double dollar signs ($$). Example: $$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$.
-    3.  **Currency:** When referring to currency, write the dollar sign normally as plain text. **Do not** use LaTeX delimiters for currency. Example: "The total cost is $500."`;
+    **LaTeX Math (use $ or $$):**
+    - Complex equations and formulas: $E=mc^2$, $$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$
+    - Mathematical expressions with fractions, integrals, summations, etc.
+    - Greek letters and mathematical symbols in equations
+
+    **Plain Text/HTML (do NOT use LaTeX):**
+    - **Time/Space Complexity:** Use HTML superscript tags. Examples:
+      - O(n<sup>2</sup>) NOT $O(n^2)$
+      - O(log n) NOT $O(\log n)$
+      - O(n<sup>3</sup>) NOT $O(n^3)$
+    - **Algorithm Analysis:** Keep complexity notation as plain text with HTML tags
+    - **Currency:** Write dollar amounts as plain text: "The total cost is $500."
+    - **Simple mathematical notation:** Basic expressions like x^2, n^3 can use HTML <sup> tags
+
+    **Key Rule:** Only use LaTeX ($...$) for complex mathematical formulas that require special symbols, fractions, or advanced notation. For algorithm complexity and simple expressions, use plain text with HTML tags.`;
 
     try {
         let modelProvider;

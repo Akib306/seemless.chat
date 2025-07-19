@@ -4,6 +4,7 @@ import "katex/dist/katex.min.css";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import rehypeRaw from "rehype-raw";
 import { markdownComponents } from "@/components/markdown-components";
 import { useEffect, useRef } from "react";
 import { useChatContext } from "@/contexts/chat-context";
@@ -56,7 +57,7 @@ export function MessagesList() {
 									) : (
 										<ReactMarkdown
 											remarkPlugins={[remarkGfm, remarkMath]}
-											rehypePlugins={[rehypeKatex]}
+											rehypePlugins={[rehypeRaw, rehypeKatex]}
 											components={markdownComponents}
 										>
 											{message.content}
