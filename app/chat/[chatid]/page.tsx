@@ -5,6 +5,6 @@ export default async function ChatPage({ params }: { params: Promise<{ chatid: s
 
     const { chatid } = await params;
     const initialMessages = await db.messages.getMessagesByChatId(chatid);
-    console.log(initialMessages)
+    //console.log(initialMessages)
     return <ChatClient chatId={chatid} initialMessages={initialMessages} />;
 }

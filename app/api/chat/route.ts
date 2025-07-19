@@ -45,9 +45,9 @@ export async function POST(req: Request) {
             onFinish: ({ usage }) => {
                 const { promptTokens, completionTokens, totalTokens } = usage;
                 // for saving the chat history or recording usage
-                console.log('Prompt tokens:', promptTokens);
-                console.log('Completion tokens:', completionTokens);
-                console.log('Total tokens:', totalTokens);
+                console.log()
+                console.log(usage)
+                console.log()
             }
         });
         return stream.toDataStreamResponse();
