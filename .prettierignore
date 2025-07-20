@@ -1,0 +1,25 @@
+# Next.js
+.next
+next-env.d.ts
+tsconfig.tsbuildinfo
+.env.local
+
+# Dependencies
+node_modules
+package-lock.json
+
+# Build output
+public
+postcss.config.js
+tailwind.config.ts
+
+# Git
+.git
+.gitignore
+
+# System files
+.DS_Store
+.prettierrc.json.swp
+
+# Configuration files
+components.json

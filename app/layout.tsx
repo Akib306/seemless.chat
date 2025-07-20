@@ -4,42 +4,40 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar";
 
 const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
+	? `https://${process.env.VERCEL_URL}`
+	: "http://localhost:3000";
 
 const metadata = {
-  metadataBase: new URL(defaultUrl),
-  title: "Seamless Chat",
-  description: "Your multi-AI chat platform for seamless conversations",
+	metadataBase: new URL(defaultUrl),
+	title: "Seamless Chat",
+	description: "Your multi-AI chat platform for seamless conversations",
 };
 
 const geistSans = Geist({
-  display: "swap",
-  subsets: ["latin"],
+	display: "swap",
+	subsets: ["latin"],
 });
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en" className={geistSans.className} suppressHydrationWarning>
-      <body className="bg-background text-foreground">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <main className="min-h-screen flex flex-col">
-            <Navbar />
-            <div className="flex-1 flex flex-col">
-              {children}
-            </div>
-          </main>
-        </ThemeProvider>
-      </body>
-    </html>
-  );
+	return (
+		<html lang="en" className={geistSans.className} suppressHydrationWarning>
+			<body className="bg-background text-foreground">
+				<ThemeProvider
+					attribute="class"
+					defaultTheme="system"
+					enableSystem
+					disableTransitionOnChange
+				>
+					<main className="min-h-screen flex flex-col">
+						<Navbar />
+						<div className="flex-1 flex flex-col">{children}</div>
+					</main>
+				</ThemeProvider>
+			</body>
+		</html>
+	);
 }

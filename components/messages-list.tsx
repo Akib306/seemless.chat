@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import ReactMarkdown from "react-markdown";
 import "katex/dist/katex.min.css";
 import remarkGfm from "remark-gfm";
@@ -16,10 +16,13 @@ export function MessagesList() {
 
 	const scrollToBottom = () => {
 		if (messagesEndRef.current) {
-			messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+			messagesEndRef.current.scrollIntoView({
+				behavior: "smooth",
+				block: "end",
+			});
 		}
 	};
-	
+
 	// scroll every time any message changes (safe & simple)
 	useEffect(() => {
 		if (messages.length) {
@@ -27,29 +30,38 @@ export function MessagesList() {
 		}
 	}, [messages]);
 
-    
 	return (
-		<div className="flex-1 p-4 flex justify-center" style={{ color: "#F5F5F5" }}>
+		<div
+			className="flex-1 p-4 flex justify-center"
+			style={{ color: "#F5F5F5" }}
+		>
 			<div className="w-full max-w-3xl h-full">
 				{messages.length === 0 ? (
-					<div className="h-full flex items-center justify-center" style={{ color: "#CCCCCC" }}>
-						<p className="text-center">Start a conversation by typing a message below.</p>
+					<div
+						className="h-full flex items-center justify-center"
+						style={{ color: "#CCCCCC" }}
+					>
+						<p className="text-center">
+							Start a conversation by typing a message below.
+						</p>
 					</div>
 				) : (
 					<div className="space-y-6">
 						{messages.map((message, index) => (
 							<div
 								key={index}
-								className={`${message.role === "user" ? "text-right" : "text-left"
+								className={`${
+									message.role === "user" ? "text-right" : "text-left"
 								}`}
 							>
 								<div
-									className={`${message.role === "user"
-										? "inline-block p-4 rounded-2xl max-w-[80%] bg-[#6A8DAD] text-[#F5F5F5] text-lg text-left"
-										: "text-left w-full text-lg py-2"
-										}`}
+									className={`${
+										message.role === "user"
+											? "inline-block p-4 rounded-2xl max-w-[80%] bg-[#6A8DAD] text-[#F5F5F5] text-lg text-left"
+											: "text-left w-full text-lg py-2"
+									}`}
 									style={{
-										animation: "fadeIn 0.3s ease-in-out"
+										animation: "fadeIn 0.3s ease-in-out",
 									}}
 								>
 									{message.role === "user" ? (
@@ -71,5 +83,5 @@ export function MessagesList() {
 				)}
 			</div>
 		</div>
-	)
+	);
 }
