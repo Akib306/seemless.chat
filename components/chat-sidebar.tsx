@@ -146,7 +146,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							<SidebarMenuItem className="px-3" key={chat.id}>
 								<SidebarMenuButton
 									asChild
-									className="flex flex-col items-start"
+									className="flex flex-col items-start hover:bg-secondary"
 								>
 									<Link href={`/chat/${chat.id}`} className="w-full">
 										<div className="w-full flex justify-between items-start">
