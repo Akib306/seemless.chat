@@ -55,6 +55,18 @@ export async function getChat(chatid: string) {
 	return data;
 }
 
+export async function getChatTitle(chatid: string) {
+	const supabase = await createClient();
+	const { data, error } = await supabase
+		.from("chats")
+		.select("title")
+		.eq("id", chatid)
+		.single();
+	if (error) {
+		throw new Error(`Failed to fetch chat title: ${error.message}`);
+	}
+}
+
 export async function updateChatTitle(chatid: string, title: string) {
 	const supabase = await createClient();
 
