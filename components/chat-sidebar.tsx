@@ -150,11 +150,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 								>
 									<Link href={`/chat/${chat.id}`} className="w-full">
 										<div className="w-full flex justify-between items-start">
-											<div className="flex-1">
-												<span className="font-medium">{chat.title}</span>
-												<p className="mt-1 text-xs text-muted-foreground line-clamp-1">
-													{chat.updated_at}
-												</p>
+											<div className="flex-1 text-base">
+												{chat.title}
 											</div>
 
 											<DropdownMenu>
@@ -162,7 +159,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 													className="md:opacity-0 group-hover/menu-item:opacity-100
                                     group-focus-within/menu-item:opacity-100"
 												>
-													<EllipsisVertical />
+													<EllipsisVertical className="h-5 w-5" />
 												</DropdownMenuTrigger>
 												<DropdownMenuContent
 													side="right"
