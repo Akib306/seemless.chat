@@ -120,6 +120,17 @@ export const chats = {
 		if (error) throw new Error(`Failed to delete chat: ${error.message}`);
 		return true;
 	},
+
+	async getChatTitle(chatId: string): Promise<string | null> {
+		const { data, error } = await supabase
+			.from("chats")
+			.select("title")
+			.eq("id", chatId)
+			.single();
+
+		if (error) throw new Error(`Failed to fetch chat title: ${error.message}`);
+		return data?.title || null;
+	},
 };
 
 // ===== MESSAGES =====
