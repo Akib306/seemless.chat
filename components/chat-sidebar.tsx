@@ -39,8 +39,9 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import * as db from "@/lib/db/client";
 import { Chat } from "@/types/db";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useMemo } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/client";
@@ -59,6 +60,16 @@ const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const router = useRouter();
+	const pathname = usePathname();
+	const currentChatId = useMemo(() => {
+		const segments = pathname.split("/");
+		// pathname starts with "" due to leading slash
+		// e.g., "/chat/123" => ["", "chat", "123"]
+		if (segments.length >= 3 && segments[1] === "chat") {
+			return segments[2] || null;
+		}
+		return null;
+	}, [pathname]);
 	const [chatHistory, setChatHistory] = useState<Chat[]>([]);
 
 	useEffect(() => {
@@ -142,45 +153,53 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
 				<SidebarContent>
 					<SidebarMenu>
-						{chatHistory.map((chat) => (
-							<SidebarMenuItem className="px-3" key={chat.id}>
-								<SidebarMenuButton
-									asChild
-									className="flex flex-col items-start hover:bg-secondary"
-								>
-									<Link href={`/chat/${chat.id}`} className="w-full">
-										<div className="w-full flex justify-between items-start">
-											<div className="flex-1 text-base">
-												{chat.title}
-											</div>
+						{chatHistory.map((chat) => {
+							const isActive = chat.id === currentChatId;
+							return (
+								<SidebarMenuItem className="px-3 py-0" key={chat.id}>
+									<SidebarMenuButton
+										asChild
+										isActive={isActive}
+										className="flex flex-col items-start hover:bg-secondary py-1"
+									>
+										<Link href={`/chat/${chat.id}`} className="w-full">
+											<div
+												className={cn(
+													"w-full flex justify-between items-start",
+													isActive && "text-green-500",
+												)}
+												>
+												<div className="flex-1 text-base">
+													{chat.title}
+												</div>
 
-											<DropdownMenu>
-												<DropdownMenuTrigger
-													className="md:opacity-0 group-hover/menu-item:opacity-100
-                                    group-focus-within/menu-item:opacity-100"
-												>
-													<EllipsisVertical className="h-5 w-5" />
-												</DropdownMenuTrigger>
-												<DropdownMenuContent
-													side="right"
-													align="start"
-													sideOffset={20}
-												>
-													<DropdownMenuItem>Pin</DropdownMenuItem>
-													<DropdownMenuItem>Rename</DropdownMenuItem>
-													<DropdownMenuItem
-														onClick={(e) => handleDeleteChat(chat.id, e)}
+												<DropdownMenu>
+													<DropdownMenuTrigger
+														className="md:opacity-0 group-hover/menu-item:opacity-100 group-focus-within/menu-item:opacity-100"
 													>
-														{" "}
-														Delete
-													</DropdownMenuItem>
-												</DropdownMenuContent>
-											</DropdownMenu>
-										</div>
-									</Link>
-								</SidebarMenuButton>
-							</SidebarMenuItem>
-						))}
+														<EllipsisVertical className="h-5 w-5" />
+													</DropdownMenuTrigger>
+													<DropdownMenuContent
+														side="right"
+														align="start"
+														sideOffset={20}
+													>
+														<DropdownMenuItem>Pin</DropdownMenuItem>
+														<DropdownMenuItem>Rename</DropdownMenuItem>
+														<DropdownMenuItem
+															onClick={(e) => handleDeleteChat(chat.id, e)}
+														>
+															{" "}
+															Delete
+														</DropdownMenuItem>
+													</DropdownMenuContent>
+												</DropdownMenu>
+											</div>
+										</Link>
+									</SidebarMenuButton>
+								</SidebarMenuItem>
+							);
+						})}
 					</SidebarMenu>
 				</SidebarContent>
 				<SidebarRail />
