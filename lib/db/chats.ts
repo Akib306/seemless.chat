@@ -65,6 +65,7 @@ export async function getChatTitle(chatid: string) {
 	if (error) {
 		throw new Error(`Failed to fetch chat title: ${error.message}`);
 	}
+	return data?.title || null;
 }
 
 export async function updateChatTitle(chatid: string, title: string) {
