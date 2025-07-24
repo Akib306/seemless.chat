@@ -36,6 +36,7 @@ import {
 import { EllipsisVertical } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import * as db from "@/lib/db/client";
 import { Chat } from "@/types/db";
@@ -71,6 +72,56 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		return null;
 	}, [pathname]);
 	const [chatHistory, setChatHistory] = useState<Chat[]>([]);
+	const [renamingChatId, setRenamingChatId] = useState<string | null>(null);
+	const [renameValue, setRenameValue] = useState<string>("");
+
+	const toggleRenameInput = async (chatId: string) => {
+		try {
+			const currentTitle = await db.chats.getChatTitle(chatId);
+			setRenamingChatId(chatId);
+			setRenameValue(currentTitle || "");
+		} catch (error) {
+			console.error("Failed to get chat title:", error);
+		}
+	};
+
+	const handleSaveRename = async (chatId: string) => {
+		if (!renameValue.trim()) {
+			handleCancelRename();
+			return;
+		}
+
+		try {
+			await db.chats.updateChatTitle(chatId, renameValue.trim());
+			setRenamingChatId(null);
+			setRenameValue("");
+			
+			// Update local state to reflect the change immediately
+			setChatHistory(prev => 
+				prev.map(chat => 
+					chat.id === chatId 
+						? { ...chat, title: renameValue.trim() }
+						: chat
+				)
+			);
+		} catch (error) {
+			console.error("Failed to update chat title:", error);
+		}
+	};
+
+	const handleCancelRename = () => {
+		setRenamingChatId(null);
+		setRenameValue("");
+	};
+
+	const handleRenameKeyDown = (e: React.KeyboardEvent, chatId: string) => {
+		if (e.key === "Enter") {
+			e.preventDefault();
+			handleSaveRename(chatId);
+		} else if (e.key === "Escape") {
+			handleCancelRename();
+		}
+	};
 
 	useEffect(() => {
 		const fetchChatHistory = async () => {
@@ -155,6 +206,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					<SidebarMenu>
 						{chatHistory.map((chat) => {
 							const isActive = chat.id === currentChatId;
+							const isRenaming = renamingChatId === chat.id;
+							
 							return (
 								<SidebarMenuItem className="px-3 py-0" key={chat.id}>
 									<SidebarMenuButton
@@ -168,10 +221,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 													"w-full flex justify-between items-start",
 													isActive && "text-green-500",
 												)}
-												>
-												<div className="flex-1 text-base">
-													{chat.title}
-												</div>
+											>
+												{isRenaming ? (
+													<Input
+														value={renameValue}
+														onChange={(e) => setRenameValue(e.target.value)}
+														onKeyDown={(e) => handleRenameKeyDown(e, chat.id)}
+														onBlur={() => handleSaveRename(chat.id)}
+														className="flex-1 text-base h-auto p-0 border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+														autoFocus
+														onClick={(e) => e.preventDefault()}
+													/>
+												) : (
+													<div className="flex-1 text-base">
+														{chat.title}
+													</div>
+												)}
 
 												<DropdownMenu>
 													<DropdownMenuTrigger
@@ -185,11 +250,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 														sideOffset={20}
 													>
 														<DropdownMenuItem>Pin</DropdownMenuItem>
-														<DropdownMenuItem>Rename</DropdownMenuItem>
+														<DropdownMenuItem
+															onClick={() => toggleRenameInput(chat.id)}
+														>
+															Rename
+														</DropdownMenuItem>
 														<DropdownMenuItem
 															onClick={(e) => handleDeleteChat(chat.id, e)}
 														>
-															{" "}
 															Delete
 														</DropdownMenuItem>
 													</DropdownMenuContent>
