@@ -196,13 +196,125 @@ export function createDbUtils(supabase: SupabaseClient, getUserId?: () => Promis
     },
   };
 
+  // ===== SUBSCRIPTIONS =====
+  const subscriptions = {
+    async createSubscription(data: {
+      stripe_subscription_id: string;
+      status: string;
+      current_period_start: string;
+      current_period_end: string;
+    }, userId?: string): Promise<any> {
+      const id = userId || (getUserId ? await getUserId() : undefined);
+      if (!id) throw new Error("User ID required");
+
+      const { data: result, error } = await supabase
+        .from("subscriptions")
+        .insert({
+          user_id: id,
+          ...data,
+        })
+        .select("*")
+        .single();
+
+      if (error) throw new Error(`Failed to create subscription: ${error.message}`);
+      return result;
+    },
+
+    async getSubscription(userId?: string): Promise<any> {
+      let query = supabase.from("subscriptions").select("*");
+      
+      if (userId) {
+        query = query.eq("user_id", userId);
+      }
+      
+      const { data, error } = await query.single();
+      
+      if (error) throw new Error(`Failed to get subscription: ${error.message}`);
+      return data;
+    },
+
+    async updateSubscription(subscriptionId: string, updates: any): Promise<any> {
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .update(updates)
+        .eq("id", subscriptionId)
+        .select("*")
+        .single();
+
+      if (error) throw new Error(`Failed to update subscription: ${error.message}`);
+      return data;
+    },
+  };
+
+  // ===== API USAGE =====
+  const apiUsage = {
+    async createUsage(data: {
+      chat_id?: string;
+      endpoint: string;
+      model: string;
+      prompt_tokens?: number;
+      completion_tokens?: number;
+      total_tokens?: number;
+    }, userId?: string): Promise<any> {
+      const id = userId || (getUserId ? await getUserId() : undefined);
+      if (!id) throw new Error("User ID required");
+
+      const { data: result, error } = await supabase
+        .from("api_usage")
+        .insert({
+          user_id: id,
+          ...data,
+        })
+        .select("*")
+        .single();
+
+      if (error) throw new Error(`Failed to create API usage record: ${error.message}`);
+      return result;
+    },
+
+    async getUsage(userId?: string): Promise<any[]> {
+      let query = supabase
+        .from("api_usage")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (userId) {
+        query = query.eq("user_id", userId);
+      }
+
+      const { data, error } = await query;
+      
+      if (error) throw new Error(`Failed to get API usage: ${error.message}`);
+      return data || [];
+    },
+
+    async logApiUsage(data: {
+      user_id: string;
+      chat_id?: string;
+      endpoint: string;
+      model: string;
+      prompt_tokens?: number;
+      completion_tokens?: number;
+      total_tokens?: number;
+    }): Promise<any> {
+      const { data: result, error } = await supabase
+        .from("api_usage")
+        .insert(data)
+        .select("*")
+        .single();
+
+      if (error) throw new Error(`Failed to log API usage: ${error.message}`);
+      return result;
+    },
+  };
+
   // Add other utilities (subscriptions, apiUsage) following the same pattern...
 
   return {
     profiles,
     chats,
     messages,
-    // subscriptions,
-    // apiUsage,
+    subscriptions,
+    apiUsage,
   };
 } 
