@@ -41,11 +41,13 @@ import { Plus } from "lucide-react";
 import * as db from "@/lib/db/client";
 import { Chat } from "@/types/db";
 import { useEffect, useState, useMemo } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, RedirectType } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { redirect } from 'next/navigation'
 
 import { createClient } from "@/lib/supabase/client";
+import { Router } from "next/router";
 const supabase = createClient();
 
 const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
@@ -256,7 +258,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 															Rename
 														</DropdownMenuItem>
 														<DropdownMenuItem
-															onClick={(e) => handleDeleteChat(chat.id, e)}
+															onClick={(e) => {
+																handleDeleteChat(chat.id, e)
+																router.push('/chat')
+															}}
 														>
 															Delete
 														</DropdownMenuItem>
