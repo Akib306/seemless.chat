@@ -41,23 +41,15 @@ import { Plus } from "lucide-react";
 import * as db from "@/lib/db/client";
 import { Chat } from "@/types/db";
 import { useEffect, useState, useMemo } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, RedirectType } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { redirect } from 'next/navigation'
 
 import { createClient } from "@/lib/supabase/client";
+import { Router } from "next/router";
 const supabase = createClient();
 
-const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
-	e.preventDefault();
-	e.stopPropagation();
-
-	try {
-		await db.chats.deleteChat(chatId);
-	} catch (error) {
-		console.error("Failed to delete chat:", error);
-	}
-};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const router = useRouter();
@@ -123,6 +115,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		}
 	};
 
+	const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+	
+		try {
+			await db.chats.deleteChat(chatId);
+			router.push('/chat');
+		} catch (error) {
+			console.error("Failed to delete chat:", error);
+		}
+	};
 	useEffect(() => {
 		const fetchChatHistory = async () => {
 			const userId = await db.getCurrentUserId();
