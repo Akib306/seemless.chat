@@ -50,16 +50,6 @@ import { createClient } from "@/lib/supabase/client";
 import { Router } from "next/router";
 const supabase = createClient();
 
-const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
-	e.preventDefault();
-	e.stopPropagation();
-
-	try {
-		await db.chats.deleteChat(chatId);
-	} catch (error) {
-		console.error("Failed to delete chat:", error);
-	}
-};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const router = useRouter();
@@ -125,6 +115,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		}
 	};
 
+	const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+	
+		try {
+			await db.chats.deleteChat(chatId);
+			router.push('/chat');
+		} catch (error) {
+			console.error("Failed to delete chat:", error);
+		}
+	};
 	useEffect(() => {
 		const fetchChatHistory = async () => {
 			const userId = await db.getCurrentUserId();
@@ -258,10 +259,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 															Rename
 														</DropdownMenuItem>
 														<DropdownMenuItem
-															onClick={(e) => {
-																handleDeleteChat(chat.id, e)
-																router.push('/chat')
-															}}
+															onClick={(e) => handleDeleteChat(chat.id, e)}
 														>
 															Delete
 														</DropdownMenuItem>
