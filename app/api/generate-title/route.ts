@@ -1,11 +1,12 @@
 import { updateChatTitle } from "@/lib/db/chats";
 import { generateText } from "ai";
 import { google } from "@ai-sdk/google";
+import { openai } from "@ai-sdk/openai";
 
 async function generateTitle(message: string): Promise<string> {
 	try {
 		const result = await generateText({
-			model: google("models/gemini-1.5-flash"), // Cheap and fast
+			model: openai("gpt-4.1-nano-2025-04-14"), // Cheap and fast
 			prompt: `Generate a concise, descriptive title (max 4-5 words) for a chat that starts with this user message: "${message}"
 
       Guidelines:
