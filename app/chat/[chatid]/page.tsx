@@ -1,5 +1,5 @@
 import ChatClient from "@/components/chat-client";
-import * as db from "@/lib/db/index";
+import { createServerDb } from "@/lib/db/server";
 
 export default async function ChatPage({
 	params,
@@ -7,6 +7,7 @@ export default async function ChatPage({
 	params: Promise<{ chatid: string }>;
 }) {
 	const { chatid } = await params;
+	const db = await createServerDb();
 	const initialMessages = await db.messages.getMessagesByChatId(chatid);
 	//console.log(initialMessages)
 	return <ChatClient chatId={chatid} initialMessages={initialMessages} />;

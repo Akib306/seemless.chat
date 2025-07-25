@@ -1,7 +1,8 @@
-import { updateChatTitle } from "@/lib/db/chats";
 import { generateText } from "ai";
 import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
+import { createServerDb } from "@/lib/db/server";
+
 
 async function generateTitle(message: string): Promise<string> {
 	try {
@@ -31,11 +32,13 @@ async function generateTitle(message: string): Promise<string> {
 }
 
 export async function POST(req: Request) {
+
+	const db = await createServerDb();
 	const { message, chatId } = await req.json();
 
 	const title = await generateTitle(message);
-
-	await updateChatTitle(chatId, title);
+	console.log("title", title);
+	await db.chats.updateChatTitle(chatId, title);
 
 	return Response.json({ title });
 }

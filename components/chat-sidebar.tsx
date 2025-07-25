@@ -129,11 +129,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	useEffect(() => {
 		const fetchChatHistory = async () => {
 			const userId = await db.getCurrentUserId();
-			const chats = await db.chats.getChatsByUserId(userId);
+			const chats = await db.chats.getChats(userId);
 			setChatHistory(chats);
 		};
 		fetchChatHistory();
-		// ✅ Optimized realtime listener with duplicate prevention
+
 		const channel = supabase
 			.channel("realtime:chats")
 			.on(
@@ -168,6 +168,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			supabase.removeChannel(channel);
 		};
 	}, []);
+
+		
+	
 	return (
 		<>
 			{/* Fixed header that's always visible */}

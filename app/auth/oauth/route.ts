@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 // The client you created from the Server-Side Auth instructions
 import { createClient } from "@/lib/supabase/server";
-import * as db from "@/lib/db";
+import { createServerDb } from "@/lib/db/server";
 
 export async function GET(request: Request) {
+	const db = await createServerDb();
 	const { searchParams, origin } = new URL(request.url);
 	const code = searchParams.get("code");
 	// if "next" is in param, use it as the redirect URL
@@ -16,7 +17,10 @@ export async function GET(request: Request) {
 		if (!error) {
 			const { data } = await supabase.auth.getUser();
 			if (data.user) {
-				await db.profiles.createProfile(data.user.id);
+				const profile = await db.profiles.getProfile(data.user.id);
+				if (!profile) {
+					await db.profiles.createProfile(data.user.id);
+				}
 			}
 
 			const forwardedHost = request.headers.get("x-forwarded-host"); // original origin before load balancer
