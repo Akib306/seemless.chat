@@ -1,5 +1,5 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/chat-sidebar";
+import { ChatSidebar } from "@/components/chat-sidebar";
 
 export default function ChatLayout({
 	children,
@@ -9,7 +9,7 @@ export default function ChatLayout({
 	return (
 		<div className="flex h-full w-full">
 			<SidebarProvider>
-				<AppSidebar />
+				<ChatSidebar />
 				<main className="flex-1">{children}</main>
 			</SidebarProvider>
 		</div>

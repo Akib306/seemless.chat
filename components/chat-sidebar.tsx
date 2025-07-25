@@ -51,7 +51,7 @@ import { Router } from "next/router";
 const supabase = createClient();
 
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const router = useRouter();
 	const pathname = usePathname();
 	const currentChatId = useMemo(() => {
