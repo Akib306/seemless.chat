@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 import { type NextRequest } from "next/server";
-import * as db from "@/lib/db";
+import { createServerDb } from "@/lib/db/server";
 
 export async function GET(request: NextRequest) {
 	const { searchParams } = new URL(request.url);
@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
 		if (!error) {
 			const { data } = await supabase.auth.getUser();
 			if (data.user) {
+				const db = await createServerDb();
 				await db.profiles.createProfile(data.user.id);
 			}
 			// redirect user to specified redirect URL or root of app
