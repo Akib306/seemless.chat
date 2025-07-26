@@ -1,12 +1,12 @@
 import type React from "react";
 import { Search } from "lucide-react";
 
-import { Label } from "@/src/app/components/ui/label";
+import { Label } from "@/components/ui/label";
 import {
 	SidebarGroup,
 	SidebarGroupContent,
 	SidebarInput,
-} from "@/src/app/components/ui/sidebar";
+} from "@/components/ui/sidebar";
 
 interface SearchFormProps extends React.ComponentProps<"form"> {
 	placeholder?: string;

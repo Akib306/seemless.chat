@@ -1,8 +1,8 @@
 "use client";
 import { createContext, useContext, useRef, useState } from "react";
 import { useChat, UseChatHelpers } from "@ai-sdk/react";
-import { Message } from "@/src/types/db";
-import * as db from "@/src/lib/db/client";
+import { Message } from "@/types/db";
+import * as db from "@/lib/db/client";
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 

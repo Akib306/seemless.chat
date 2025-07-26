@@ -1,7 +1,7 @@
 import { generateText } from "ai";
 import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
-import { createServerDb } from "@/src/lib/db/server";
+import { createServerDb } from "@/lib/db/server";
 
 
 async function generateTitle(message: string): Promise<string> {

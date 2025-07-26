@@ -1,5 +1,5 @@
 import ChatClient from "@/components/chat-client";
-import { createServerDb } from "@/src/lib/db/server";
+import { createServerDb } from "@/lib/db/server";
 
 export default async function ChatPage({
 	params,

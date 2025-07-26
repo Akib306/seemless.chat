@@ -1,7 +1,7 @@
 "use client";
 
-import { LogoutButton } from "@/src/app/components/logout-button";
-import { ThemeSwitcher } from "@/src/app/components/theme-switcher";
+import { LogoutButton } from "@/components/logout-button";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 

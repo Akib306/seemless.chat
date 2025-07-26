@@ -16,7 +16,7 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 	SidebarTrigger,
-} from "@/src/app/components/ui/sidebar";
+} from "@/components/ui/sidebar";
 
 import {
 	DropdownMenu,
@@ -31,22 +31,22 @@ import {
 	DropdownMenuSubContent,
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
-} from "@/src/app/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 
 import { EllipsisVertical } from "lucide-react";
 
-import { Button } from "@/src/app/components/ui/button";
-import { Input } from "@/src/app/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
-import * as db from "@/src/lib/db/client";
-import { Chat } from "@/src/types/db";
+import * as db from "@/lib/db/client";
+import { Chat } from "@/types/db";
 import { useEffect, useState, useMemo } from "react";
 import { useRouter, usePathname, RedirectType } from "next/navigation";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { redirect } from 'next/navigation'
 
-import { createClient } from "@/src/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { Router } from "next/router";
 const supabase = createClient();
 

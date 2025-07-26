@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Chat, Message, Profile } from "@/src/types/db";
+import type { Chat, Message, Profile } from "@/types/db";
 
 // Core utilities that work with any Supabase client
 export function createDbUtils(supabase: SupabaseClient, getUserId?: () => Promise<string>) {

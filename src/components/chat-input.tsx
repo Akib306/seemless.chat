@@ -1,16 +1,16 @@
 "use client";
 import { useRef, useState } from "react";
-import { Button } from "@/src/app/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/src/app/components/ui/select";
+} from "@/components/ui/select";
 import { Send, Paperclip, X } from "lucide-react";
-import { useChatContext } from "@/src/contexts/chat-context";
-import * as db from "@/src/lib/db/client";
+import { useChatContext } from "@/contexts/chat-context";
+import * as db from "@/lib/db/client";
 import { useRouter } from "next/navigation";
 
 export function ChatInput() {

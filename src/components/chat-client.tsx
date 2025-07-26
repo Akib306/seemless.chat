@@ -1,8 +1,8 @@
-import { ChatInput } from "@/src/app/components/chat-input";
+import { ChatInput } from "@/components/chat-input";
 
-import { MessagesList } from "@/src/app/components/messages-list";
-import { ChatProvider } from "@/src/contexts/chat-context";
-import { Message } from "@/src/types/db";
+import { MessagesList } from "@/components/messages-list";
+import { ChatProvider } from "@/contexts/chat-context";
+import { Message } from "@/types/db";
 
 export default function ChatClient({
 	chatId,

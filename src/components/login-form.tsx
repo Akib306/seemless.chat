@@ -1,18 +1,18 @@
 "use client";
 
-import { cn } from "@/src/lib/utils";
-import { createClient } from "@/src/lib/supabase/client";
-import { Button } from "@/src/app/components/ui/button";
+import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/src/app/components/ui/card";
-import { Input } from "@/src/app/components/ui/input";
-import { Label } from "@/src/app/components/ui/label";
-import { OAuthButtons } from "@/src/app/components/oauth-buttons";
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { OAuthButtons } from "@/components/oauth-buttons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

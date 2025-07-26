@@ -1,11 +1,11 @@
 "use client";
 
-import { Button } from "@/src/app/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Github } from "lucide-react";
-import { createClient } from "@/src/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { useState } from "react";
-import { cn } from "@/src/lib/utils";
-import { GoogleLogo, GitHubLogo } from "@/src/app/components/ui/icons";
+import { cn } from "@/lib/utils";
+import { GoogleLogo, GitHubLogo } from "@/components/ui/icons";
 
 export function OAuthButtons({
 	className,

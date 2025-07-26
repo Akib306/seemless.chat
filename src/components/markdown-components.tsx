@@ -1,6 +1,6 @@
 // lib/markdownComponents.tsx
 import { Components } from "react-markdown";
-import { CodeBlock } from "@/src/app/components/CodeBlock";
+import { CodeBlock } from "@/components/CodeBlock";
 import { ReactNode } from "react";
 
 export const markdownComponents: Components = {

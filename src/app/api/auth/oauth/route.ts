@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 // The client you created from the Server-Side Auth instructions
-import { createClient } from "@/src/lib/supabase/server";
-import { createServerDb } from "@/src/lib/db/server";
+import { createClient } from "@/lib/supabase/server";
+import { createServerDb } from "@/lib/db/server";
 
 export async function GET(request: Request) {
 	const db = await createServerDb();

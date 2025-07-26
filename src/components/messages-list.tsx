@@ -5,9 +5,9 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
-import { markdownComponents } from "@/src/app/components/markdown-components";
+import { markdownComponents } from "@/components/markdown-components";
 import { useEffect, useRef } from "react";
-import { useChatContext } from "@/src/contexts/chat-context";
+import { useChatContext } from "@/contexts/chat-context";
 import "katex/dist/katex.min.css";
 
 export function MessagesList() {
