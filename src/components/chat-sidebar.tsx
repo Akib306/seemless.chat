@@ -15,34 +15,14 @@ import {
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
 
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuGroup,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuPortal,
-	DropdownMenuSeparator,
-	DropdownMenuShortcut,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-import { EllipsisVertical } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import * as db from "@/lib/db/client";
 import { Chat } from "@/types/db";
 import { useEffect, useState, useMemo } from "react";
 import { useRouter, usePathname, RedirectType } from "next/navigation";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { redirect } from 'next/navigation'
 import { ChatSidebarHeader } from "@/components/ChatSidebarHeader";
+import { ChatItem } from "@/components/chat-item";
 
 import { createClient } from "@/lib/supabase/client";
 import { Router } from "next/router";
@@ -170,7 +150,6 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 	
 	return (
 		<>
-			
 
 			<Sidebar collapsible="offcanvas" {...props}>
 				<SidebarHeader className="pt-16">
@@ -184,63 +163,18 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 							const isRenaming = renamingChatId === chat.id;
 							
 							return (
-								<SidebarMenuItem className="px-3 py-0" key={chat.id}>
-									<SidebarMenuButton
-										asChild
-										isActive={isActive}
-										className="flex flex-col items-start hover:bg-secondary py-1"
-									>
-										<Link href={`/chat/${chat.id}`} className="w-full">
-											<div
-												className={cn(
-													"w-full flex justify-between items-start",
-													isActive && "text-green-500",
-												)}
-											>
-												{isRenaming ? (
-													<Input
-														value={renameValue}
-														onChange={(e) => setRenameValue(e.target.value)}
-														onKeyDown={(e) => handleRenameKeyDown(e, chat.id)}
-														onBlur={() => handleSaveRename(chat.id)}
-														className="flex-1 text-base h-auto p-0 border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-														autoFocus
-														onClick={(e) => e.preventDefault()}
-													/>
-												) : (
-													<div className="flex-1 text-base">
-														{chat.title}
-													</div>
-												)}
-
-												<DropdownMenu>
-													<DropdownMenuTrigger
-														className="md:opacity-0 group-hover/menu-item:opacity-100 group-focus-within/menu-item:opacity-100"
-													>
-														<EllipsisVertical className="h-5 w-5" />
-													</DropdownMenuTrigger>
-													<DropdownMenuContent
-														side="right"
-														align="start"
-														sideOffset={20}
-													>
-														<DropdownMenuItem>Pin</DropdownMenuItem>
-														<DropdownMenuItem
-															onClick={() => toggleRenameInput(chat.id)}
-														>
-															Rename
-														</DropdownMenuItem>
-														<DropdownMenuItem
-															onClick={(e) => handleDeleteChat(chat.id, e)}
-														>
-															Delete
-														</DropdownMenuItem>
-													</DropdownMenuContent>
-												</DropdownMenu>
-											</div>
-										</Link>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
+								<ChatItem
+									key={chat.id}
+									chat={chat}
+									isActive={isActive}
+									isRenaming={isRenaming}
+									renameValue={renameValue}
+									onRenameValueChange={setRenameValue}
+									onRenameKeyDown={handleRenameKeyDown}
+									onRenameBlur={handleSaveRename}
+									onToggleRename={toggleRenameInput}
+									onDeleteChat={handleDeleteChat}
+								/>
 							);
 						})}
 					</SidebarMenu>
