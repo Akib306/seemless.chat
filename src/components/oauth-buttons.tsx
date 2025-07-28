@@ -30,7 +30,7 @@ export function OAuthButtons({
 			const { error } = await supabase.auth.signInWithOAuth({
 				provider,
 				options: {
-					redirectTo: `${window.location.origin}/auth/oauth?next=${redirectedTo}`,
+					redirectTo: `${window.location.origin}/api/auth/oauth?next=${redirectedTo}`,
 				},
 			});
 

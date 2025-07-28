@@ -17,8 +17,10 @@ export async function GET(request: Request) {
 		if (!error) {
 			const { data } = await supabase.auth.getUser();
 			if (data.user) {
-				const profile = await db.profiles.getProfile(data.user.id);
-				if (!profile) {
+				try {
+					await db.profiles.getProfile(data.user.id);
+				} catch (error) {
+					// Profile doesn't exist yet, create it for new OAuth users
 					await db.profiles.createProfile(data.user.id);
 				}
 			}
