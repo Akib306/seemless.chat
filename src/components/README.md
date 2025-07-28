@@ -15,7 +15,7 @@ This directory contains all React components that make up the user interface of 
 * `typography/`: Typography-specific components for consistent text styling.
 * `auth/`: Authentication-related components (login, sign-up, password forms).
 * `markdown-components.tsx`: Components for rendering markdown content in chat messages.
-* `CodeBlock.tsx`: Syntax-highlighted code block component for displaying code in chat.
+* `code-block.tsx`: Syntax-highlighted code block component for displaying code in chat.
 
 ## ✨ Core Logic & Features
 

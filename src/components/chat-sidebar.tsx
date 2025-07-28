@@ -21,7 +21,7 @@ import { Chat } from "@/types/db";
 import { useEffect, useState, useMemo } from "react";
 import { useRouter, usePathname, RedirectType } from "next/navigation";
 import { redirect } from 'next/navigation'
-import { ChatSidebarHeader } from "@/components/ChatSidebarHeader";
+import { ChatSidebarHeader } from "@/components/chat-sidebar-header";
 import { ChatItem } from "@/components/chat-item";
 
 import { createClient } from "@/lib/supabase/client";
