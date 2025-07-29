@@ -1,31 +1,23 @@
 "use client";
 import type * as React from "react";
-import { SearchForm } from "./search-form";
 import {
 	Sidebar,
 	SidebarContent,
-	SidebarGroup,
-	SidebarGroupContent,
-	SidebarGroupLabel,
 	SidebarHeader,
 	SidebarMenu,
-	SidebarMenuButton,
-	SidebarMenuItem,
 	SidebarRail,
-	SidebarTrigger,
 } from "@/components/ui/sidebar";
 
-import { Plus } from "lucide-react";
 import * as db from "@/lib/db/client";
 import { Chat } from "@/types/db";
 import { useEffect, useState, useMemo } from "react";
-import { useRouter, usePathname, RedirectType } from "next/navigation";
-import { redirect } from 'next/navigation'
+import { useRouter, usePathname } from "next/navigation";
 import { ChatSidebarHeader } from "@/components/chat-sidebar-header";
 import { ChatItem } from "@/components/chat-item";
 import { createClient } from "@/lib/supabase/client";
 
 const supabase = createClient();
+
 export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const router = useRouter();
 	const pathname = usePathname();
@@ -39,55 +31,18 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 		return null;
 	}, [pathname]);
 	const [chatHistory, setChatHistory] = useState<Chat[]>([]);
-	const [renamingChatId, setRenamingChatId] = useState<string | null>(null);
-	const [renameValue, setRenameValue] = useState<string>("");
 
-	const toggleRenameInput = async (chatId: string) => {
-		try {
-			const currentTitle = await db.chats.getChatTitle(chatId);
-			setRenamingChatId(chatId);
-			setRenameValue(currentTitle || "");
-		} catch (error) {
-			console.error("Failed to get chat title:", error);
-		}
-	};
-
-	const handleSaveRename = async (chatId: string) => {
-		if (!renameValue.trim()) {
-			handleCancelRename();
-			return;
-		}
-
-		try {
-			await db.chats.updateChatTitle(chatId, renameValue.trim());
-			setRenamingChatId(null);
-			setRenameValue("");
-			
-			// Update local state to reflect the change immediately
-			setChatHistory(prev => 
-				prev.map(chat => 
-					chat.id === chatId 
-						? { ...chat, title: renameValue.trim() }
-						: chat
-				)
-			);
-		} catch (error) {
-			console.error("Failed to update chat title:", error);
-		}
-	};
-
-	const handleCancelRename = () => {
-		setRenamingChatId(null);
-		setRenameValue("");
-	};
-
-	const handleRenameKeyDown = (e: React.KeyboardEvent, chatId: string) => {
-		if (e.key === "Enter") {
-			e.preventDefault();
-			handleSaveRename(chatId);
-		} else if (e.key === "Escape") {
-			handleCancelRename();
-		}
+	/**
+	 * Callback to update local chat state when a chat is renamed
+	 */
+	const handleChatUpdate = (chatId: string, newTitle: string) => {
+		setChatHistory(prev => 
+			prev.map(chat => 
+				chat.id === chatId 
+					? { ...chat, title: newTitle }
+					: chat
+			)
+		);
 	};
 
 	useEffect(() => {
@@ -132,12 +87,9 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 			supabase.removeChannel(channel);
 		};
 	}, []);
-
-		
 	
 	return (
 		<>
-
 			<Sidebar collapsible="offcanvas" {...props}>
 				<SidebarHeader className="pt-16">
 					<ChatSidebarHeader />
@@ -147,19 +99,13 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 					<SidebarMenu>
 						{chatHistory.map((chat) => {
 							const isActive = chat.id === currentChatId;
-							const isRenaming = renamingChatId === chat.id;
 							
 							return (
 								<ChatItem
 									key={chat.id}
 									chat={chat}
 									isActive={isActive}
-									isRenaming={isRenaming}
-									renameValue={renameValue}
-									onRenameValueChange={setRenameValue}
-									onRenameKeyDown={handleRenameKeyDown}
-									onRenameBlur={handleSaveRename}
-									onToggleRename={toggleRenameInput}
+									onChatUpdate={handleChatUpdate}
 								/>
 							);
 						})}

@@ -24,25 +24,33 @@ import { useChatActions } from "@/hooks/use-chat-actions";
 interface ChatItemProps {
 	chat: Chat;
 	isActive: boolean;
-	isRenaming: boolean;
-	renameValue: string;
-	onRenameValueChange: (value: string) => void;
-	onRenameKeyDown: (e: React.KeyboardEvent, chatId: string) => void;
-	onRenameBlur: (chatId: string) => void;
-	onToggleRename: (chatId: string) => void;
+	onChatUpdate?: (chatId: string, newTitle: string) => void;
 }
 
 export function ChatItem({
 	chat,
 	isActive,
-	isRenaming,
-	renameValue,
-	onRenameValueChange,
-	onRenameKeyDown,
-	onRenameBlur,
-	onToggleRename,
+	onChatUpdate,
 }: ChatItemProps) {
-	const { handleDeleteChat } = useChatActions();
+	const { 
+		handleDeleteChat,
+		handleStartRename,
+		handleSaveRename,
+		handleRenameKeyDown,
+		handleRenameValueChange,
+		isRenaming,
+		renameValue,
+	} = useChatActions();
+
+	const chatIsRenaming = isRenaming(chat.id);
+
+	const handleSave = () => {
+		handleSaveRename(chat.id, onChatUpdate);
+	};
+
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		handleRenameKeyDown(e, chat.id, onChatUpdate);
+	};
 
 	return (
 		<SidebarMenuItem className="px-3 py-0" key={chat.id}>
@@ -58,12 +66,12 @@ export function ChatItem({
 							isActive && "text-green-500",
 						)}
 					>
-						{isRenaming ? (
+						{chatIsRenaming ? (
 							<Input
 								value={renameValue}
-								onChange={(e) => onRenameValueChange(e.target.value)}
-								onKeyDown={(e) => onRenameKeyDown(e, chat.id)}
-								onBlur={() => onRenameBlur(chat.id)}
+								onChange={(e) => handleRenameValueChange(e.target.value)}
+								onKeyDown={handleKeyDown}
+								onBlur={handleSave}
 								className="flex-1 text-base h-auto p-0 border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
 								autoFocus
 								onClick={(e) => e.preventDefault()}
@@ -87,7 +95,7 @@ export function ChatItem({
 							>
 								<DropdownMenuItem>Pin</DropdownMenuItem>
 								<DropdownMenuItem
-									onClick={() => onToggleRename(chat.id)}
+									onClick={() => handleStartRename(chat.id)}
 								>
 									Rename
 								</DropdownMenuItem>
