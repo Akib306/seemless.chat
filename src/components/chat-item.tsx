@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { EllipsisVertical, Trash2 } from "lucide-react";
+import { EllipsisVertical, Trash2, Edit2 } from "lucide-react";
 
 import {
 	SidebarMenuButton,
@@ -81,6 +81,7 @@ export function ChatItem({
 									<DropdownMenuItem
 										onClick={() => handleStartRename(chat.id)}
 									>
+										<Edit2 className="mr-2 h-4 w-4" />
 										Rename
 									</DropdownMenuItem>
 									<DropdownMenuItem
@@ -124,6 +125,7 @@ export function ChatItem({
 									<DropdownMenuItem
 										onClick={() => handleStartRename(chat.id)}
 									>
+										<Edit2 className="mr-2 h-4 w-4" />
 										Rename
 									</DropdownMenuItem>
 									<DropdownMenuItem
