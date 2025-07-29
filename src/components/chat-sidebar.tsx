@@ -92,17 +92,6 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 		}
 	};
 
-	const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
-		e.preventDefault();
-		e.stopPropagation();
-	
-		try {
-			await db.chats.deleteChat(chatId);
-			router.push('/chat');
-		} catch (error) {
-			console.error("Failed to delete chat:", error);
-		}
-	};
 	useEffect(() => {
 		const fetchChatHistory = async () => {
 			const userId = await db.getCurrentUserId();
@@ -173,7 +162,6 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 									onRenameKeyDown={handleRenameKeyDown}
 									onRenameBlur={handleSaveRename}
 									onToggleRename={toggleRenameInput}
-									onDeleteChat={handleDeleteChat}
 								/>
 							);
 						})}

@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Chat } from "@/types/db";
+import { DropdownChatDelete } from "@/components/dropdown-chat-delete";
 
 interface ChatItemProps {
 	chat: Chat;
@@ -29,7 +30,6 @@ interface ChatItemProps {
 	onRenameKeyDown: (e: React.KeyboardEvent, chatId: string) => void;
 	onRenameBlur: (chatId: string) => void;
 	onToggleRename: (chatId: string) => void;
-	onDeleteChat: (chatId: string, e: React.MouseEvent) => void;
 }
 
 export function ChatItem({
@@ -90,11 +90,7 @@ export function ChatItem({
 								>
 									Rename
 								</DropdownMenuItem>
-								<DropdownMenuItem
-									onClick={(e) => onDeleteChat(chat.id, e)}
-								>
-									Delete
-								</DropdownMenuItem>
+								<DropdownChatDelete chatId={chat.id} />
 							</DropdownMenuContent>
 						</DropdownMenu>
 					</div>
