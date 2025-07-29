@@ -32,19 +32,6 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 	}, [pathname]);
 	const [chatHistory, setChatHistory] = useState<Chat[]>([]);
 
-	/**
-	 * Callback to update local chat state when a chat is renamed
-	 */
-	const handleChatUpdate = (chatId: string, newTitle: string) => {
-		setChatHistory(prev => 
-			prev.map(chat => 
-				chat.id === chatId 
-					? { ...chat, title: newTitle }
-					: chat
-			)
-		);
-	};
-
 	useEffect(() => {
 		const fetchChatHistory = async () => {
 			const userId = await db.getCurrentUserId();
@@ -105,7 +92,6 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 									key={chat.id}
 									chat={chat}
 									isActive={isActive}
-									onChatUpdate={handleChatUpdate}
 								/>
 							);
 						})}
