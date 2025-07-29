@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { EllipsisVertical } from "lucide-react";
+import { EllipsisVertical, Trash2 } from "lucide-react";
 
 import {
 	SidebarMenuButton,
@@ -19,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Chat } from "@/types/db";
-import { DropdownChatDelete } from "@/components/dropdown-chat-delete";
+import { useChatActions } from "@/hooks/use-chat-actions";
 
 interface ChatItemProps {
 	chat: Chat;
@@ -42,6 +42,8 @@ export function ChatItem({
 	onRenameBlur,
 	onToggleRename,
 }: ChatItemProps) {
+	const { handleDeleteChat } = useChatActions();
+
 	return (
 		<SidebarMenuItem className="px-3 py-0" key={chat.id}>
 			<SidebarMenuButton
@@ -89,7 +91,12 @@ export function ChatItem({
 								>
 									Rename
 								</DropdownMenuItem>
-								<DropdownChatDelete chatId={chat.id} />
+								<DropdownMenuItem
+									onClick={handleDeleteChat(chat.id)}
+								>
+									<Trash2 className="mr-2 h-4 w-4" />
+									Delete
+								</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
 					</div>
