@@ -23,9 +23,7 @@ import { useRouter, usePathname, RedirectType } from "next/navigation";
 import { redirect } from 'next/navigation'
 import { ChatSidebarHeader } from "@/components/chat-sidebar-header";
 import { ChatItem } from "@/components/chat-item";
-
 import { createClient } from "@/lib/supabase/client";
-import { Router } from "next/router";
 
 const supabase = createClient();
 export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

@@ -41,7 +41,6 @@ export function ChatItem({
 	onRenameKeyDown,
 	onRenameBlur,
 	onToggleRename,
-	onDeleteChat,
 }: ChatItemProps) {
 	return (
 		<SidebarMenuItem className="px-3 py-0" key={chat.id}>
