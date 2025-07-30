@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { EllipsisVertical, Trash2, Edit2 } from "lucide-react";
+import { EllipsisVertical, Trash2, Edit2, Pin } from "lucide-react";
 
 import {
 	SidebarMenuButton,
@@ -22,7 +22,7 @@ import { Chat } from "@/types/db";
 import { useChatActions } from "@/hooks/use-chat-actions";
 
 interface ChatItemProps {
-	chat: Chat;
+	chat: Chat & { pinned_at?: string | null };
 	isActive: boolean;
 }
 
@@ -36,6 +36,7 @@ export function ChatItem({
 		handleSaveRename,
 		handleRenameKeyDown,
 		handleRenameValueChange,
+		handleTogglePin,
 		isRenaming,
 		renameValue,
 	} = useChatActions();
@@ -77,7 +78,10 @@ export function ChatItem({
 									align="start"
 									sideOffset={20}
 								>
-									<DropdownMenuItem>Pin</DropdownMenuItem>
+									<DropdownMenuItem onClick={handleTogglePin(chat)}>
+										<Pin className="mr-2 h-4 w-4" />
+										{chat.pinned_at ? "Unpin" : "Pin"}
+									</DropdownMenuItem>
 									<DropdownMenuItem
 										onClick={() => handleStartRename(chat.id)}
 									>
@@ -121,7 +125,10 @@ export function ChatItem({
 									align="start"
 									sideOffset={20}
 								>
-									<DropdownMenuItem>Pin</DropdownMenuItem>
+									<DropdownMenuItem onClick={handleTogglePin(chat)}>
+										<Pin className="mr-2 h-4 w-4" />
+										{chat.pinned_at ? "Unpin" : "Pin"}
+									</DropdownMenuItem>
 									<DropdownMenuItem
 										onClick={() => handleStartRename(chat.id)}
 									>
