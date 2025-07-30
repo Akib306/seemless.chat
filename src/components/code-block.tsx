@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+// Import all available Prism themes
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Copy, Check } from "lucide-react";
 
 type CodeBlockProps = {
@@ -38,13 +39,19 @@ export function CodeBlock({ language, value }: CodeBlockProps) {
 			</div>
 			<SyntaxHighlighter
 				language={language}
-				style={vscDarkPlus}
+				style={oneDark}
 				customStyle={{
 					background: "transparent",
 					padding: "1rem",
 					margin: 0,
-					fontSize: "0.875rem",
+					fontSize: "1rem",
 					lineHeight: "1.5",
+					fontFamily: "JetBrains Mono"
+				}}
+				codeTagProps={{
+					style: {
+						background: "transparent",
+					},
 				}}
 			>
 				{value}

@@ -121,6 +121,30 @@ export function createDbUtils(supabase: SupabaseClient, getUserId?: () => Promis
       if (error) throw new Error(`Failed to fetch chat title: ${error.message}`);
       return data?.title || null;
     },
+
+    async pinChat(chatId: string): Promise<Chat> {
+      const { data, error } = await supabase
+        .from("chats")
+        .update({ pinned_at: new Date().toISOString() })
+        .eq("id", chatId)
+        .select("*")
+        .single();
+
+      if (error) throw new Error(`Failed to pin chat: ${error.message}`);
+        return data;
+    },
+
+    async unpinChat(chatId: string): Promise<Chat> {
+      const { data, error } = await supabase
+        .from("chats")
+        .update({ pinned_at: null })
+        .eq("id", chatId)
+        .select("*")
+        .single();
+
+      if (error) throw new Error(`Failed to unpin chat: ${error.message}`);
+      return data;
+    },
   };
 
   // ===== MESSAGES =====

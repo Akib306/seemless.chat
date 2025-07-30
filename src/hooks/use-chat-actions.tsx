@@ -97,6 +97,26 @@ export function useChatActions() {
    */
   const isRenaming = (chatId: string) => renamingChatId === chatId;
 
+  /**
+   * Toggles the pin status of a specific chat
+   */
+  const handleTogglePin = (chat: { id: string, pinned_at?: string | null }) => {
+    return async (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      try {
+        if (chat.pinned_at) {
+          await db.chats.unpinChat(chat.id);
+        } else {
+          await db.chats.pinChat(chat.id);
+        }
+      } catch (error) {
+        console.error("Failed to toggle pin:", error);
+      }
+    };
+  };
+
   return {
     // Delete functionality
     handleDeleteChat,
@@ -110,5 +130,8 @@ export function useChatActions() {
     isRenaming,
     renameValue,
     renamingChatId,
+
+    // Pin functionality
+    handleTogglePin,
   };
 } 

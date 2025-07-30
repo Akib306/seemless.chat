@@ -16,6 +16,9 @@ import { ChatSidebarHeader } from "@/components/chat-sidebar-header";
 import { ChatItem } from "@/components/chat-item";
 import { createClient } from "@/lib/supabase/client";
 
+// Extended Chat type to include pinned_at until types are regenerated
+type ChatWithPin = Chat & { pinned_at?: string | null };
+
 const supabase = createClient();
 
 export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -30,13 +33,13 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 		}
 		return null;
 	}, [pathname]);
-	const [chatHistory, setChatHistory] = useState<Chat[]>([]);
+	const [chatHistory, setChatHistory] = useState<ChatWithPin[]>([]);
 
 	useEffect(() => {
 		const fetchChatHistory = async () => {
 			const userId = await db.getCurrentUserId();
 			const chats = await db.chats.getChats(userId);
-			setChatHistory(chats);
+			setChatHistory(chats as ChatWithPin[]);
 		};
 		fetchChatHistory();
 
@@ -51,12 +54,12 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 							// Check for duplicates before adding
 							const exists = prev.some((chat) => chat.id === payload.new.id);
 							if (exists) return prev;
-							return [payload.new as Chat, ...prev];
+							return [payload.new as ChatWithPin, ...prev];
 						}
 
 						if (payload.eventType === "UPDATE") {
 							return prev.map((chat) =>
-								chat.id === payload.new.id ? (payload.new as Chat) : chat,
+								chat.id === payload.new.id ? (payload.new as ChatWithPin) : chat,
 							);
 						}
 
@@ -75,6 +78,24 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 		};
 	}, []);
 	
+	// Sort chats: pinned chats first (by pinned_at desc), then unpinned chats (by updated_at desc)
+	const sortedChatHistory = useMemo(() => {
+		return [...chatHistory].sort((a, b) => {
+			// If both are pinned or both are unpinned
+			if ((a.pinned_at && b.pinned_at) || (!a.pinned_at && !b.pinned_at)) {
+				if (a.pinned_at && b.pinned_at) {
+					// Both pinned: sort by pinned_at (most recently pinned first)
+					return new Date(b.pinned_at).getTime() - new Date(a.pinned_at).getTime();
+				} else {
+					// Both unpinned: sort by updated_at (most recently updated first)
+					return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+				}
+			}
+			// One is pinned, one is not: pinned chat comes first
+			return a.pinned_at ? -1 : 1;
+		});
+	}, [chatHistory]);
+	
 	return (
 		<>
 			<Sidebar collapsible="icon" {...props}>
@@ -84,7 +105,8 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 
 				<SidebarContent>
 					<SidebarMenu className="group-data-[collapsible=icon]:hidden">
-						{chatHistory.map((chat) => {
+						
+						{sortedChatHistory.map((chat) => {
 							const isActive = chat.id === currentChatId;
 							
 							return (

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { EllipsisVertical, Trash2, Edit2, MessageSquare } from "lucide-react";
+import { EllipsisVertical, Trash2, Edit2, Pin, PinOff } from "lucide-react";
 
 import {
 	SidebarMenuButton,
@@ -22,7 +22,7 @@ import { Chat } from "@/types/db";
 import { useChatActions } from "@/hooks/use-chat-actions";
 
 interface ChatItemProps {
-	chat: Chat;
+	chat: Chat & { pinned_at?: string | null };
 	isActive: boolean;
 }
 
@@ -36,6 +36,7 @@ export function ChatItem({
 		handleSaveRename,
 		handleRenameKeyDown,
 		handleRenameValueChange,
+		handleTogglePin,
 		isRenaming,
 		renameValue,
 	} = useChatActions();
@@ -78,7 +79,14 @@ export function ChatItem({
 									align="start"
 									sideOffset={20}
 								>
-									<DropdownMenuItem>Pin</DropdownMenuItem>
+									<DropdownMenuItem onClick={handleTogglePin(chat)}>
+										{chat.pinned_at ? (
+											<PinOff className="mr-2 h-4 w-4" />
+										) : (
+											<Pin className="mr-2 h-4 w-4" />
+										)}
+										{chat.pinned_at ? "Unpin" : "Pin"}
+									</DropdownMenuItem>
 									<DropdownMenuItem
 										onClick={() => handleStartRename(chat.id)}
 									>
@@ -108,9 +116,17 @@ export function ChatItem({
 								{chat.title}
 							</div>
 
+							{/* Pin icon for pinned chats - visible by default, hidden on hover */}
+							{chat.pinned_at && (
+								<Pin className="h-5 w-5 group-hover/menu-item:opacity-0 transition-opacity" />
+							)}
+
 							<DropdownMenu>
 								<DropdownMenuTrigger
-									className="md:opacity-0 group-hover/menu-item:opacity-100 group-focus-within/menu-item:opacity-100"
+									className={cn(
+										"group-hover/menu-item:opacity-100 group-focus-within/menu-item:opacity-100 transition-opacity",
+										chat.pinned_at ? "opacity-0" : "md:opacity-0"
+									)}
 									onClick={(e) => {
 										e.preventDefault();
 										e.stopPropagation();
@@ -123,7 +139,14 @@ export function ChatItem({
 									align="start"
 									sideOffset={20}
 								>
-									<DropdownMenuItem>Pin</DropdownMenuItem>
+									<DropdownMenuItem onClick={handleTogglePin(chat)}>
+										{chat.pinned_at ? (
+											<PinOff className="mr-2 h-4 w-4" />
+										) : (
+											<Pin className="mr-2 h-4 w-4" />
+										)}
+										{chat.pinned_at ? "Unpin" : "Pin"}
+									</DropdownMenuItem>
 									<DropdownMenuItem
 										onClick={() => handleStartRename(chat.id)}
 									>
