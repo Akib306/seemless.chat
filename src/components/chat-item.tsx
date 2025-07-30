@@ -111,7 +111,6 @@ export function ChatItem({
 								isActive && "text-green-500",
 							)}
 						>
-							<MessageSquare className="h-4 w-4 mr-2 shrink-0" />
 							<div className="flex-1 text-base">
 								{chat.title}
 							</div>
