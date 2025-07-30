@@ -77,13 +77,13 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 	
 	return (
 		<>
-			<Sidebar collapsible="offcanvas" {...props}>
+			<Sidebar collapsible="icon" {...props}>
 				<SidebarHeader className="pt-16">
 					<ChatSidebarHeader />
 				</SidebarHeader>
 
 				<SidebarContent>
-					<SidebarMenu>
+					<SidebarMenu className="group-data-[collapsible=icon]:hidden">
 						{chatHistory.map((chat) => {
 							const isActive = chat.id === currentChatId;
 							

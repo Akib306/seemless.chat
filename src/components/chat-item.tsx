@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { EllipsisVertical, Trash2, Edit2 } from "lucide-react";
+import { EllipsisVertical, Trash2, Edit2, MessageSquare } from "lucide-react";
 
 import {
 	SidebarMenuButton,
@@ -48,6 +48,7 @@ export function ChatItem({
 				asChild
 				isActive={isActive}
 				className="flex flex-col items-start hover:bg-secondary py-1"
+				tooltip={chat.title || "Chat"}
 			>
 				{chatIsRenaming ? (
 					<div className="w-full">
@@ -102,6 +103,7 @@ export function ChatItem({
 								isActive && "text-green-500",
 							)}
 						>
+							<MessageSquare className="h-4 w-4 mr-2 shrink-0" />
 							<div className="flex-1 text-base">
 								{chat.title}
 							</div>
