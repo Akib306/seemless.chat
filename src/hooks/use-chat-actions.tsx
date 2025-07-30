@@ -100,7 +100,7 @@ export function useChatActions() {
   /**
    * Toggles the pin status of a specific chat
    */
-  const handleTogglePin = async (chat: { id: string, pinned_at: string | null }) => {
+  const handleTogglePin = (chat: { id: string, pinned_at?: string | null }) => {
     return async (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
