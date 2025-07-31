@@ -8,14 +8,14 @@ import {
 	SidebarInput,
 } from "@/components/ui/sidebar";
 
-interface SearchFormProps extends React.ComponentProps<"form"> {
+interface SearchModalProps extends React.ComponentProps<"form"> {
 	placeholder?: string;
 }
 
-export function SearchForm({
+export function SearchModal({
 	placeholder = "Search...",
 	...props
-}: SearchFormProps) {
+}: SearchModalProps) {
 	return (
 		<form {...props}>
 			<SidebarGroup className="py-0">

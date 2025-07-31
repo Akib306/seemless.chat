@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Edit, Search, PanelLeft } from "lucide-react";
-import { SearchForm } from "./search-form";
+import { SearchModal } from "./search-modal";
 import { useSidebar } from "@/components/ui/sidebar";
 
 export function ChatSidebarHeader() {
@@ -79,7 +79,7 @@ export function ChatSidebarHeader() {
 					</div>
 
 					{/* Search Form */}
-					<SearchForm placeholder="Search chat history..." />
+					<SearchModal placeholder="Search chat history..." />
 				</>
 			) : (
 				<>
