@@ -79,7 +79,7 @@ export function ChatSidebarHeader() {
 					</div>
 
 					{/* Search Form */}
-					<SearchModal placeholder="Search chat history..." />
+					<SearchModal />
 				</>
 			) : (
 				<>

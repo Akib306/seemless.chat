@@ -1,5 +1,7 @@
 import type React from "react";
+import { useState } from "react";
 import { Search } from "lucide-react";
+import { Command, CommandInput } from "cmdk";
 
 import { Label } from "@/components/ui/label";
 import {
@@ -7,30 +9,47 @@ import {
 	SidebarGroupContent,
 	SidebarInput,
 } from "@/components/ui/sidebar";
+import { Button } from "./ui/button";
 
-interface SearchModalProps extends React.ComponentProps<"form"> {
-	placeholder?: string;
-}
 
-export function SearchModal({
-	placeholder = "Search...",
-	...props
-}: SearchModalProps) {
+export function SearchModal(){
+	const [open, setOpen] = useState(false);
+	const [loading, setLoading] = useState(false);
+	
 	return (
-		<form {...props}>
-			<SidebarGroup className="py-0">
-				<SidebarGroupContent className="relative">
-					<Label htmlFor="search" className="sr-only">
-						Search
-					</Label>
-					<SidebarInput
-						id="search"
-						placeholder={placeholder}
-						className="pl-8"
+		<>
+			<Button variant="ghost" onClick={() => setOpen(true)} className="w-full">
+				<Search className="w-4 h-4 mr-2" />
+				Search Chats
+			</Button>
+			<Command.Dialog 
+				open={open} 
+				onOpenChange={setOpen}
+				className="fixed inset-0 z-50 flex items-center justify-center"
+			>
+				<div className="w-full max-w-2xl bg-background border rounded-lg shadow-lg p-6">
+					<Command.Input 
+						placeholder="Search chat history..." 
+						className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-100"
 					/>
-					<Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none opacity-50" />
-				</SidebarGroupContent>
-			</SidebarGroup>
-		</form>
-	);
+
+					<Command.List className="max-h-[300px] overflow-y-auto overflow-x-hidden">
+						{loading && <Command.Loading>Hang on…</Command.Loading>}
+
+						<Command.Empty>No results found.</Command.Empty>
+
+						<Command.Group heading="Fruits">
+							<Command.Item>Apple</Command.Item>
+							<Command.Item>Orange</Command.Item>
+							<Command.Separator />
+							<Command.Item>Pear</Command.Item>
+							<Command.Item>Blueberry</Command.Item>
+						</Command.Group>
+
+						<Command.Item>Fish</Command.Item>
+					</Command.List>
+				</div>
+			</Command.Dialog>
+		</>
+	)
 }
