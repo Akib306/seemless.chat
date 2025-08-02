@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @layer base {
+	/* Light theme variables */ 
 	:root {
 		--background: 0 0% 100%;
 		--foreground: 0 0% 3.9%;
@@ -39,39 +40,68 @@
 		--sidebar-ring: 217.2 91.2% 59.8%;
 	}
 
+	/* Dark theme variables - Optimized for readability and accessibility */
 	.dark {
-		--background: 0 0% 3.9%;
-		--foreground: 0 0% 98%;
-		--card: 0 0% 3.9%;
-		--card-foreground: 0 0% 98%;
-		--popover: 0 0% 3.9%;
-		--popover-foreground: 0 0% 98%;
-		--primary: 0 0% 98%;
-		--primary-foreground: 0 0% 9%;
-		--secondary: 0 0% 14.9%;
-		--secondary-foreground: 0 0% 98%;
-		--muted: 0 0% 14.9%;
-		--muted-foreground: 0 0% 63.9%;
-		--accent: 0 0% 14.9%;
-		--accent-foreground: 0 0% 98%;
-		--destructive: 0 62.8% 30.6%;
-		--destructive-foreground: 0 0% 98%;
-		--border: 0 0% 14.9%;
-		--input: 0 0% 14.9%;
-		--ring: 0 0% 83.1%;
-		--chart-1: 220 70% 50%;
-		--chart-2: 160 60% 45%;
-		--chart-3: 30 80% 55%;
-		--chart-4: 280 65% 60%;
-		--chart-5: 340 75% 55%;
-		--sidebar-background: 240 5.9% 10%;
-		--sidebar-foreground: 240 4.8% 95.9%;
-		--sidebar-primary: 224.3 76.3% 48%;
-		--sidebar-primary-foreground: 0 0% 100%;
-		--sidebar-accent: 240 3.7% 15.9%;
-		--sidebar-accent-foreground: 240 4.8% 95.9%;
-		--sidebar-border: 240 3.7% 15.9%;
-		--sidebar-ring: 217.2 91.2% 59.8%;
+		/* Base - True dark but not pure black for reduced eye strain */
+		--background: 222.2 47.4% 9.2%;   /* #0C1220 - Softer than pure black */
+		--foreground: 210 40% 94%;        /* #EDEEF2 - Off-white for better readability */
+
+		/* Cards, Popovers, Modals (Elevated Surfaces) */
+		--card: 222.2 47.4% 12.5%;        /* #152135 - Clear elevation from background */
+		--card-foreground: 210 40% 92%;   /* #E8E9ED - High contrast for text */
+
+		--popover: 222.2 47.4% 13.8%;     /* #182742 - Higher elevation for overlays */
+		--popover-foreground: 210 40% 92%;
+
+		/* Primary Action (Buttons) - Optimized blue with perfect contrast */
+		--primary: 217.2 91.2% 54.9%;     /* #2563EB - Slightly darker for accessibility */
+		--primary-foreground: 210 40% 98%; /* Pure contrast for text on primary */
+
+		/* Secondary Action (Buttons) - Better contrast ratio */
+		--secondary: 215 20.2% 25.1%;     /* #374357 - Improved readability */
+		--secondary-foreground: 210 40% 92%;
+
+		/* Muted Text & Elements - Optimized hierarchy */
+		--muted: 215 25.9% 16.9%;         /* #252B3B - Better separation */
+		--muted-foreground: 215.4 16.3% 65.9%; /* #8B94A8 - Improved contrast for secondary text */
+
+		/* Accent (for less prominent highlights) */
+		--accent: 215 25.9% 18.2%;        /* #2A3142 - Enhanced visibility */
+		--accent-foreground: 210 40% 90%;
+
+		/* Destructive Actions - Accessible red with proper contrast */
+		--destructive: 0 75.3% 52.9%;     /* #E11D48 - WCAG AA compliant */
+		--destructive-foreground: 210 40% 98%;
+
+		/* Borders & Inputs - Improved visibility */
+		--border: 215 25.9% 20.4%;        /* #313B4F - More visible borders */
+		--input: 215 25.9% 18.2%;         /* #2A3142 - Clear input backgrounds */
+		--ring: 217.2 91.2% 54.9%;        /* Focus ring matches primary */
+
+		/* Chart Colors - Desaturated and accessible */
+		--chart-1: 220 60% 58%;           /* Softer blues */
+		--chart-2: 160 50% 55%;           /* Muted greens */
+		--chart-3: 30 70% 60%;            /* Warm oranges */
+		--chart-4: 280 55% 65%;           /* Gentle purples */
+		--chart-5: 340 65% 60%;           /* Soft pinks */
+
+		/* Sidebar - Maximum distinction and hierarchy */
+		--sidebar-background: 222 47% 4.5%; /* #050A12 - Deepest level */
+		--sidebar-foreground: 210 40% 88%;  /* #D4D7DD - Softer than main content */
+		--sidebar-primary: 217.2 91.2% 54.9%; /* Consistent with main primary */
+		--sidebar-primary-foreground: 210 40% 98%;
+		--sidebar-border: 222 47% 12%;       /* #111B2B - Subtle but visible */
+		--sidebar-accent: 222 47% 15%;       /* #1A2538 - Clear hover states */
+		--sidebar-accent-foreground: 210 40% 90%;
+		--sidebar-ring: 217.2 91.2% 54.9%;
+
+		/* Additional semantic colors for enhanced UX */
+		--success: 142 76% 36%;           /* #16A34A - Accessible green */
+		--success-foreground: 355 100% 97%;
+		--warning: 38 92% 50%;            /* #F59E0B - Vibrant but accessible orange */
+		--warning-foreground: 222.2 84% 4.9%;
+		--info: 217.2 91.2% 54.9%;        /* Consistent with primary */
+		--info-foreground: 210 40% 98%;
 	}
 }
 
@@ -90,4 +120,93 @@ body {
 	margin: 0;
 	padding: 0;
 	overflow: hidden;
+}
+
+/* Enhanced dark mode utilities for optimal readability */
+@layer utilities {
+	/* Text hierarchy with opacity for dark mode */
+	.dark .text-hierarchy-primary {
+		color: hsl(var(--foreground));
+		opacity: 0.94;
+	}
+	
+	.dark .text-hierarchy-secondary {
+		color: hsl(var(--foreground));
+		opacity: 0.78;
+	}
+	
+	.dark .text-hierarchy-tertiary {
+		color: hsl(var(--muted-foreground));
+		opacity: 0.88;
+	}
+
+	/* Enhanced focus states for accessibility */
+	.dark .focus-enhanced:focus-visible {
+		outline: 2px solid hsl(var(--ring));
+		outline-offset: 2px;
+		box-shadow: 0 0 0 4px hsl(var(--ring) / 0.1);
+	}
+
+	/* Improved button hover states for dark mode */
+	.dark .button-hover-enhanced:hover {
+		background-color: hsl(var(--accent));
+		border-color: hsl(var(--border));
+		transition: all 0.2s ease-in-out;
+	}
+
+	/* Better card elevation in dark mode */
+	.dark .card-elevated {
+		background-color: hsl(var(--card));
+		border: 1px solid hsl(var(--border));
+		box-shadow: 0 4px 12px hsl(var(--background) / 0.4);
+	}
+
+	/* Optimized input styles for dark mode */
+	.dark .input-enhanced {
+		background-color: hsl(var(--input));
+		border: 1px solid hsl(var(--border));
+		color: hsl(var(--foreground));
+	}
+
+	.dark .input-enhanced:focus {
+		border-color: hsl(var(--ring));
+		box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+	}
+
+	.dark .input-enhanced::placeholder {
+		color: hsl(var(--muted-foreground));
+		opacity: 0.7;
+	}
+
+	/* Sidebar specific enhancements */
+	.dark .sidebar-item-hover:hover {
+		background-color: hsl(var(--sidebar-accent));
+		color: hsl(var(--sidebar-accent-foreground));
+		transition: all 0.15s ease-in-out;
+	}
+
+	/* Improved scrollbar for dark mode */
+	.dark ::-webkit-scrollbar {
+		width: 8px;
+		height: 8px;
+	}
+
+	.dark ::-webkit-scrollbar-track {
+		background: hsl(var(--muted));
+	}
+
+	.dark ::-webkit-scrollbar-thumb {
+		background: hsl(var(--muted-foreground) / 0.3);
+		border-radius: 4px;
+	}
+
+	.dark ::-webkit-scrollbar-thumb:hover {
+		background: hsl(var(--muted-foreground) / 0.5);
+	}
+
+	/* Selection colors optimized for dark mode */
+	.dark ::selection {
+		background-color: hsl(var(--primary) / 0.2);
+		color: hsl(var(--foreground));
+	}
 }
