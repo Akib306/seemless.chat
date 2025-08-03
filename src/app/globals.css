@@ -7,9 +7,9 @@
 	:root {
 		--background: 0 0% 100%;
 		--foreground: 0 0% 3.9%;
-		--card: 0 0% 100%;
+		--card: 0 0% 97%;                 /* #F7F7F7 - Subtle contrast from background */
 		--card-foreground: 0 0% 3.9%;
-		--popover: 0 0% 100%;
+		--popover: 0 0% 95%;               /* #F2F2F2 - More contrast for overlays */
 		--popover-foreground: 0 0% 3.9%;
 		--primary: 0 0% 9%;
 		--primary-foreground: 0 0% 98%;
@@ -43,15 +43,15 @@
 	/* Dark theme variables - Optimized for readability and accessibility */
 	.dark {
 		/* Base - True dark but not pure black for reduced eye strain */
-		--background: 222.2 47.4% 9.2%;   /* #0C1220 - Softer than pure black */
+		--background: 0 0% 10%;   
 		--foreground: 210 40% 94%;        /* #EDEEF2 - Off-white for better readability */
 
 		/* Cards, Popovers, Modals (Elevated Surfaces) */
-		--card: 222.2 47.4% 12.5%;        /* #152135 - Clear elevation from background */
-		--card-foreground: 210 40% 92%;   /* #E8E9ED - High contrast for text */
+		--card: 0 0% 15%;                  /* #262626 - Strong contrast from background */
+		--card-foreground: 210 40% 94%;   /* #F0F1F5 - Enhanced contrast for text */
 
-		--popover: 222.2 47.4% 13.8%;     /* #182742 - Higher elevation for overlays */
-		--popover-foreground: 210 40% 92%;
+		--popover: 0 0% 18%;               /* #2E2E2E - Higher elevation for overlays */
+		--popover-foreground: 210 40% 94%;
 
 		/* Primary Action (Buttons) - Optimized blue with perfect contrast */
 		--primary: 217.2 91.2% 54.9%;     /* #2563EB - Slightly darker for accessibility */
@@ -86,7 +86,7 @@
 		--chart-5: 340 65% 60%;           /* Soft pinks */
 
 		/* Sidebar - Maximum distinction and hierarchy */
-		--sidebar-background: 222 47% 4.5%; /* #050A12 - Deepest level */
+		--sidebar-background: 0 0% 9%; /* #171717 - RGB 23 23 23 */
 		--sidebar-foreground: 210 40% 88%;  /* #D4D7DD - Softer than main content */
 		--sidebar-primary: 217.2 91.2% 54.9%; /* Consistent with main primary */
 		--sidebar-primary-foreground: 210 40% 98%;

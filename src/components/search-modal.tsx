@@ -41,10 +41,10 @@ export function SearchModal(){
 			</Button>
 			{open && (
 				<div 
-					className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm"
+					className="fixed inset-0 z-50 flex items-center justify-center"
 					onClick={() => setOpen(false)}
 				>
-					<Command className="w-full max-w-2xl bg-background border rounded-lg shadow-lg overflow-hidden">
+					<Command className="w-full max-w-2xl bg-card border rounded-lg shadow-lg overflow-hidden">
 						<div 
 							className="p-6"
 							onClick={(e) => e.stopPropagation()}
