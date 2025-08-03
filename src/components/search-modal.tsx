@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { Command, CommandInput } from "cmdk";
 
@@ -16,91 +16,64 @@ export function SearchModal(){
 	const [open, setOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
 	
+	// Handle Escape key to close modal
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') {
+				setOpen(false);
+			}
+		};
+
+		if (open) {
+			document.addEventListener('keydown', handleKeyDown);
+		}
+
+		return () => {
+			document.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [open]);
+	
 	return (
 		<>
-			<Button 
-				variant="ghost" 
-				onClick={() => setOpen(true)} 
-				className="w-full button-hover-enhanced focus-enhanced"
-			>
+			<Button variant="ghost" onClick={() => setOpen(true)} className="w-full">
 				<Search className="w-4 h-4 mr-2" />
-				<span className="text-hierarchy-primary">Search Chats</span>
+				Search Chats
 			</Button>
-			<Command.Dialog 
-				open={open} 
-				onOpenChange={setOpen}
-				className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-background/80"
-			>
-				<div className="w-full max-w-2xl card-elevated rounded-lg p-6 m-4">
-					<div className="mb-4">
-						<h2 className="text-lg font-semibold text-hierarchy-primary mb-2">
-							Search Chat History
-						</h2>
-						<p className="text-sm text-hierarchy-tertiary">
-							Find conversations, messages, and topics from your chat history
-						</p>
-					</div>
-					
+			{open && (
+				<div 
+					className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm"
+					onClick={() => setOpen(false)}
+				>
+					<Command className="w-full max-w-2xl bg-background border rounded-lg shadow-lg overflow-hidden">
+						<div 
+							className="p-6"
+							onClick={(e) => e.stopPropagation()}
+						>
 					<Command.Input 
-						placeholder="Type to search conversations..." 
-						className="input-enhanced h-12 w-full rounded-lg px-4 py-3 text-sm focus-enhanced mb-4"
+						placeholder="Search chat history..." 
+						className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-100"
 					/>
 
-					<Command.List className="max-h-[300px] overflow-y-auto overflow-x-hidden rounded-md border border-border">
-						{loading && (
-							<Command.Loading className="py-6 text-center text-hierarchy-secondary">
-								<div className="flex items-center justify-center space-x-2">
-									<div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full"></div>
-									<span>Searching...</span>
-								</div>
-							</Command.Loading>
-						)}
+					<Command.Separator />
 
-						<Command.Empty className="py-8 text-center text-hierarchy-tertiary">
-							<div className="flex flex-col items-center space-y-2">
-								<Search className="h-8 w-8 opacity-50" />
-								<p>No conversations found</p>
-								<p className="text-xs">Try different search terms</p>
-							</div>
-						</Command.Empty>
+					<Command.List className="max-h-[600px] overflow-y-auto overflow-x-hidden px-3 py-2">
+						{loading && <Command.Loading>Hang on…</Command.Loading>}
 
-						<Command.Group heading="Recent Conversations" className="p-2">
-							<Command.Item className="sidebar-item-hover rounded-md px-3 py-2 cursor-pointer">
-								<div className="flex flex-col">
-									<span className="text-hierarchy-primary font-medium">React Best Practices</span>
-									<span className="text-hierarchy-tertiary text-xs">2 hours ago</span>
-								</div>
-							</Command.Item>
-							<Command.Item className="sidebar-item-hover rounded-md px-3 py-2 cursor-pointer">
-								<div className="flex flex-col">
-									<span className="text-hierarchy-primary font-medium">TypeScript Debugging</span>
-									<span className="text-hierarchy-tertiary text-xs">Yesterday</span>
-								</div>
-							</Command.Item>
-							<Command.Separator className="my-1 border-border" />
-							<Command.Item className="sidebar-item-hover rounded-md px-3 py-2 cursor-pointer">
-								<div className="flex flex-col">
-									<span className="text-hierarchy-primary font-medium">API Integration Help</span>
-									<span className="text-hierarchy-tertiary text-xs">3 days ago</span>
-								</div>
-							</Command.Item>
+						<Command.Empty>No results found.</Command.Empty>
+
+						<Command.Group heading="Fruits">
+							<Command.Item>Apple</Command.Item>
+							<Command.Item>Orange</Command.Item>
+							<Command.Item>Pear</Command.Item>
+							<Command.Item>Blueberry</Command.Item>
 						</Command.Group>
 
-						<Command.Group heading="Suggestions" className="p-2">
-							<Command.Item className="sidebar-item-hover rounded-md px-3 py-2 cursor-pointer">
-								<span className="text-hierarchy-secondary">Search by topic or keyword</span>
-							</Command.Item>
-						</Command.Group>
+						<Command.Item>Fish</Command.Item>
 					</Command.List>
-
-					<div className="mt-4 pt-4 border-t border-border">
-						<div className="flex justify-between items-center text-xs text-hierarchy-tertiary">
-							<span>Use ↑↓ arrows to navigate</span>
-							<span>Press Enter to open</span>
 						</div>
-					</div>
+					</Command>
 				</div>
-			</Command.Dialog>
+			)}
 		</>
 	)
 }
