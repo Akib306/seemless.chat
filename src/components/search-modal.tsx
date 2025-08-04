@@ -1,6 +1,6 @@
 import type React from "react";
 import { useState, useEffect } from "react";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Command, CommandInput } from "cmdk";
 
 import { Label } from "@/components/ui/label";
@@ -45,7 +45,7 @@ export function SearchModal(){
 					onClick={() => setOpen(false)}
 				>
 					<Command className="w-full max-w-2xl bg-card border rounded-lg shadow-lg overflow-hidden">
-						<div className="p-6" onClick={(e) => e.stopPropagation()}>
+						<div className="p-4" onClick={(e) => e.stopPropagation()}>
 							<div className="flex flex-row items-center">
 								<Search className="w-4 h-4 mr-2" />
 								<Command.Input 
@@ -53,6 +53,7 @@ export function SearchModal(){
 									autoFocus
 									className="flex h-10 w-full border-none bg-card text-base placeholder:text-muted-foreground focus-visible:outline-none "
 								/>
+								<X className="w-5 h-5 ml-2" onClick={() => setOpen(false)} />
 							</div>
 							
 
