@@ -51,7 +51,7 @@ export function SearchModal(){
 								<Command.Input 
 									placeholder="Search chat history..." 
 									autoFocus
-									className="flex h-10 w-full border-none bg-card text-base file:border-0 file:bg-transparent placeholder:text-muted-foreground focus-visible:outline-none "
+									className="flex h-10 w-full border-none bg-card text-base placeholder:text-muted-foreground focus-visible:outline-none "
 								/>
 							</div>
 							
