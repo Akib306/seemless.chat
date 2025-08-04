@@ -74,7 +74,7 @@
 		--destructive-foreground: 210 40% 98%;
 
 		/* Borders & Inputs - Improved visibility */
-		--border: 215 25.9% 20.4%;        /* #313B4F - More visible borders */
+		--border: 215 25.9% 28%;          /* More contrasting borders */
 		--input: 215 25.9% 18.2%;         /* #2A3142 - Clear input backgrounds */
 		--ring: 217.2 91.2% 54.9%;        /* Focus ring matches primary */
 
