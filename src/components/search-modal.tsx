@@ -46,10 +46,15 @@ export function SearchModal(){
 				>
 					<Command className="w-full max-w-2xl bg-card border rounded-lg shadow-lg overflow-hidden">
 						<div className="p-6" onClick={(e) => e.stopPropagation()}>
-							<Command.Input 
-								placeholder="Search chat history..." 
-								className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-100"
-							/>
+							<div className="flex flex-row items-center">
+								<Search className="w-4 h-4 mr-2" />
+								<Command.Input 
+									placeholder="Search chat history..." 
+									autoFocus
+									className="flex h-10 w-full border-none bg-card text-base file:border-0 file:bg-transparent placeholder:text-muted-foreground focus-visible:outline-none "
+								/>
+							</div>
+							
 
 							<Command.Separator className="-mx-6 my-4 h-px bg-border" />
 
@@ -58,7 +63,7 @@ export function SearchModal(){
 
 								<Command.Empty>No results found.</Command.Empty>
 
-								<Command.Group heading="Recent Chats" className="space-y-2">
+								<Command.Group heading="Recent Chats" className="space-y-2 text-base">
 									<Command.Item>Apple</Command.Item>
 									<Command.Item>Orange</Command.Item>
 									<Command.Item>Pear</Command.Item>
@@ -73,7 +78,6 @@ export function SearchModal(){
 									<Command.Item>Blueberry</Command.Item>
 									<Command.Item>Apple</Command.Item>
 									<Command.Item>Orange</Command.Item>
-									
 								</Command.Group>
 							</Command.List>
 						</div>
