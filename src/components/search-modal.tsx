@@ -16,17 +16,23 @@ export function SearchModal(){
 	const [open, setOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
 	
-	// Handle Escape key to close modal
+	// Handle keyboard shortcuts
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
-			if (event.key === 'Escape') {
+			// Handle Cmd+K (Mac) or Ctrl+K (Windows/Linux) to toggle search
+			if (event.key === 'k' && (event.metaKey || event.ctrlKey)) {
+				event.preventDefault();
+				setOpen(prev => !prev);
+				return;
+			}
+			
+			// Handle Escape key to close modal
+			if (event.key === 'Escape' && open) {
 				setOpen(false);
 			}
 		};
 
-		if (open) {
-			document.addEventListener('keydown', handleKeyDown);
-		}
+		document.addEventListener('keydown', handleKeyDown);
 
 		return () => {
 			document.removeEventListener('keydown', handleKeyDown);
@@ -35,9 +41,15 @@ export function SearchModal(){
 	
 	return (
 		<>
-			<Button variant="ghost" onClick={() => setOpen(true)} className="w-full">
-				<Search className="w-4 h-4 mr-2" />
-				Search Chats
+			<Button variant="ghost" onClick={() => setOpen(true)} className="w-full justify-between text-base">
+				<div className="flex items-center">
+					<Search className="w-4 h-4 mr-2" />
+					Search Chats
+				</div>
+				
+				<kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5">
+					<span className="text-xs">⌘</span>K
+				</kbd>
 			</Button>
 			{open && (
 				<div 
