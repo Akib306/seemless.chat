@@ -348,6 +348,19 @@ export function createDbUtils(supabase: SupabaseClient, getUserId?: () => Promis
 
       if (error) throw new Error(`Failed to search messages: ${error.message}`);
       return data
+    },
+
+    async searchMessagesCount(query: string, userId?: string): Promise<number> {
+      const id = userId || (await getUserId?.());
+      if (!id) throw new Error("User ID required");
+
+      const { data, error } = await supabase.rpc("search_messages_count", {
+        user_id: id,
+        search_query: query,
+      });
+
+      if (error) throw new Error(`Failed to search messages count: ${error.message}`);
+      return data;
     }
   }
 
