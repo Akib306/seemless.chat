@@ -1,14 +1,18 @@
+"use client";
 import type React from "react";
 import { useState, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import { Command } from "cmdk";
 import { Button } from "./ui/button";
-import { createDbUtils } from "@/lib/db/client";
-import { createClient } from "@/lib/supabase/client";
+import { search } from "@/lib/db/client";
+import { useRouter } from "next/navigation";
 
 export function SearchModal(){
 	const [open, setOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const [query, setQuery] = useState("");
+	const [results, setResults] = useState<any[]>([]);
+	const router = useRouter();
 	
 	// Handle keyboard shortcuts
 	useEffect(() => {
@@ -32,7 +36,37 @@ export function SearchModal(){
 			document.removeEventListener('keydown', handleKeyDown);
 		};
 	}, [open]);
-	
+
+	// Perform search when query changes (debounced)
+	useEffect(() => {
+		if (!open) return;
+
+		if (query.trim().length === 0) {
+			setResults([]);
+			return;
+		}
+
+		setLoading(true);
+		const handler = setTimeout(async () => {
+			try {
+				const data = await search.searchMessagesPaginated(query);
+				setResults(data);
+			} catch (err) {
+				console.error(err);
+				setResults([]);
+			} finally {
+				setLoading(false);
+			}
+		}, 400);
+
+		return () => clearTimeout(handler);
+	}, [query, open]);
+
+	const handleSelect = (chatId: string, messageId: string) => {
+		setOpen(false);
+		router.push(`/chat/${chatId}`);
+	};
+
 	return (
 		<>
 			<Button variant="ghost" onClick={() => setOpen(true)} className="w-full justify-between text-base">
@@ -46,7 +80,7 @@ export function SearchModal(){
 				</kbd>
 			</Button>
 			{open && (
-				<div 
+				<div
 					className="fixed inset-0 z-50 flex items-center justify-center"
 					onClick={() => setOpen(false)}
 				>
@@ -55,8 +89,10 @@ export function SearchModal(){
 							<div className="flex flex-row items-center">
 								<Search className="w-4 h-4 mr-2" />
 								<Command.Input 
-									placeholder="Search chat history..." 
+									placeholder="Search chat history..."
 									autoFocus
+									value={query}
+									onValueChange={(val: string) => setQuery(val)}
 									className="flex h-10 w-full border-none bg-card text-base placeholder:text-muted-foreground focus-visible:outline-none "
 								/>
 								<X className="w-5 h-5 ml-2" onClick={() => setOpen(false)} />
@@ -67,25 +103,20 @@ export function SearchModal(){
 
 							<Command.List className="max-h-[350px] overflow-y-auto overflow-x-hidden px-3 py-2">
 								{loading && <Command.Loading>Hang on…</Command.Loading>}
+								{!loading && results.length === 0 && (
+									<Command.Empty>No results found.</Command.Empty>
+								)}
 
-								<Command.Empty>No results found.</Command.Empty>
+								{results.length > 0 && (
+									<Command.Group heading="Results" className="space-y-2 text-base">
+										{results.map((result) => (
+											<Command.Item key={result.message_id} value={result.chat_title} onSelect={() => handleSelect(result.chat_id, result.message_id)}>
+												{result.chat_title}
+											</Command.Item>
+										))}
+									</Command.Group>
+								)}
 
-								<Command.Group heading="Recent Chats" className="space-y-2 text-base">
-									<Command.Item>Apple</Command.Item>
-									<Command.Item>Orange</Command.Item>
-									<Command.Item>Pear</Command.Item>
-									<Command.Item>Blueberry</Command.Item>
-									<Command.Item>Apple</Command.Item>
-									<Command.Item>Orange</Command.Item>
-									<Command.Item>Pear</Command.Item>
-									<Command.Item>Blueberry</Command.Item>
-									<Command.Item>Apple</Command.Item>
-									<Command.Item>Orange</Command.Item>
-									<Command.Item>Pear</Command.Item>
-									<Command.Item>Blueberry</Command.Item>
-									<Command.Item>Apple</Command.Item>
-									<Command.Item>Orange</Command.Item>
-								</Command.Group>
 							</Command.List>
 						</div>
 					</Command>
