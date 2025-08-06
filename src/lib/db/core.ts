@@ -332,6 +332,25 @@ export function createDbUtils(supabase: SupabaseClient, getUserId?: () => Promis
     },
   };
 
+  // ===== SEARCH =====
+  const search = {
+    async searchMessagesPaginated(query: string, userId?: string, limit: number = 20, offset: number = 0): Promise<any[]> {
+      const id = userId || (await getUserId?.());
+      if (!id) throw new Error("User ID required");
+
+      const { data, error } = await supabase.rpc("search_messages", {
+          user_id: id,
+          search_query: query,
+          page_limit: limit,
+          page_offset: offset,
+        })
+        .select("*");
+
+      if (error) throw new Error(`Failed to search messages: ${error.message}`);
+      return data
+    }
+  }
+
   // Add other utilities (subscriptions, apiUsage) following the same pattern...
 
   return {
@@ -340,5 +359,6 @@ export function createDbUtils(supabase: SupabaseClient, getUserId?: () => Promis
     messages,
     subscriptions,
     apiUsage,
+    search,
   };
 } 
