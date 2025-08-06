@@ -7,7 +7,11 @@ import { Button } from "./ui/button";
 import { search } from "@/lib/db/client";
 import { useRouter } from "next/navigation";
 
-export function SearchModal(){
+interface SearchModalProps {
+	collapsed?: boolean;
+}
+
+export function SearchModal({ collapsed = false }: SearchModalProps){
 	const [open, setOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [query, setQuery] = useState("");
@@ -50,9 +54,9 @@ export function SearchModal(){
 		const handler = setTimeout(async () => {
 			try {
 				const data = await search.searchMessagesPaginated(query);
-				setResults(data);
+				setResults(data || []);
 			} catch (err) {
-				console.error(err);
+				console.error('Search error:', err);
 				setResults([]);
 			} finally {
 				setLoading(false);
@@ -69,16 +73,27 @@ export function SearchModal(){
 
 	return (
 		<>
-			<Button variant="ghost" onClick={() => setOpen(true)} className="w-full justify-between text-base">
-				<div className="flex items-center">
-					<Search className="w-4 h-4 mr-2" />
-					Search Chats
-				</div>
-				
-				<kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5">
-					<span className="text-xs">⌘</span>K
-				</kbd>
-			</Button>
+			{collapsed ? (
+				<Button
+					variant="ghost"
+					size="icon"
+					className="h-10 w-10"
+					onClick={() => setOpen(true)}
+				>
+					<Search className="h-5 w-5" />
+				</Button>
+			) : (
+				<Button variant="ghost" onClick={() => setOpen(true)} className="w-full justify-between text-base">
+					<div className="flex items-center">
+						<Search className="w-4 h-4 mr-2" />
+						Search Chats
+					</div>
+					
+					<kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5">
+						<span className="text-xs">⌘</span>K
+					</kbd>
+				</Button>
+			)}
 			{open && (
 				<div
 					className="fixed inset-0 z-50 flex items-center justify-center"
@@ -108,10 +123,18 @@ export function SearchModal(){
 								)}
 
 								{results.length > 0 && (
-									<Command.Group heading="Results" className="space-y-2 text-base">
+									<Command.Group heading={`${results.length} Results`} className="space-y-2 text-base">
 										{results.map((result) => (
-											<Command.Item key={result.message_id} value={result.chat_title} onSelect={() => handleSelect(result.chat_id, result.message_id)}>
-												{result.chat_title}
+											<Command.Item 
+												key={result.message_id} 
+												value={result.chat_title || 'Untitled'} 
+												onSelect={() => handleSelect(result.chat_id, result.message_id)}
+												className="flex flex-col items-start p-3 rounded hover:bg-muted cursor-pointer"
+											>
+												<div className="font-medium">{result.chat_title || 'Untitled Chat'}</div>
+												<div className="text-sm text-muted-foreground line-clamp-2 mt-1">
+													{result.highlighted_content || result.content || 'No content preview'}
+												</div>
 											</Command.Item>
 										))}
 									</Command.Group>
