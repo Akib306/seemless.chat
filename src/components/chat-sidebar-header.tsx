@@ -79,7 +79,7 @@ export function ChatSidebarHeader() {
 					</div>
 
 					{/* Search Form */}
-					<SearchModal />
+					<SearchModal collapsed={false} />
 				</>
 			) : (
 				<>
@@ -96,17 +96,7 @@ export function ChatSidebarHeader() {
 							<Edit className="h-5 w-5" />
 						</Button>
 						
-						<Button
-							variant="ghost"
-							size="icon"
-							className="h-10 w-10"
-							onClick={() => {
-								// You can add search functionality here
-								console.log("Search clicked");
-							}}
-						>
-							<Search className="h-5 w-5" />
-						</Button>
+						<SearchModal collapsed={true} />
 					</div>
 				</>
 			)}
