@@ -334,20 +334,32 @@ export function createDbUtils(supabase: SupabaseClient, getUserId?: () => Promis
 
   // ===== SEARCH =====
   const search = {
+    async searchMessages(query: string, user_id?: string): Promise<any[]> {
+      const id = user_id || (await getUserId?.());
+      if (!id) throw new Error("User ID required");
+      
+      const { data, error } = await supabase.rpc("search_messages", {
+        search_query: query,
+        user_uuid: id,
+      });
+      
+      if (error) throw new Error(`Failed to search messages: ${error.message}`);
+      return data || [];
+    },
+
     async searchMessagesPaginated(query: string, userId?: string, limit: number = 20, offset: number = 0): Promise<any[]> {
       const id = userId || (await getUserId?.());
       if (!id) throw new Error("User ID required");
 
-      const { data, error } = await supabase.rpc("search_messages", {
-          user_id: id,
-          search_query: query,
-          page_limit: limit,
-          page_offset: offset,
-        })
-        .select("*");
+      const { data, error } = await supabase.rpc("search_messages_paginated", {
+        search_query: query,
+        page_limit: limit,
+        page_offset: offset,
+        user_uuid: id,
+      });
 
       if (error) throw new Error(`Failed to search messages: ${error.message}`);
-      return data
+      return data || [];
     },
 
     async searchMessagesCount(query: string, userId?: string): Promise<number> {
@@ -355,12 +367,12 @@ export function createDbUtils(supabase: SupabaseClient, getUserId?: () => Promis
       if (!id) throw new Error("User ID required");
 
       const { data, error } = await supabase.rpc("search_messages_count", {
-        user_id: id,
         search_query: query,
+        user_uuid: id,
       });
 
       if (error) throw new Error(`Failed to search messages count: ${error.message}`);
-      return data;
+      return data || 0;
     }
   }
 
