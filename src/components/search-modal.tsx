@@ -1,16 +1,10 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { Search, X } from "lucide-react";
-import { Command, CommandInput } from "cmdk";
-
-import { Label } from "@/components/ui/label";
-import {
-	SidebarGroup,
-	SidebarGroupContent,
-	SidebarInput,
-} from "@/components/ui/sidebar";
+import { Command } from "cmdk";
 import { Button } from "./ui/button";
-
+import { createDbUtils } from "@/lib/db/client";
+import { createClient } from "@/lib/supabase/client";
 
 export function SearchModal(){
 	const [open, setOpen] = useState(false);
