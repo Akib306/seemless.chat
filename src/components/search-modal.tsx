@@ -14,8 +14,41 @@ import { Button } from "./ui/button";
 import { search } from "@/lib/db/client";
 import { useRouter } from "next/navigation";
 
+// Simple in-memory LRU cache with TTL for search results
+type SearchCacheEntry = { results: any[]; timestamp: number };
+const SEARCH_CACHE: Map<string, SearchCacheEntry> = new Map();
+const CACHE_TTL_MS = 60_000; // 1 minute
+const MAX_CACHE_ENTRIES = 50;
+
+function normalizeQuery(value: string): string {
+  return value.trim();
+}
+
+function getCache(key: string): SearchCacheEntry | undefined {
+  const entry = SEARCH_CACHE.get(key);
+  if (!entry) return undefined;
+  return entry;
+}
+
+function isFresh(entry: SearchCacheEntry): boolean {
+  return Date.now() - entry.timestamp < CACHE_TTL_MS;
+}
+
+function setCache(key: string, results: any[]) {
+  // Move to end to mark as most recently used
+  if (SEARCH_CACHE.has(key)) {
+    SEARCH_CACHE.delete(key);
+  }
+  SEARCH_CACHE.set(key, { results, timestamp: Date.now() });
+  // Evict least-recently used
+  if (SEARCH_CACHE.size > MAX_CACHE_ENTRIES) {
+    const firstKey = SEARCH_CACHE.keys().next().value as string | undefined;
+    if (firstKey) SEARCH_CACHE.delete(firstKey);
+  }
+}
+
 interface SearchModalProps {
-	collapsed?: boolean;
+    collapsed?: boolean;
 }
 
 export function SearchModal({ collapsed = false }: SearchModalProps){
@@ -23,7 +56,7 @@ export function SearchModal({ collapsed = false }: SearchModalProps){
 	const [loading, setLoading] = useState(false);
 	const [query, setQuery] = useState("");
 	const [results, setResults] = useState<any[]>([]);
-	const router = useRouter();
+    const router = useRouter();
 	
 	// Handle keyboard shortcuts
 	useEffect(() => {
@@ -48,30 +81,52 @@ export function SearchModal({ collapsed = false }: SearchModalProps){
 		};
 	}, [open]);
 
-	// Perform search when query changes (debounced)
-	useEffect(() => {
-		if (!open) return;
+    // Perform search when query changes (debounced) with cache and SWR-like behavior
+    useEffect(() => {
+        if (!open) return;
 
-		if (query.trim().length === 0) {
-			setResults([]);
-			return;
-		}
+        const normalized = normalizeQuery(query);
+        if (normalized.length === 0) {
+            setResults([]);
+            setLoading(false);
+            return;
+        }
 
-		setLoading(true);
-		const handler = setTimeout(async () => {
-			try {
-				const data = await search.searchMessagesPaginated(query);
-				setResults(data || []);
-			} catch (err) {
-				console.error('Search error:', err);
-				setResults([]);
-			} finally {
-				setLoading(false);
-			}
-		}, 400);
+        const cached = getCache(normalized);
+        const hasCache = Boolean(cached);
+        const cacheIsFresh = cached ? isFresh(cached) : false;
 
-		return () => clearTimeout(handler);
-	}, [query, open]);
+        if (hasCache) {
+            setResults(cached!.results);
+            setLoading(!cacheIsFresh); // only show loading if we'll revalidate
+        } else {
+            setLoading(true);
+        }
+
+        const handler = setTimeout(async () => {
+            // Skip network if cache is fresh
+            if (cacheIsFresh) return;
+
+            let cancelled = false;
+            try {
+                const data = await search.searchMessagesPaginated(normalized);
+                if (cancelled) return;
+                setCache(normalized, data || []);
+                setResults(data || []);
+            } catch (err) {
+                console.error('Search error:', err);
+                if (!hasCache) setResults([]);
+            } finally {
+                if (!cacheIsFresh) setLoading(false);
+            }
+
+            return () => {
+                cancelled = true;
+            };
+        }, 400);
+
+        return () => clearTimeout(handler);
+    }, [query, open]);
 
 	const handleSelect = (chatId: string, messageId: string) => {
 		setOpen(false);
