@@ -120,7 +120,7 @@ export function SearchModal({ collapsed = false }: SearchModalProps){
               {results.map((result) => (
                 <CommandItem
                   key={result.message_id}
-                  value={result.chat_title || "Untitled"}
+                  value={`${result.chat_title || "Untitled"} ${result.content || ""} ${result.message_id}`}
                   onSelect={() => handleSelect(result.chat_id, result.message_id)}
                   className="flex flex-col items-start"
                 >
