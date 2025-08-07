@@ -1,8 +1,15 @@
 "use client";
 import type React from "react";
 import { useState, useEffect } from "react";
-import { Search, X } from "lucide-react";
-import { Command } from "cmdk";
+import { Search } from "lucide-react";
+import {
+  CommandDialog,
+  CommandInput,
+  CommandList,
+  CommandGroup,
+  CommandItem,
+  CommandEmpty,
+} from "@/components/ui/command";
 import { Button } from "./ui/button";
 import { search } from "@/lib/db/client";
 import { useRouter } from "next/navigation";
@@ -94,57 +101,41 @@ export function SearchModal({ collapsed = false }: SearchModalProps){
 					</kbd>
 				</Button>
 			)}
-			{open && (
-				<div
-					className="fixed inset-0 z-50 flex items-center justify-center"
-					onClick={() => setOpen(false)}
-				>
-					<Command className="w-full max-w-2xl bg-card border rounded-lg shadow-lg overflow-hidden">
-						<div className="p-4" onClick={(e) => e.stopPropagation()}>
-							<div className="flex flex-row items-center">
-								<Search className="w-4 h-4 mr-2" />
-								<Command.Input 
-									placeholder="Search chat history..."
-									autoFocus
-									value={query}
-									onValueChange={(val: string) => setQuery(val)}
-									className="flex h-10 w-full border-none bg-card text-base placeholder:text-muted-foreground focus-visible:outline-none "
-								/>
-								<X className="w-5 h-5 ml-2" onClick={() => setOpen(false)} />
-							</div>
-							
-
-							<Command.Separator className="-mx-6 my-4 h-px bg-border" />
-
-							<Command.List className="max-h-[350px] overflow-y-auto overflow-x-hidden px-3 py-2">
-								{loading && <Command.Loading>Hang on…</Command.Loading>}
-								{!loading && results.length === 0 && (
-									<Command.Empty>No results found.</Command.Empty>
-								)}
-
-								{results.length > 0 && (
-									<Command.Group heading={`${results.length} Results`} className="space-y-2 text-base">
-										{results.map((result) => (
-											<Command.Item 
-												key={result.message_id} 
-												value={result.chat_title || 'Untitled'} 
-												onSelect={() => handleSelect(result.chat_id, result.message_id)}
-												className="flex flex-col items-start p-3 rounded hover:bg-muted cursor-pointer"
-											>
-												<div className="font-medium">{result.chat_title || 'Untitled Chat'}</div>
-												<div className="text-sm text-muted-foreground line-clamp-2 mt-1">
-													{result.highlighted_content || result.content || 'No content preview'}
-												</div>
-											</Command.Item>
-										))}
-									</Command.Group>
-								)}
-
-							</Command.List>
-						</div>
-					</Command>
-				</div>
-			)}
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        <CommandInput
+          placeholder="Search chat history..."
+          value={query}
+          onValueChange={(val: string) => setQuery(val)}
+        />
+        <CommandList>
+          <CommandEmpty>
+            {loading
+              ? "Searching…"
+              : query.trim().length === 0
+              ? "Start typing to search…"
+              : "No results found."}
+          </CommandEmpty>
+          {results.length > 0 && (
+            <CommandGroup heading={`${results.length} Results`}>
+              {results.map((result) => (
+                <CommandItem
+                  key={result.message_id}
+                  value={result.chat_title || "Untitled"}
+                  onSelect={() => handleSelect(result.chat_id, result.message_id)}
+                  className="flex flex-col items-start"
+                >
+                  <div className="font-medium">
+                    {result.chat_title || "Untitled Chat"}
+                  </div>
+                  <div className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                    {result.highlighted_content || result.content || "No content preview"}
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+        </CommandList>
+      </CommandDialog>
 		</>
 	)
 }
