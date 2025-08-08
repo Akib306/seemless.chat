@@ -1,7 +1,7 @@
 "use client";
 import type React from "react";
 import { useState, useEffect } from "react";
-import { Search } from "lucide-react";
+import { Search, Clock } from "lucide-react";
 import {
   CommandDialog,
   CommandInput,
@@ -57,6 +57,20 @@ export function SearchModal({ collapsed = false }: SearchModalProps){
 	const [query, setQuery] = useState("");
 	const [results, setResults] = useState<any[]>([]);
     const router = useRouter();
+
+    function formatRelative(dateString?: string): string {
+      if (!dateString) return "";
+      const date = new Date(dateString);
+      const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+      if (seconds < 60) return "just now";
+      if (minutes < 60) return `${minutes}m ago`;
+      if (hours < 24) return `${hours}h ago`;
+      if (days < 30) return `${days}d ago`;
+      return date.toLocaleDateString();
+    }
 	
 	// Handle keyboard shortcuts
 	useEffect(() => {
@@ -158,7 +172,7 @@ export function SearchModal({ collapsed = false }: SearchModalProps){
 			)}
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput
-          placeholder="Search chat history..."
+          placeholder="Search chats..."
           value={query}
           onValueChange={(val: string) => setQuery(val)}
         />
@@ -177,18 +191,30 @@ export function SearchModal({ collapsed = false }: SearchModalProps){
                   key={result.message_id}
                   value={`${result.chat_title || "Untitled"} ${result.content || ""} ${result.message_id}`}
                   onSelect={() => handleSelect(result.chat_id, result.message_id)}
-                  className="flex flex-col items-start"
+                  className="flex flex-col items-start gap-1"
                 >
-                  <div className="font-medium">
-                    {result.chat_title || "Untitled Chat"}
+                  <div className="flex w-full items-center gap-2">
+                    <div className="font-medium truncate flex-1">
+                      {result.chat_title || "Untitled Chat"}
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-foreground/60">
+                      <Clock className="h-3 w-3 text-foreground/60" />
+                      <span>{formatRelative(result.created_at)}</span>
+                    </div>
                   </div>
-                  <div className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                    {result.highlighted_content || result.content || "No content preview"}
-                  </div>
+                  <div
+                    className="text-sm text-foreground/70 line-clamp-2 [&_b]:text-inherit [&_b]:font-medium"
+                    dangerouslySetInnerHTML={{
+                      __html: result.highlighted_content ||
+                        (result.content ? (result.content as string) : "")
+                    }}
+                  />
                 </CommandItem>
               ))}
             </CommandGroup>
           )}
+          {/* Sticky helper footer */}
+       
         </CommandList>
       </CommandDialog>
 		</>
