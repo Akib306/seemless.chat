@@ -36,25 +36,24 @@ export function ChatSidebarHeader() {
 					<>
 						{/* Logo that becomes toggle on hover */}
 						<div className="flex justify-center w-full">
-							<div 
-								className="relative w-10 h-10 flex items-center justify-center"
+						<div 
+							className="relative w-10 h-10 flex items-center justify-center cursor-pointer group/logo"
+								onClick={toggleSidebar}
 							>
 								<Image
 									src="/logo.svg"
 									alt="Seemless Chat Logo"
 									width={40}
 									height={40}
-									className="object-contain hover:opacity-0 transition-opacity duration-200 cursor-pointer peer"
+								className="object-contain transition-opacity duration-200 group-hover/logo:opacity-0"
 									style={{
 										filter:
 											"invert(45%) sepia(80%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(90%)",
 									}}
-									onClick={toggleSidebar}
 								/>
-								<PanelLeft 
-									className="absolute w-10 h-10 p-2 opacity-0 peer-hover:opacity-100 transition-opacity duration-200 cursor-pointer" 
-									onClick={toggleSidebar}
-								/>
+							<PanelLeft 
+								className="absolute inset-0 m-auto w-10 h-10 p-2 opacity-0 transition-opacity duration-200 group-hover/logo:opacity-100 pointer-events-none" 
+							/>
 							</div>
 						</div>
 					</>
