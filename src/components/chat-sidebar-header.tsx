@@ -14,8 +14,14 @@ export function ChatSidebarHeader() {
   
 	return (
     <>
-      {/* Fixed header that's always visible */}
-			<div className={`fixed top-4 left-4 z-50 flex items-center ${state === "expanded" ? "w-64" : "gap-2"}`}>
+			{/* Fixed header that's always visible */}
+			<div
+				className={`fixed top-4 z-50 flex items-center ${
+					state === "expanded"
+						? "left-4 w-64"
+						: "left-0 w-[--sidebar-width-icon] justify-center"
+				}`}
+			>
 				{state === "expanded" ? (
 					<div className="flex justify-between items-center w-full">
 						<div className="relative w-10 h-10">
@@ -35,27 +41,23 @@ export function ChatSidebarHeader() {
 				) : (
 					<>
 						{/* Logo that becomes toggle on hover */}
-						<div className="flex justify-center w-full">
-							<div 
-								className="relative w-10 h-10 flex items-center justify-center"
-							>
-								<Image
-									src="/logo.svg"
-									alt="Seemless Chat Logo"
-									width={40}
-									height={40}
-									className="object-contain hover:opacity-0 transition-opacity duration-200 cursor-pointer peer"
-									style={{
-										filter:
-											"invert(45%) sepia(80%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(90%)",
-									}}
-									onClick={toggleSidebar}
-								/>
-								<PanelLeft 
-									className="absolute w-10 h-10 p-2 opacity-0 peer-hover:opacity-100 transition-opacity duration-200 cursor-pointer" 
-									onClick={toggleSidebar}
-								/>
-							</div>
+						<div 
+							className="relative w-10 h-10 flex items-center justify-center cursor-pointer group/logo"
+							onClick={toggleSidebar}
+						>
+                            <Image
+								src="/logo.svg"
+								alt="Seemless Chat Logo"
+								fill
+                                className="object-contain object-center transition-opacity duration-200 group-hover/logo:opacity-0 pointer-events-none"
+								style={{
+									filter:
+										"invert(45%) sepia(80%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(90%)",
+								}}
+							/>
+							<PanelLeft 
+								className="absolute inset-0 m-auto h-5 w-5 opacity-0 transition-opacity duration-200 group-hover/logo:opacity-100 pointer-events-none" 
+							/>
 						</div>
 					</>
 				)}
