@@ -35,6 +35,7 @@ import {
   Settings as SettingsIcon,
   LifeBuoy,
   LogOut,
+  CircleUser,
 } from "lucide-react";
 
 // Extended Chat type to include pinned_at until types are regenerated
@@ -165,7 +166,7 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 					<div className="group-data-[collapsible=icon]:hidden">
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
-								<button className="w-full flex items-center justify-between gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-sidebar-accent/50">
+								<button className="w-full flex items-center justify-between gap-3 rounded-2xl px-3 py-2 bg-sidebar-accent/40 border border-sidebar-border/60 transition-colors hover:bg-sidebar-accent/60">
 									<span className="flex items-center gap-3">
 										<Avatar>
 											<AvatarImage src={undefined} alt={displayName} />
@@ -178,39 +179,39 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 									</span>
 								</button>
 							</DropdownMenuTrigger>
-							<DropdownMenuContent align="start" side="top" className="w-64">
+							<DropdownMenuContent align="start" side="top" sideOffset={8} className="w-80 rounded-2xl p-2 shadow-xl border border-sidebar-border/60">
 								<DropdownMenuLabel className="font-normal">
-									<div className="flex flex-col space-y-1">
-										<p className="text-sm font-medium leading-none">{displayName}</p>
-										<p className="text-xs text-muted-foreground">{userEmail ?? ""}</p>
+									<div className="flex items-center gap-2 text-muted-foreground">
+										<CircleUser className="h-4 w-4" />
+										<p className="text-sm leading-none">{userEmail ?? displayName}</p>
 									</div>
 								</DropdownMenuLabel>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem onSelect={(e) => { e.preventDefault(); /* route later */ }}>
+								<DropdownMenuItem className="rounded-xl px-3 py-2 text-base" onSelect={(e) => { e.preventDefault(); /* route later */ }}>
 									<Crown className="mr-2 h-4 w-4" /> Upgrade plan
 								</DropdownMenuItem>
-								<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+								<DropdownMenuItem className="rounded-xl px-3 py-2 text-base" onSelect={(e) => { e.preventDefault(); }}>
 									<SlidersHorizontal className="mr-2 h-4 w-4" /> Customize
 								</DropdownMenuItem>
-								<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+								<DropdownMenuItem className="rounded-xl px-3 py-2 text-base" onSelect={(e) => { e.preventDefault(); }}>
 									<SettingsIcon className="mr-2 h-4 w-4" /> Settings
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
 								<DropdownMenuSub>
-									<DropdownMenuSubTrigger>
+									<DropdownMenuSubTrigger className="rounded-xl px-3 py-2 text-base">
 										<LifeBuoy className="mr-2 h-4 w-4" /> Help
 									</DropdownMenuSubTrigger>
-									<DropdownMenuSubContent>
-										<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+									<DropdownMenuSubContent className="rounded-xl p-2">
+										<DropdownMenuItem className="rounded-lg px-3 py-2" onSelect={(e) => { e.preventDefault(); }}>
 											Documentation
 										</DropdownMenuItem>
-										<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+										<DropdownMenuItem className="rounded-lg px-3 py-2" onSelect={(e) => { e.preventDefault(); }}>
 											Contact support
 										</DropdownMenuItem>
 									</DropdownMenuSubContent>
 								</DropdownMenuSub>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem onSelect={handleLogout} className="text-red-600 focus:text-red-600">
+								<DropdownMenuItem onSelect={handleLogout} className="rounded-xl px-3 py-2 text-base text-red-600 focus:text-red-600">
 									<LogOut className="mr-2 h-4 w-4" /> Log out
 								</DropdownMenuItem>
 							</DropdownMenuContent>
@@ -228,39 +229,39 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 									</Avatar>
 								</button>
 							</DropdownMenuTrigger>
-							<DropdownMenuContent align="start" side="right" className="w-64">
+							<DropdownMenuContent align="start" side="right" sideOffset={8} className="w-80 rounded-2xl p-2 shadow-xl border border-sidebar-border/60">
 								<DropdownMenuLabel className="font-normal">
-									<div className="flex flex-col space-y-1">
-										<p className="text-sm font-medium leading-none">{displayName}</p>
-										<p className="text-xs text-muted-foreground">{userEmail ?? ""}</p>
+									<div className="flex items-center gap-2 text-muted-foreground">
+										<CircleUser className="h-4 w-4" />
+										<p className="text-sm leading-none">{userEmail ?? displayName}</p>
 									</div>
 								</DropdownMenuLabel>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+								<DropdownMenuItem className="rounded-xl px-3 py-2 text-base" onSelect={(e) => { e.preventDefault(); }}>
 									<Crown className="mr-2 h-4 w-4" /> Upgrade plan
 								</DropdownMenuItem>
-								<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+								<DropdownMenuItem className="rounded-xl px-3 py-2 text-base" onSelect={(e) => { e.preventDefault(); }}>
 									<SlidersHorizontal className="mr-2 h-4 w-4" /> Customize
 								</DropdownMenuItem>
-								<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+								<DropdownMenuItem className="rounded-xl px-3 py-2 text-base" onSelect={(e) => { e.preventDefault(); }}>
 									<SettingsIcon className="mr-2 h-4 w-4" /> Settings
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
 								<DropdownMenuSub>
-									<DropdownMenuSubTrigger>
+									<DropdownMenuSubTrigger className="rounded-xl px-3 py-2 text-base">
 										<LifeBuoy className="mr-2 h-4 w-4" /> Help
 									</DropdownMenuSubTrigger>
-									<DropdownMenuSubContent>
-										<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+									<DropdownMenuSubContent className="rounded-xl p-2">
+										<DropdownMenuItem className="rounded-lg px-3 py-2" onSelect={(e) => { e.preventDefault(); }}>
 											Documentation
 										</DropdownMenuItem>
-										<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+										<DropdownMenuItem className="rounded-lg px-3 py-2" onSelect={(e) => { e.preventDefault(); }}>
 											Contact support
 										</DropdownMenuItem>
 									</DropdownMenuSubContent>
 								</DropdownMenuSub>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem onSelect={handleLogout} className="text-red-600 focus:text-red-600">
+								<DropdownMenuItem onSelect={handleLogout} className="rounded-xl px-3 py-2 text-base text-red-600 focus:text-red-600">
 									<LogOut className="mr-2 h-4 w-4" /> Log out
 								</DropdownMenuItem>
 							</DropdownMenuContent>
