@@ -5,6 +5,7 @@ import {
 	SidebarContent,
 	SidebarHeader,
 	SidebarMenu,
+  	SidebarFooter,
 	SidebarRail,
 } from "@/components/ui/sidebar";
 
@@ -15,6 +16,26 @@ import { useRouter, usePathname } from "next/navigation";
 import { ChatSidebarHeader } from "@/components/chat-sidebar-header";
 import { ChatItem } from "@/components/chat-item";
 import { createClient } from "@/lib/supabase/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import type { Profile } from "@/types/db";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from "@/components/ui/dropdown-menu";
+import {
+  Crown,
+  SlidersHorizontal,
+  Settings as SettingsIcon,
+  LifeBuoy,
+  LogOut,
+} from "lucide-react";
 
 // Extended Chat type to include pinned_at until types are regenerated
 type ChatWithPin = Chat & { pinned_at?: string | null };
@@ -34,12 +55,31 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 		return null;
 	}, [pathname]);
 	const [chatHistory, setChatHistory] = useState<ChatWithPin[]>([]);
+  	const [profile, setProfile] = useState<Profile | null>(null);
+  	const [userEmail, setUserEmail] = useState<string | null>(null);
+
+	const displayName = (profile?.username ?? userEmail ?? "User");
+
+	const handleLogout = async () => {
+		await supabase.auth.signOut();
+		router.push("/auth/login");
+	};
 
 	useEffect(() => {
 		const fetchChatHistory = async () => {
 			const userId = await db.getCurrentUserId();
 			const chats = await db.chats.getChats(userId);
 			setChatHistory(chats as ChatWithPin[]);
+
+			// Load profile and auth email
+			try {
+				const p = await db.profiles.getProfile(userId);
+				setProfile(p);
+			} catch {}
+			const {
+				data: { user },
+			} = await supabase.auth.getUser();
+			setUserEmail(user?.email ?? null);
 		};
 		fetchChatHistory();
 
@@ -119,6 +159,114 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 						})}
 					</SidebarMenu>
 				</SidebarContent>
+
+				<SidebarFooter className="border-t border-sidebar-border">
+					{/* Expanded footer with menu trigger */}
+					<div className="group-data-[collapsible=icon]:hidden">
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<button className="w-full flex items-center justify-between gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-sidebar-accent/50">
+									<span className="flex items-center gap-3">
+										<Avatar>
+											<AvatarImage src={undefined} alt={displayName} />
+											<AvatarFallback>{displayName.slice(0, 2).toUpperCase()}</AvatarFallback>
+										</Avatar>
+										<span className="flex flex-col items-start">
+											<span className="text-sm font-medium leading-5">{displayName}</span>
+											<span className="text-xs text-muted-foreground leading-4">Free</span>
+										</span>
+									</span>
+								</button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="start" side="top" className="w-64">
+								<DropdownMenuLabel className="font-normal">
+									<div className="flex flex-col space-y-1">
+										<p className="text-sm font-medium leading-none">{displayName}</p>
+										<p className="text-xs text-muted-foreground">{userEmail ?? ""}</p>
+									</div>
+								</DropdownMenuLabel>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem onSelect={(e) => { e.preventDefault(); /* route later */ }}>
+									<Crown className="mr-2 h-4 w-4" /> Upgrade plan
+								</DropdownMenuItem>
+								<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+									<SlidersHorizontal className="mr-2 h-4 w-4" /> Customize
+								</DropdownMenuItem>
+								<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+									<SettingsIcon className="mr-2 h-4 w-4" /> Settings
+								</DropdownMenuItem>
+								<DropdownMenuSeparator />
+								<DropdownMenuSub>
+									<DropdownMenuSubTrigger>
+										<LifeBuoy className="mr-2 h-4 w-4" /> Help
+									</DropdownMenuSubTrigger>
+									<DropdownMenuSubContent>
+										<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+											Documentation
+										</DropdownMenuItem>
+										<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+											Contact support
+										</DropdownMenuItem>
+									</DropdownMenuSubContent>
+								</DropdownMenuSub>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem onSelect={handleLogout} className="text-red-600 focus:text-red-600">
+									<LogOut className="mr-2 h-4 w-4" /> Log out
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
+
+					{/* Collapsed footer avatar only, also acts as menu trigger */}
+					<div className="hidden group-data-[collapsible=icon]:flex items-center justify-center py-2">
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<button aria-label="Open user menu" className="rounded-full">
+									<Avatar>
+										<AvatarImage src={undefined} alt={displayName} />
+										<AvatarFallback>{displayName.slice(0, 2).toUpperCase()}</AvatarFallback>
+									</Avatar>
+								</button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="start" side="right" className="w-64">
+								<DropdownMenuLabel className="font-normal">
+									<div className="flex flex-col space-y-1">
+										<p className="text-sm font-medium leading-none">{displayName}</p>
+										<p className="text-xs text-muted-foreground">{userEmail ?? ""}</p>
+									</div>
+								</DropdownMenuLabel>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+									<Crown className="mr-2 h-4 w-4" /> Upgrade plan
+								</DropdownMenuItem>
+								<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+									<SlidersHorizontal className="mr-2 h-4 w-4" /> Customize
+								</DropdownMenuItem>
+								<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+									<SettingsIcon className="mr-2 h-4 w-4" /> Settings
+								</DropdownMenuItem>
+								<DropdownMenuSeparator />
+								<DropdownMenuSub>
+									<DropdownMenuSubTrigger>
+										<LifeBuoy className="mr-2 h-4 w-4" /> Help
+									</DropdownMenuSubTrigger>
+									<DropdownMenuSubContent>
+										<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+											Documentation
+										</DropdownMenuItem>
+										<DropdownMenuItem onSelect={(e) => { e.preventDefault(); }}>
+											Contact support
+										</DropdownMenuItem>
+									</DropdownMenuSubContent>
+								</DropdownMenuSub>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem onSelect={handleLogout} className="text-red-600 focus:text-red-600">
+									<LogOut className="mr-2 h-4 w-4" /> Log out
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
+				</SidebarFooter>
 				<SidebarRail />
 			</Sidebar>
 		</>
