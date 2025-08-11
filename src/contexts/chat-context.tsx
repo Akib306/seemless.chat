@@ -58,6 +58,19 @@ export const ChatProvider = ({
 					"assistant",
 					model,
 				);
+
+				// Invalidate cached messages for this chat
+				try {
+					await fetch("/api/cache/invalidate", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({
+							keys: [`cache:v1:messages:byChat:${latestChatId.current}`],
+						}),
+					});
+				} catch (_) {
+					// fail quietly; cache will expire naturally
+				}
 				// Navigate to the chat URL only when we are not already on it and avoid automatic scroll reset
 				const targetPath = `/chat/${latestChatId.current}`;
 				if (pathname !== targetPath) {
