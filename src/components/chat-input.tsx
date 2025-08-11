@@ -108,6 +108,19 @@ export function ChatInput() {
 					"user",
 					model,
 				);
+
+				// Invalidate cached messages for this chat after user message
+				try {
+					await fetch("/api/cache/invalidate", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({
+							keys: [`cache:v1:messages:byChat:${currentChatId}`],
+						}),
+					});
+				} catch (_) {
+					// fail quietly; cache will expire naturally
+				}
 			}
 
 			// After creating the chat and storing the first message
