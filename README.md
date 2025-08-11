@@ -1,29 +1,27 @@
 # Seemless Chat
 
-A modern, multi-AI-model chat platform built with Next.js, Supabase, and cutting-edge AI technologies. Seemless Chat provides a seamless conversational experience with support for multiple AI models, real-time streaming, and enterprise-grade security.
+A modern multi‑model AI chat application built with Next.js (App Router), Supabase, and the Vercel AI SDK. Seemless Chat provides real‑time streaming, authentication, and persistent chat history.
 
 ## 🚀 Features
 
-- **Multi-AI Model Support**: Chat with Gemini 2.0 Flash, Gemini 1.5 Pro, and GPT-4.1 Nano
-- **Real-time Streaming**: Instant, streaming responses for natural conversations
-- **Secure Authentication**: Supabase-powered authentication with OAuth support
-- **Chat Persistence**: Full chat history with automatic message saving
-- **Responsive Design**: Mobile-first design with dark/light theme support
-- **File Upload Support**: Attach files to your conversations
-- **Markdown Rendering**: Rich text and code syntax highlighting
-- **Usage Analytics**: Track API usage and conversation metrics
-- **Subscription Management**: Integrated billing with Stripe
+- **Multi‑AI model support**: Gemini 2.0 Flash, Gemini 1.5 Flash, Gemini 1.5 Pro, and GPT‑4.1 Nano
+- **Real‑time streaming**: Natural, low‑latency responses
+- **Authentication**: Supabase Auth with OAuth and email OTP
+- **Chat persistence**: Profiles, chats, and messages with RLS
+- **Chat search**: Full‑text search across your chats with highlighting
+- **Auto titles**: First message can auto‑generate a concise chat title
+- **Responsive UI**: Mobile‑first design with dark/light theme
+- **Markdown + math**: Rich markdown, syntax highlighting, and LaTeX rendering
+- **Attachments UI**: File attachment UI is present; uploads are not persisted yet
 
 ## 🏗️ Architecture
 
 ### Tech Stack
 
-- **Frontend**: Next.js 14 (App Router), React 18, TypeScript
-- **Styling**: Tailwind CSS, Shadcn/ui components
-- **Backend**: Supabase (PostgreSQL, Auth, Storage)
-- **AI Integration**: Vercel AI SDK with Google AI and OpenAI
-- **Payments**: Stripe for subscription management
-- **Analytics**: Posthog for user analytics
+- **Frontend**: Next.js (App Router), React 19, TypeScript
+- **Styling**: Tailwind CSS, shadcn/ui
+- **Backend**: Supabase (PostgreSQL, Auth)
+- **AI**: Vercel AI SDK with Google and OpenAI providers
 - **Deployment**: Vercel
 
 ### Project Structure
@@ -31,26 +29,25 @@ A modern, multi-AI-model chat platform built with Next.js, Supabase, and cutting
 ```
 seemless.chat/
 ├── src/
-│   ├── app/                 # Next.js App Router pages and API routes
-│   ├── components/          # React components and UI library
-│   ├── contexts/           # React Context providers
-│   ├── hooks/              # Custom React hooks
-│   ├── lib/                # Utility functions and database operations
-│   └── types/              # TypeScript type definitions
-├── supabase/               # Database schema and migrations
-├── public/                 # Static assets
-└── docs/                   # Project documentation
+│   ├── app/          # App Router pages and API routes
+│   ├── components/   # React components and UI
+│   ├── contexts/     # React context providers
+│   ├── hooks/        # Custom hooks
+│   ├── lib/          # DB utils, Supabase clients, helpers
+│   └── types/        # Type definitions (including Supabase)
+├── supabase/         # Schemas and migrations (incl. FTS + search functions)
+├── public/           # Static assets
+└── README.md
 ```
 
 ## 🛠️ Development Setup
 
 ### Prerequisites
 
-- Node.js 18+ 
-- npm or yarn
+- Node.js 18+
+- npm (or pnpm/yarn)
 - Supabase CLI
-- Stripe account (for payments)
-- Google AI API key
+- Google Generative AI API key
 - OpenAI API key
 
 ### Installation
@@ -67,39 +64,26 @@ seemless.chat/
    ```
 
 3. **Set up environment variables**
-   ```bash
-   cp .env.example .env.local
-   ```
-   
-   Configure the following variables:
+   Create a `.env.local` file and set:
    ```env
    # Supabase
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-   
+
    # AI Providers
-   GOOGLE_AI_API_KEY=your_google_ai_key
    OPENAI_API_KEY=your_openai_key
-   
-   # Stripe
-   STRIPE_SECRET_KEY=your_stripe_secret_key
-   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
-   
-   # Posthog
-   NEXT_PUBLIC_POSTHOG_KEY=your_posthog_key
-   NEXT_PUBLIC_POSTHOG_HOST=your_posthog_host
+   GOOGLE_GENERATIVE_AI_API_KEY=your_google_generative_ai_key
    ```
 
 4. **Set up Supabase**
    ```bash
    # Install Supabase CLI
    npm install -g supabase
-   
+
    # Start local Supabase
    supabase start
-   
-   # Run migrations
+
+   # Run migrations (drops and recreates local DB)
    supabase db reset
    ```
 
@@ -110,39 +94,40 @@ seemless.chat/
 
 ## 📚 Documentation
 
-Each directory contains detailed documentation:
+Helpful overviews in this repo:
 
-- [`src/app/README.md`](src/app/README.md) - App Router and pages
-- [`src/components/README.md`](src/components/README.md) - React components
-- [`src/lib/README.md`](src/lib/README.md) - Utilities and database operations
-- [`src/contexts/README.md`](src/contexts/README.md) - State management
-- [`src/hooks/README.md`](src/hooks/README.md) - Custom React hooks
-- [`src/types/README.md`](src/types/README.md) - TypeScript definitions
-- [`supabase/README.md`](supabase/README.md) - Database schema and migrations
+- [`src/app/README.md`](src/app/README.md) — App Router and pages
+- [`src/components/README.md`](src/components/README.md) — UI components
+- [`src/lib/README.md`](src/lib/README.md) — DB utilities and Supabase clients
+- [`src/contexts/README.md`](src/contexts/README.md) — Global chat state
+- [`src/hooks/README.md`](src/hooks/README.md) — Custom hooks
+- [`src/types/README.md`](src/types/README.md) — Type definitions
+- [`supabase/README.md`](supabase/README.md) — Schemas, migrations, and FTS search
 
 ## 🔧 Available Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run type-check` - Run TypeScript type checking
-- `supabase db reset` - Reset local database
-- `supabase db push` - Push schema changes to remote
+- `npm run dev` — Start the dev server (Turbopack)
+- `npm run build` — Build for production
+- `npm run start` — Start production server
+- `npm run format` — Format with Prettier
+
+Supabase CLI (installed globally):
+- `supabase db reset` — Reset local database and apply migrations
+- `supabase db push` — Push schema changes to remote
 
 ## 🚀 Deployment
 
-### Vercel Deployment
+### Vercel
 
-1. Connect your repository to Vercel
-2. Configure environment variables in Vercel dashboard
-3. Deploy automatically on push to main branch
+1. Connect the repo
+2. Add environment variables in the project settings
+3. Deploy on push to `main`
 
-### Supabase Production
+### Supabase
 
-1. Create a new Supabase project
-2. Run migrations: `supabase db push`
-3. Update environment variables with production URLs
+1. Create a Supabase project
+2. Apply schema: `supabase db push`
+3. Configure `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
 ## 🤝 Contributing
 
@@ -154,10 +139,4 @@ Each directory contains detailed documentation:
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-- [Documentation](https://docs.seemless.chat)
-- [Issues](https://github.com/your-username/seemless.chat/issues)
-- [Discussions](https://github.com/your-username/seemless.chat/discussions)
+License to be determined.

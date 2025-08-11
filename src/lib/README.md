@@ -17,11 +17,11 @@ This directory contains core utility functions, database operations, and service
 * `utils/`: General utility functions and helpers.
   * `utils.ts`: Common utility functions for the application.
   * `debug-chat.ts`: Debug utilities for chat functionality.
-* `utils.ts`: Root-level utility functions and constants.
+* `utils.ts`: Root-level utilities (if present).
 
 ## ✨ Core Logic & Features
 
-* **Database Operations**: Comprehensive CRUD operations for profiles, chats, messages, subscriptions, and API usage tracking.
+* **Database Operations**: CRUD utilities for profiles, chats, messages, subscriptions, API usage, and search RPCs.
 * **Authentication Integration**: Seamless integration with Supabase authentication for user management.
 * **Row Level Security**: Implementation of Supabase RLS policies for data security.
 * **Type Safety**: Full TypeScript support with generated types from Supabase schema.
@@ -34,7 +34,7 @@ This directory contains core utility functions, database operations, and service
 * **Data Processing**: Transforms and validates data before database operations.
 * **Data Output**: Returns structured data to components and API routes.
 * **State Management**: Manages database connections and authentication state.
-* **Caching**: Implements caching strategies for frequently accessed data.
+* **Search**: Exposes helpers to call Postgres functions `search_messages`, `search_messages_paginated`, and `search_messages_count`.
 
 ## 🔒 Security & Authentication
 

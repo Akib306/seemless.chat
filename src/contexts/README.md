@@ -13,7 +13,7 @@ This directory contains React Context providers that manage global application s
 * **Chat State Management**: Centralized management of chat sessions, messages, and AI model selection.
 * **Real-time Updates**: Handles streaming responses and real-time message updates from AI models.
 * **Model Switching**: Dynamic AI model selection between Gemini and GPT models.
-* **Message Persistence**: Automatic saving of chat messages to the database.
+* **Message Persistence**: User and assistant messages are persisted to the database.
 * **Navigation Integration**: Seamless integration with Next.js routing for chat sessions.
 * **Error Handling**: Comprehensive error handling for chat operations and API failures.
 
@@ -24,6 +24,7 @@ This directory contains React Context providers that manage global application s
 * **Data Processing**: Processes AI responses and manages message formatting.
 * **Data Output**: Provides chat state, methods, and real-time updates to child components.
 * **External Integration**: Integrates with AI SDK for streaming responses and database operations.
+* **Auto Title**: Triggers title generation after the first user message in a new chat.
 * **Navigation Control**: Manages routing between chat sessions and new chat creation.
 
 ## 🔒 Security & Authentication

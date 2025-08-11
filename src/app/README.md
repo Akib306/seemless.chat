@@ -7,7 +7,7 @@ This directory contains the core Next.js application using the App Router patter
 ## 🔑 Key Components & Files
 
 * `layout.tsx`: Root layout component that wraps the entire application with theme provider, global styles, and navigation.
-* `page.tsx`: Landing page component that serves as the main entry point for authenticated users.
+* `page.tsx`: Public landing page. Authenticated chat lives under `/chat`.
 * `globals.css`: Global CSS styles including Tailwind CSS directives and custom theme variables.
 * `api/`: Directory containing all API route handlers for chat functionality, authentication, and title generation.
 * `auth/`: Authentication-related pages including login, sign-up, password management, and error handling.
@@ -24,9 +24,9 @@ This directory contains the core Next.js application using the App Router patter
 
 ## 🔄 Data & State Flow
 
-* **Global State**: Theme state is managed at the root level through `ThemeProvider`.
-* **Navigation**: Global navigation bar is rendered in the root layout for consistent user experience.
-* **Authentication Flow**: Routes users through authentication pages before accessing chat functionality.
+* **Global State**: Theme state is managed at the root via `ThemeProvider`.
+* **Navigation**: Global `Navbar` renders from the root layout.
+* **Authentication Flow**: Middleware protects app routes (e.g., `/chat`). Auth pages under `/auth/*` handle login/sign‑up and OTP/OAuth callbacks.
 * **Dynamic Routing**: Chat pages use dynamic routing (`[chatid]`) for individual chat sessions.
 
 ## 🔒 Security & Authentication

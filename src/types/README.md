@@ -7,7 +7,7 @@ This directory contains TypeScript type definitions, interfaces, and type utilit
 ## 🔑 Key Components & Files
 
 * `db.ts`: Core database entity types and interfaces for the application's data models.
-* `supabase.ts`: Auto-generated TypeScript types from Supabase schema, including database tables, functions, and composite types.
+* `supabase.ts`: Generated types for tables and relations. Note: some runtime columns (e.g., `pinned_at`) used by the app may not be reflected if types are stale.
 
 ## ✨ Core Logic & Features
 

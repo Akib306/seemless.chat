@@ -16,7 +16,7 @@ This directory contains all Supabase-related configuration, database schema defi
   * `20250506042040_init_api_usage.sql`: API usage tracking table.
   * `20250506042549_init_usage_summaries.sql`: Usage summary aggregations.
   * `20250509042516_force_recreate_tables.sql`: Table recreation for schema updates.
-* `schemas/`: SQL schema files defining table structures and relationships.
+* `schemas/`: SQL schema files defining table structures and relationships. These are source-of-truth schemas used to generate migrations and reason about structure.
   * `profiles.sql`: User profile table schema.
   * `subscriptions.sql`: Subscription and billing table schema.
   * `chats.sql`: Chat sessions table schema.
@@ -28,8 +28,7 @@ This directory contains all Supabase-related configuration, database schema defi
 
 * **Database Schema Management**: Comprehensive schema definition for a multi-AI chat platform.
 * **Row Level Security**: Sophisticated RLS policies ensuring users can only access their own data.
-* **Subscription Management**: Complete billing and subscription tracking system.
-* **Usage Analytics**: Detailed API usage tracking and analytics for billing and monitoring.
+* **Usage Tracking**: API usage tables for recording model and token statistics.
 * **Chat Persistence**: Full chat history and message storage with proper relationships.
 * **User Management**: User profiles with authentication integration.
 * **Migration Versioning**: Proper database migration versioning for deployment safety.
@@ -39,7 +38,7 @@ This directory contains all Supabase-related configuration, database schema defi
 * **Schema Evolution**: Migrations handle database schema changes over time.
 * **Data Relationships**: Proper foreign key relationships between users, chats, and messages.
 * **Data Aggregation**: Usage summaries aggregate raw usage data for reporting.
-* **Data Partitioning**: Efficient data partitioning for large-scale chat applications.
+* **Full‑Text Search**: FTS indices and RPC functions power chat search (`search_messages`, `search_messages_paginated`, `search_messages_count`).
 * **Backup and Recovery**: Migration-based approach enables easy database recovery.
 
 ## 🔒 Security & Authentication

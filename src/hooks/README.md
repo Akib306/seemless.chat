@@ -4,9 +4,10 @@
 
 This directory contains custom React hooks that encapsulate reusable logic and state management patterns. These hooks provide a clean abstraction layer for common functionality like responsive design, device detection, and other cross-cutting concerns that are used throughout the application components.
 
-## 🔑 Key Components & Files
+## 🔑 Key Hooks
 
-* `use-mobile.tsx`: Custom hook for detecting mobile devices and responsive behavior.
+* `use-mobile.tsx` (`useIsMobile`): Detects mobile viewport to adapt layouts.
+* `use-chat-actions.tsx`: Encapsulates chat actions like delete, rename, and pin/unpin.
 
 ## ✨ Core Logic & Features
 
