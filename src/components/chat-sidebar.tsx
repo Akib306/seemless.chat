@@ -15,6 +15,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { ChatSidebarHeader } from "@/components/chat-sidebar-header";
 import { ChatItem } from "@/components/chat-item";
 import { createClient } from "@/lib/supabase/client";
+import { useRef } from "react";
 
 // Extended Chat type to include pinned_at until types are regenerated
 type ChatWithPin = Chat & { pinned_at?: string | null };
@@ -36,6 +37,27 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 	const [chatHistory, setChatHistory] = useState<ChatWithPin[]>([]);
 
 	useEffect(() => {
+    let isMounted = true;
+    let timer: any;
+    const beat = async () => {
+      try {
+        // Optional: include user id header to skip server getUser call
+        let userId: string | null = null;
+        try {
+          userId = await db.getCurrentUserId();
+        } catch {}
+        const res = await fetch("/api/cache/heartbeat", {
+          method: "GET",
+          headers: userId ? { "x-user-id": userId } : undefined,
+          cache: "no-store",
+        });
+        // ignore body, server tracks
+      } catch {}
+      if (!isMounted) return;
+      timer = setTimeout(beat, 45000); // ~45s cadence, TTL default 60s
+    };
+    beat();
+
 		const fetchChatHistory = async () => {
 			const userId = await db.getCurrentUserId();
 			const chats = await db.chats.getChats(userId);
@@ -75,6 +97,8 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 
 		return () => {
 			supabase.removeChannel(channel);
+      isMounted = false;
+      if (timer) clearTimeout(timer);
 		};
 	}, []);
 	
