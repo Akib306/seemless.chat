@@ -109,18 +109,26 @@ export function ChatInput() {
 					model,
 				);
 
-				// Invalidate cached messages for this chat after user message
+				// Write-through cache: append the user message to cached array
 				try {
-					await fetch("/api/cache/invalidate", {
+					const key = `cache:v1:messages:byChat:${currentChatId}`;
+					await fetch("/api/cache/write-through", {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify({
-							keys: [`cache:v1:messages:byChat:${currentChatId}`],
+							key,
+							append: [{
+								id: Date.now().toString(),
+								chat_id: currentChatId,
+								content: input.trim(),
+								role: "user",
+								model_used: model,
+								created_at: new Date().toISOString(),
+							}],
+							ex: 300,
 						}),
 					});
-				} catch (_) {
-					// fail quietly; cache will expire naturally
-				}
+				} catch (_) {}
 			}
 
 			// After creating the chat and storing the first message
