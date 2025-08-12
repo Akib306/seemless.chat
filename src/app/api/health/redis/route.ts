@@ -1,5 +1,8 @@
 import { redis } from '@/lib/db/redis';
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   const key = `health:${Date.now()}`;
   await redis.set(key, 'ok', { ex: 60 });
