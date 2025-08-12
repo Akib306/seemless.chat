@@ -15,8 +15,8 @@ export default async function ChatPage({
     cached ?? (await db.messages.getMessagesByChatId(chatid));
 
   if (!cached) {
-    // Short TTL to reduce staleness while still offloading frequent reads
-    await redis.set(cacheKey, initialMessages, { ex: 60 });
+    // Keep cache warm for a bit longer to observe benefits
+    await redis.set(cacheKey, initialMessages, { ex: 300 });
   }
 	return <ChatClient chatId={chatid} initialMessages={initialMessages} />;
 }
