@@ -22,6 +22,17 @@ export function useChatActions() {
       
       try {
         await db.chats.deleteChat(chatId);
+        // Fire-and-forget cache invalidation to reclaim bytes immediately
+        try {
+          await fetch("/api/cache/invalidate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ keys: [
+              `cache:v1:messages:byChat:${chatId}`,
+            ] }),
+            cache: "no-store",
+          });
+        } catch (_) {}
         router.push('/chat');
       } catch (error) {
         console.error("Failed to delete chat:", error);
