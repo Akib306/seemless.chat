@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Send, Paperclip, X } from "lucide-react";
 import { useChatContext } from "@/contexts/chat-context";
+import { CACHE_TTL_SECONDS } from "@/lib/cache/quota";
 import * as db from "@/lib/db/client";
 import { useRouter } from "next/navigation";
 
@@ -112,7 +113,7 @@ export function ChatInput() {
 				// Write-through cache: append the user message to cached array
 				try {
 					const key = `cache:v1:messages:byChat:${currentChatId}`;
-					await fetch("/api/cache/write-through", {
+                    await fetch("/api/cache/write-through", {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify({
@@ -125,7 +126,7 @@ export function ChatInput() {
 								model_used: model,
 								created_at: new Date().toISOString(),
 							}],
-							ex: 300,
+                            ex: CACHE_TTL_SECONDS,
 						}),
 					});
 				} catch (_) {}
