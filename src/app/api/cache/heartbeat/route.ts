@@ -1,4 +1,6 @@
 import { heartbeat, getUsedBytes, HEARTBEAT_TTL_SECONDS } from "@/lib/cache/quota";
+import { warmUserCacheIfNeeded } from "@/lib/cache/warm";
+import { redis } from "@/lib/db/redis";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
@@ -21,6 +23,23 @@ export async function GET(request: Request) {
     }
 
     const { activeUsers, perUserBudgetBytes } = await heartbeat(userId);
+
+    // Dev-only: allow forcing a warm to test repeatedly
+    let warmForced = false;
+    try {
+      const url = new URL(request.url);
+      const force = url.searchParams.get("forceWarm");
+      const isProdEnv = process.env.NODE_ENV === "production";
+      if (force === "1" && !isProdEnv) {
+        const warmMarkerKey = `cache:v1:user:${userId}:warmed_at`;
+        await redis.del(warmMarkerKey);
+        warmForced = true;
+      }
+    } catch {}
+
+    // Opportunistic cache warm-up: once per 24h, prefill most recent chats
+    await warmUserCacheIfNeeded(userId, perUserBudgetBytes);
+
     const usedBytes = await getUsedBytes(userId);
     return Response.json({
       ok: true,
@@ -28,6 +47,7 @@ export async function GET(request: Request) {
       perUserBudgetBytes,
       usedBytes,
       ttlSeconds: HEARTBEAT_TTL_SECONDS,
+      warmForced,
     });
   } catch (e) {
     return new Response("bad request", { status: 400 });
