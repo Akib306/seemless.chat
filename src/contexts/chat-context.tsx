@@ -59,18 +59,27 @@ export const ChatProvider = ({
 					model,
 				);
 
-				// Invalidate cached messages for this chat
+				// Write-through cache: append the assistant message to cached array
 				try {
-					await fetch("/api/cache/invalidate", {
+					const key = `cache:v1:messages:byChat:${latestChatId.current}`;
+					const res = await fetch("/api/cache/write-through", {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify({
-							keys: [`cache:v1:messages:byChat:${latestChatId.current}`],
+							key,
+							append: [{
+								id: message.id,
+								chat_id: latestChatId.current,
+								content: message.content,
+								role: "assistant",
+								model_used: model,
+								created_at: new Date().toISOString(),
+							}],
+							ex: 300,
 						}),
 					});
-				} catch (_) {
-					// fail quietly; cache will expire naturally
-				}
+					// ignore response in UI
+				} catch (_) {}
 				// Navigate to the chat URL only when we are not already on it and avoid automatic scroll reset
 				const targetPath = `/chat/${latestChatId.current}`;
 				if (pathname !== targetPath) {
