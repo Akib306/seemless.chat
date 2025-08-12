@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 // The client you created from the Server-Side Auth instructions
 import { createClient } from "@/lib/supabase/server";
 import { createServerDb } from "@/lib/db/server";
+import { warmUserCacheIfNeeded } from "@/lib/cache/warm";
 
 export async function GET(request: Request) {
 	const db = await createServerDb();
@@ -14,16 +15,20 @@ export async function GET(request: Request) {
 		const supabase = await createClient();
 		const { error } = await supabase.auth.exchangeCodeForSession(code);
 
-		if (!error) {
-			const { data } = await supabase.auth.getUser();
-			if (data.user) {
-				try {
-					await db.profiles.getProfile(data.user.id);
-				} catch (error) {
-					// Profile doesn't exist yet, create it for new OAuth users
-					await db.profiles.createProfile(data.user.id);
-				}
-			}
+        if (!error) {
+            const { data } = await supabase.auth.getUser();
+            if (data.user) {
+                try {
+                    await db.profiles.getProfile(data.user.id);
+                } catch (error) {
+                    // Profile doesn't exist yet, create it for new OAuth users
+                    await db.profiles.createProfile(data.user.id);
+                }
+                // Warm caches for recent chats immediately after login to avoid cold starts
+                try {
+                    await warmUserCacheIfNeeded(data.user.id);
+                } catch {}
+            }
 
 			const forwardedHost = request.headers.get("x-forwarded-host"); // original origin before load balancer
 			const isLocalEnv = process.env.NODE_ENV === "development";
