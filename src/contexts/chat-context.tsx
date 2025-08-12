@@ -5,6 +5,7 @@ import { Message } from "@/types/db";
 import * as db from "@/lib/db/client";
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { CACHE_TTL_SECONDS } from "@/lib/cache/quota";
 
 type ChatContextType = UseChatHelpers & {
 	model: string;
@@ -75,7 +76,7 @@ export const ChatProvider = ({
 								model_used: model,
 								created_at: new Date().toISOString(),
 							}],
-							ex: 300,
+                            ex: CACHE_TTL_SECONDS,
 						}),
 					});
 					// ignore response in UI
