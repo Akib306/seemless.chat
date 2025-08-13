@@ -1,6 +1,6 @@
 "use client";
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search, Clock } from "lucide-react";
 import {
   CommandDialog,
@@ -17,11 +17,16 @@ import { useRouter } from "next/navigation";
 // Simple in-memory LRU cache with TTL for search results
 type SearchCacheEntry = { results: any[]; timestamp: number };
 const SEARCH_CACHE: Map<string, SearchCacheEntry> = new Map();
-const CACHE_TTL_MS = 60_000; // 1 minute
+const CACHE_TTL_MS = 300_000; // 5 minutes
 const MAX_CACHE_ENTRIES = 50;
+const MIN_QUERY_LEN = 2;
+const DEBOUNCE_MS = 250;
 
 function normalizeQuery(value: string): string {
-  return value.trim();
+  return value
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase();
 }
 
 function getCache(key: string): SearchCacheEntry | undefined {
@@ -47,6 +52,25 @@ function setCache(key: string, results: any[]) {
   }
 }
 
+function filterResultsLocally(results: any[], normalizedQuery: string): any[] {
+  if (!normalizedQuery) return results;
+  const tokens = normalizedQuery.split(" ").filter(Boolean);
+  if (tokens.length === 0) return results;
+  return results.filter((r) => {
+    const hay = `${r.chat_title || ""} ${r.content || ""}`.toLowerCase();
+    return tokens.every((t) => hay.includes(t));
+  });
+}
+
+function getBestPrefixCache(normalizedQuery: string): SearchCacheEntry | undefined {
+  for (let l = normalizedQuery.length; l >= MIN_QUERY_LEN; l--) {
+    const key = normalizedQuery.slice(0, l);
+    const entry = getCache(key);
+    if (entry) return entry;
+  }
+  return undefined;
+}
+
 interface SearchModalProps {
     collapsed?: boolean;
 }
@@ -57,6 +81,8 @@ export function SearchModal({ collapsed = false }: SearchModalProps){
 	const [query, setQuery] = useState("");
 	const [results, setResults] = useState<any[]>([]);
     const router = useRouter();
+    const lastRequestIdRef = useRef(0);
+    const prevNormalizedRef = useRef<string>("");
 
     function formatRelative(dateString?: string): string {
       if (!dateString) return "";
@@ -100,46 +126,67 @@ export function SearchModal({ collapsed = false }: SearchModalProps){
         if (!open) return;
 
         const normalized = normalizeQuery(query);
-        if (normalized.length === 0) {
+
+        // Short-circuit for too-short queries
+        if (normalized.length < MIN_QUERY_LEN) {
             setResults([]);
             setLoading(false);
+            prevNormalizedRef.current = normalized;
             return;
         }
 
-        const cached = getCache(normalized);
-        const hasCache = Boolean(cached);
-        const cacheIsFresh = cached ? isFresh(cached) : false;
+        // Prefer exact cache
+        const cachedExact = getCache(normalized);
+        const hasCache = Boolean(cachedExact);
+        const cacheIsFresh = cachedExact ? isFresh(cachedExact) : false;
 
         if (hasCache) {
-            setResults(cached!.results);
-            setLoading(!cacheIsFresh); // only show loading if we'll revalidate
+            setResults(cachedExact!.results);
+            setLoading(!cacheIsFresh);
         } else {
+            // Optimistic UX: reuse previous or nearest-prefix cache to filter locally while we fetch
+            const prevNorm = prevNormalizedRef.current;
+            const canPrefixFilter = prevNorm && normalized.startsWith(prevNorm) && results.length > 0;
+            if (canPrefixFilter) {
+                setResults(filterResultsLocally(results, normalized));
+            } else {
+                const prefixCache = getBestPrefixCache(normalized);
+                if (prefixCache) {
+                    setResults(filterResultsLocally(prefixCache.results, normalized));
+                } else {
+                    setResults([]);
+                }
+            }
             setLoading(true);
         }
 
+        const requestId = ++lastRequestIdRef.current;
         const handler = setTimeout(async () => {
-            // Skip network if cache is fresh
-            if (cacheIsFresh) return;
-
-            let cancelled = false;
+            if (cacheIsFresh) {
+                setLoading(false);
+                return;
+            }
             try {
-                const data = await search.searchMessagesPaginated(normalized);
-                if (cancelled) return;
-                setCache(normalized, data || []);
-                setResults(data || []);
+                const data = await search.searchMessagesPaginated(normalized, undefined, 10, 0);
+                if (requestId !== lastRequestIdRef.current) return; // stale response
+                const next = data || [];
+                setCache(normalized, next);
+                setResults(next);
             } catch (err) {
+                if (requestId !== lastRequestIdRef.current) return;
                 console.error('Search error:', err);
                 if (!hasCache) setResults([]);
             } finally {
-                if (!cacheIsFresh) setLoading(false);
+                if (requestId === lastRequestIdRef.current) setLoading(false);
             }
+        }, DEBOUNCE_MS);
 
-            return () => {
-                cancelled = true;
-            };
-        }, 400);
+        // Track previous normalized query for prefix detection
+        prevNormalizedRef.current = normalized;
 
-        return () => clearTimeout(handler);
+        return () => {
+            clearTimeout(handler);
+        };
     }, [query, open]);
 
 	const handleSelect = (chatId: string, messageId: string) => {
