@@ -22,6 +22,15 @@ const MAX_CACHE_ENTRIES = 50;
 const MIN_QUERY_LEN = 2;
 const DEBOUNCE_MS = 250;
 
+/**
+ * Normalize user-entered search text to maximize cache hits and server recall.
+ * Why: small variations like casing and extra spaces should not trigger new fetches.
+ * - trims leading/trailing whitespace
+ * - collapses internal whitespace to a single space
+ * - lowercases for case-insensitive matching
+ * @param value raw query from the input
+ * @returns normalized query string
+ */
 function normalizeQuery(value: string): string {
   return value
     .trim()
@@ -29,16 +38,34 @@ function normalizeQuery(value: string): string {
     .toLowerCase();
 }
 
+/**
+ * Read an entry from the in-memory LRU cache.
+ * @param key normalized query string
+ * @returns cache entry if present
+ */
 function getCache(key: string): SearchCacheEntry | undefined {
   const entry = SEARCH_CACHE.get(key);
   if (!entry) return undefined;
   return entry;
 }
 
+/**
+ * Determine whether a cache entry is still within the freshness window.
+ * Why: avoids unnecessary network requests when data is recent.
+ * @param entry cache record containing timestamp
+ * @returns true if entry age < CACHE_TTL_MS
+ */
 function isFresh(entry: SearchCacheEntry): boolean {
   return Date.now() - entry.timestamp < CACHE_TTL_MS;
 }
 
+/**
+ * Upsert search results into the LRU cache and evict the least-recently used entry
+ * once size exceeds MAX_CACHE_ENTRIES.
+ * Why: keeps hot queries fast without unbounded memory growth.
+ * @param key normalized query string
+ * @param results server results to cache
+ */
 function setCache(key: string, results: any[]) {
   // Move to end to mark as most recently used
   if (SEARCH_CACHE.has(key)) {
@@ -52,6 +79,14 @@ function setCache(key: string, results: any[]) {
   }
 }
 
+/**
+ * Apply a lightweight client-side filter to previously fetched results.
+ * Why: when users refine a query, we can instantly narrow existing results while
+ * a fresh server search runs, improving perceived responsiveness.
+ * @param results prior results to filter
+ * @param normalizedQuery tokenized, normalized query used for inclusion checks
+ * @returns results whose text includes all query tokens
+ */
 function filterResultsLocally(results: any[], normalizedQuery: string): any[] {
   if (!normalizedQuery) return results;
   const tokens = normalizedQuery.split(" ").filter(Boolean);
@@ -62,6 +97,13 @@ function filterResultsLocally(results: any[], normalizedQuery: string): any[] {
   });
 }
 
+/**
+ * Retrieve the freshest cache entry for the longest available prefix of the
+ * current query. Scans from full length down to MIN_QUERY_LEN.
+ * Why: enables prefix reuse for instant, approximate results while fetching.
+ * @param normalizedQuery normalized current query
+ * @returns a cache entry if any prefix is cached; otherwise undefined
+ */
 function getBestPrefixCache(normalizedQuery: string): SearchCacheEntry | undefined {
   for (let l = normalizedQuery.length; l >= MIN_QUERY_LEN; l--) {
     const key = normalizedQuery.slice(0, l);
@@ -71,19 +113,33 @@ function getBestPrefixCache(normalizedQuery: string): SearchCacheEntry | undefin
   return undefined;
 }
 
+/**
+ * Props for the search modal trigger and dialog.
+ * - collapsed: renders as a compact icon button when true; otherwise a full-width button.
+ */
 interface SearchModalProps {
     collapsed?: boolean;
 }
 
+/**
+ * Command-K style search modal for chat messages.
+ * Why: provides fast, debounced FTS-backed search with local LRU caching and
+ * prefix reuse for a responsive UX under variable network latency.
+ */
 export function SearchModal({ collapsed = false }: SearchModalProps){
 	const [open, setOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [query, setQuery] = useState("");
 	const [results, setResults] = useState<any[]>([]);
-    const router = useRouter();
-    const lastRequestIdRef = useRef(0);
-    const prevNormalizedRef = useRef<string>("");
+  const router = useRouter();
+  const lastRequestIdRef = useRef(0);
+  const prevNormalizedRef = useRef<string>("");
 
+	/**
+	 * Format an ISO timestamp into a human-readable relative string.
+	 * @param dateString ISO datetime
+	 * @returns e.g., "just now", "5m ago", "3h ago", "2d ago", or a locale date
+	 */
     function formatRelative(dateString?: string): string {
       if (!dateString) return "";
       const date = new Date(dateString);
