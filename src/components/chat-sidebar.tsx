@@ -29,14 +29,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
-import {
-  Crown,
-  SlidersHorizontal,
-  Settings as SettingsIcon,
-  LifeBuoy,
-  LogOut,
-  CircleUser,
-} from "lucide-react";
+import { LogOut, CircleUser } from "lucide-react";
 
 // Extended Chat type to include pinned_at until types are regenerated
 type ChatWithPin = Chat & { pinned_at?: string | null };
@@ -139,14 +132,14 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 	
 	return (
 		<>
-			<Sidebar collapsible="icon" {...props}>
-				<SidebarHeader className="pt-16">
+            <Sidebar collapsible="icon" {...props}>
+                <SidebarHeader className="pt-2">
 					<ChatSidebarHeader />
 				</SidebarHeader>
 
 				<SidebarContent>
-					<SidebarMenu className="group-data-[collapsible=icon]:hidden">
-						
+                    <SidebarMenu className="group-data-[collapsible=icon]:hidden px-2">
+                        <div className="px-2 py-1 text-xs uppercase tracking-wide text-muted-foreground">Chats</div>
 						{sortedChatHistory.map((chat) => {
 							const isActive = chat.id === currentChatId;
 							
@@ -161,25 +154,24 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 					</SidebarMenu>
 				</SidebarContent>
 
-				<SidebarFooter className="border-t border-sidebar-border">
-					{/* Expanded footer with menu trigger */}
-					<div className="group-data-[collapsible=icon]:hidden">
+                <SidebarFooter className="border-t border-sidebar-border">
+                    <div className="group-data-[collapsible=icon]:hidden">
 						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<button className="w-full flex items-center justify-between gap-3 rounded-2xl px-3 py-2 bg-sidebar-accent/40 border border-sidebar-border/60 transition-colors hover:bg-sidebar-accent/60">
+                            <DropdownMenuTrigger asChild>
+                                <button className="w-full flex items-center justify-between gap-3 rounded-xl px-3 py-2 bg-transparent border border-transparent transition-colors hover:bg-sidebar-accent/40">
 									<span className="flex items-center gap-3">
 										<Avatar>
 											<AvatarImage src={undefined} alt={displayName} />
 											<AvatarFallback>{displayName.slice(0, 2).toUpperCase()}</AvatarFallback>
 										</Avatar>
-										<span className="flex flex-col items-start">
+                                        <span className="flex flex-col items-start">
 											<span className="text-sm font-medium leading-5">{displayName}</span>
-											<span className="text-xs text-muted-foreground leading-4">Free</span>
+                                            <span className="text-xs text-muted-foreground leading-4">Signed in</span>
 										</span>
 									</span>
 								</button>
 							</DropdownMenuTrigger>
-							<DropdownMenuContent align="start" side="top" sideOffset={8} className="w-80 rounded-2xl p-2 shadow-xl border border-sidebar-border/60">
+                            <DropdownMenuContent align="start" side="top" sideOffset={8} className="w-80 rounded-2xl p-2 shadow-xl border border-sidebar-border/60">
 								<DropdownMenuLabel className="font-normal">
 									<div className="flex items-center gap-2 text-muted-foreground">
 										<CircleUser className="h-4 w-4" />
@@ -187,30 +179,7 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 									</div>
 								</DropdownMenuLabel>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem className="rounded-xl px-3 py-2 text-base" onSelect={(e) => { e.preventDefault(); /* route later */ }}>
-									<Crown className="mr-2 h-4 w-4" /> Upgrade plan
-								</DropdownMenuItem>
-								<DropdownMenuItem className="rounded-xl px-3 py-2 text-base" onSelect={(e) => { e.preventDefault(); }}>
-									<SlidersHorizontal className="mr-2 h-4 w-4" /> Customize
-								</DropdownMenuItem>
-								<DropdownMenuItem className="rounded-xl px-3 py-2 text-base" onSelect={(e) => { e.preventDefault(); }}>
-									<SettingsIcon className="mr-2 h-4 w-4" /> Settings
-								</DropdownMenuItem>
-								<DropdownMenuSeparator />
-								<DropdownMenuSub>
-									<DropdownMenuSubTrigger className="rounded-xl px-3 py-2 text-base">
-										<LifeBuoy className="mr-2 h-4 w-4" /> Help
-									</DropdownMenuSubTrigger>
-									<DropdownMenuSubContent className="rounded-xl p-2">
-										<DropdownMenuItem className="rounded-lg px-3 py-2" onSelect={(e) => { e.preventDefault(); }}>
-											Documentation
-										</DropdownMenuItem>
-										<DropdownMenuItem className="rounded-lg px-3 py-2" onSelect={(e) => { e.preventDefault(); }}>
-											Contact support
-										</DropdownMenuItem>
-									</DropdownMenuSubContent>
-								</DropdownMenuSub>
-								<DropdownMenuSeparator />
+                                <DropdownMenuSeparator />
 								<DropdownMenuItem onSelect={handleLogout} className="rounded-xl px-3 py-2 text-base text-red-600 focus:text-red-600">
 									<LogOut className="mr-2 h-4 w-4" /> Log out
 								</DropdownMenuItem>
@@ -218,18 +187,18 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 						</DropdownMenu>
 					</div>
 
-					{/* Collapsed footer avatar only, also acts as menu trigger */}
-					<div className="hidden group-data-[collapsible=icon]:flex items-center justify-center py-2">
+                    {/* Collapsed footer avatar only, also acts as menu trigger */}
+                    <div className="hidden group-data-[collapsible=icon]:flex items-center justify-center py-2">
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
-								<button aria-label="Open user menu" className="rounded-full">
+                                <button aria-label="Open user menu" className="rounded-full">
 									<Avatar>
 										<AvatarImage src={undefined} alt={displayName} />
 										<AvatarFallback>{displayName.slice(0, 2).toUpperCase()}</AvatarFallback>
 									</Avatar>
 								</button>
 							</DropdownMenuTrigger>
-							<DropdownMenuContent align="start" side="right" sideOffset={8} className="w-80 rounded-2xl p-2 shadow-xl border border-sidebar-border/60">
+                            <DropdownMenuContent align="start" side="right" sideOffset={8} className="w-80 rounded-2xl p-2 shadow-xl border border-sidebar-border/60">
 								<DropdownMenuLabel className="font-normal">
 									<div className="flex items-center gap-2 text-muted-foreground">
 										<CircleUser className="h-4 w-4" />
@@ -237,30 +206,7 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 									</div>
 								</DropdownMenuLabel>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem className="rounded-xl px-3 py-2 text-base" onSelect={(e) => { e.preventDefault(); }}>
-									<Crown className="mr-2 h-4 w-4" /> Upgrade plan
-								</DropdownMenuItem>
-								<DropdownMenuItem className="rounded-xl px-3 py-2 text-base" onSelect={(e) => { e.preventDefault(); }}>
-									<SlidersHorizontal className="mr-2 h-4 w-4" /> Customize
-								</DropdownMenuItem>
-								<DropdownMenuItem className="rounded-xl px-3 py-2 text-base" onSelect={(e) => { e.preventDefault(); }}>
-									<SettingsIcon className="mr-2 h-4 w-4" /> Settings
-								</DropdownMenuItem>
-								<DropdownMenuSeparator />
-								<DropdownMenuSub>
-									<DropdownMenuSubTrigger className="rounded-xl px-3 py-2 text-base">
-										<LifeBuoy className="mr-2 h-4 w-4" /> Help
-									</DropdownMenuSubTrigger>
-									<DropdownMenuSubContent className="rounded-xl p-2">
-										<DropdownMenuItem className="rounded-lg px-3 py-2" onSelect={(e) => { e.preventDefault(); }}>
-											Documentation
-										</DropdownMenuItem>
-										<DropdownMenuItem className="rounded-lg px-3 py-2" onSelect={(e) => { e.preventDefault(); }}>
-											Contact support
-										</DropdownMenuItem>
-									</DropdownMenuSubContent>
-								</DropdownMenuSub>
-								<DropdownMenuSeparator />
+                                <DropdownMenuSeparator />
 								<DropdownMenuItem onSelect={handleLogout} className="rounded-xl px-3 py-2 text-base text-red-600 focus:text-red-600">
 									<LogOut className="mr-2 h-4 w-4" /> Log out
 								</DropdownMenuItem>

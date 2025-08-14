@@ -44,27 +44,26 @@ export function ChatItem({
 	const chatIsRenaming = isRenaming(chat.id);
 
 	return (
-		<SidebarMenuItem className="px-3 py-0" key={chat.id}>
-			<SidebarMenuButton
+        <SidebarMenuItem className="px-2 py-0" key={chat.id}>
+            <SidebarMenuButton
 				asChild
 				isActive={isActive}
-				className="flex flex-col items-start hover:bg-secondary py-1"
+                className="flex flex-col items-start hover:bg-sidebar-accent/60 py-1 rounded-lg focus-visible:ring-0"
 				tooltip={chat.title || "Chat"}
 			>
 				{chatIsRenaming ? (
 					<div className="w-full">
 						<div
-							className={cn(
-								"w-full flex justify-between items-start",
-								isActive && "text-green-500",
-							)}
+                            className={cn(
+                                "w-full flex justify-between items-start",
+                            )}
 						>
 							<Input
 								value={renameValue}
 								onChange={(e) => handleRenameValueChange(e.target.value)}
 								onKeyDown={(e) => handleRenameKeyDown(e, chat.id)}
 								onBlur={() => handleSaveRename(chat.id)}
-								className="flex-1 text-base h-auto p-0 border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                                className="flex-1 text-base h-auto p-0 border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
 								autoFocus
 							/>
 
@@ -104,23 +103,22 @@ export function ChatItem({
 						</div>
 					</div>
 				) : (
-					<Link href={`/chat/${chat.id}`} className="w-full">
-						<div
-							className={cn(
-								"w-full flex justify-between items-start",
-								isActive && "text-green-500",
-							)}
+                    <Link href={`/chat/${chat.id}`} className="w-full">
+                        <div
+                            className={cn(
+                                "w-full flex justify-between items-start",
+                            )}
 						>
-							<div className="flex-1 text-base">
-								{chat.title}
-							</div>
+                            <div className="flex-1 text-sm leading-6 text-ellipsis overflow-hidden whitespace-nowrap">
+                                {chat.title}
+                            </div>
 
 							{/* Pin icon for pinned chats - visible by default, hidden on hover */}
 							{chat.pinned_at && (
 								<Pin className="h-5 w-5 group-hover/menu-item:opacity-0 transition-opacity" />
 							)}
 
-							<DropdownMenu>
+                            <DropdownMenu>
 								<DropdownMenuTrigger
 									className={cn(
 										"group-hover/menu-item:opacity-100 group-focus-within/menu-item:opacity-100 transition-opacity",
