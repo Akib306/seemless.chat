@@ -72,28 +72,25 @@ export function SearchModal({ collapsed = false }: SearchModalProps){
       return date.toLocaleDateString();
     }
 	
-	// Handle keyboard shortcuts
-	useEffect(() => {
-		const handleKeyDown = (event: KeyboardEvent) => {
-			// Handle Cmd+K (Mac) or Ctrl+K (Windows/Linux) to toggle search
-			if (event.key === 'k' && (event.metaKey || event.ctrlKey)) {
-				event.preventDefault();
-				setOpen(prev => !prev);
-				return;
-			}
-			
-			// Handle Escape key to close modal
-			if (event.key === 'Escape' && open) {
-				setOpen(false);
-			}
-		};
+    // Keyboard shortcuts: Cmd/Ctrl+K toggles; Escape closes
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'k' && (event.metaKey || event.ctrlKey)) {
+                event.preventDefault();
+                setOpen(prev => !prev);
+                return;
+            }
+            if (event.key === 'Escape' && open) {
+                setOpen(false);
+            }
+        };
 
-		document.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('keydown', handleKeyDown);
 
-		return () => {
-			document.removeEventListener('keydown', handleKeyDown);
-		};
-	}, [open]);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [open]);
 
     // Perform search when query changes (debounced) with cache and SWR-like behavior
     useEffect(() => {
@@ -158,18 +155,21 @@ export function SearchModal({ collapsed = false }: SearchModalProps){
 				>
 					<Search className="h-5 w-5" />
 				</Button>
-			) : (
-				<Button variant="ghost" onClick={() => setOpen(true)} className="w-full justify-between text-base">
-					<div className="flex items-center">
-						<Search className="w-4 h-4 mr-2" />
-						Search Chats
-					</div>
-					
-					<kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5">
-						<span className="text-xs">⌘</span>K
-					</kbd>
-				</Button>
-			)}
+            ) : (
+                <Button
+                    variant="ghost"
+                    onClick={() => setOpen(true)}
+                    className="w-full justify-between gap-3 px-3 py-2 h-10 rounded-lg"
+                >
+                    <span className="flex items-center gap-3">
+                        <Search className="h-4 w-4" />
+                        Search chats
+                    </span>
+                    <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 text-xs text-muted-foreground">
+                        <span className="text-xs">⌘</span>K
+                    </kbd>
+                </Button>
+            )}
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput
           placeholder="Search chats..."
