@@ -21,6 +21,9 @@ import { cn } from "@/lib/utils";
 import { Chat } from "@/types/db";
 import { useChatActions } from "@/hooks/use-chat-actions";
 
+// Track which chats we've already warmed this session to avoid redundant requests
+const warmedChatIds = new Set<string>();
+
 interface ChatItemProps {
 	chat: Chat & { pinned_at?: string | null };
 	isActive: boolean;
@@ -42,6 +45,22 @@ export function ChatItem({
 	} = useChatActions();
 
 	const chatIsRenaming = isRenaming(chat.id);
+
+	// Warm this chat's messages cache on hover/focus to make navigation instant
+	const warmOnIntent = React.useCallback(() => {
+		if (!chat?.id) return;
+		if (warmedChatIds.has(chat.id)) return;
+		warmedChatIds.add(chat.id);
+		try {
+			const controller = new AbortController();
+			const id = setTimeout(() => controller.abort(), 3000);
+			fetch(`/api/cache/warm-chat?chatId=${encodeURIComponent(chat.id)}`, {
+				method: "GET",
+				cache: "no-store",
+				signal: controller.signal,
+			}).finally(() => clearTimeout(id));
+		} catch {}
+	}, [chat?.id]);
 
 	return (
 		<SidebarMenuItem className="px-3 py-0" key={chat.id}>
@@ -104,7 +123,12 @@ export function ChatItem({
 						</div>
 					</div>
 				) : (
-					<Link href={`/chat/${chat.id}`} className="w-full">
+					<Link
+						href={`/chat/${chat.id}`}
+						className="w-full"
+						onMouseEnter={warmOnIntent}
+						onFocus={warmOnIntent}
+					>
 						<div
 							className={cn(
 								"w-full flex justify-between items-start",
