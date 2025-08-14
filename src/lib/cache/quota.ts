@@ -6,6 +6,9 @@ export const GLOBAL_CACHE_BUDGET_BYTES = Math.max(1, Math.floor(GLOBAL_CACHE_BUD
 export const HEARTBEAT_TTL_SECONDS = Number(process.env.CACHE_HEARTBEAT_TTL_S || 60);
 export const CACHE_TTL_SECONDS = Number(process.env.CACHE_TTL_SECONDS || 3600);
 export const METADATA_TTL_SECONDS = Math.max(CACHE_TTL_SECONDS * 2, CACHE_TTL_SECONDS + HEARTBEAT_TTL_SECONDS);
+// Hard cap per-user budget (in MB). Each user gets at most this many bytes.
+export const PER_USER_MAX_MB = Number(process.env.CACHE_PER_USER_MAX_MB || 3);
+export const PER_USER_MAX_BYTES = Math.max(1, Math.floor(PER_USER_MAX_MB * 1024 * 1024));
 
 // Redis key helpers
 export const activeUsersKey = "cache:v1:active_users"; // ZSET: member=userId, score=lastSeenMillis
@@ -15,8 +18,10 @@ export const userUsedBytesKey = (userId: string) => `cache:v1:user:${userId}:use
 
 export function getPerUserBudgetBytes(activeUsersCount: number): number {
   const divisor = Math.max(1, activeUsersCount);
-  // Use the full configured budget; caller can pick a lower GLOBAL_CACHE_BUDGET_MB if needed
-  return Math.max(64 * 1024, Math.floor(GLOBAL_CACHE_BUDGET_BYTES / divisor)); // minimum 64 KB per active user
+  // Baseline share of global budget
+  const share = Math.floor(GLOBAL_CACHE_BUDGET_BYTES / divisor);
+  // Enforce per-user hard cap, and a small minimum floor
+  return Math.max(64 * 1024, Math.min(share, PER_USER_MAX_BYTES));
 }
 
 export async function heartbeat(userId: string): Promise<{ activeUsers: number; perUserBudgetBytes: number }> {
