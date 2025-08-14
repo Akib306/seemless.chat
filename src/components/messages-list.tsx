@@ -30,58 +30,41 @@ export function MessagesList() {
 		}
 	}, [messages]);
 
-	return (
-		<div
-			className="flex-1 p-4 flex justify-center"
-			style={{ color: "#F5F5F5" }}
-		>
-			<div className="w-full max-w-3xl h-full">
-				{messages.length === 0 ? (
-					<div
-						className="h-full flex items-center justify-center"
-						style={{ color: "#CCCCCC" }}
-					>
-						<p className="text-center">
-							Start a conversation by typing a message below.
-						</p>
-					</div>
-				) : (
-					<div className="space-y-6">
-						{messages.map((message, index) => (
-							<div
-								key={index}
-								className={`${
-									message.role === "user" ? "text-right" : "text-left"
-								}`}
-							>
-								<div
-									className={`${
-										message.role === "user"
-											? "inline-block p-4 rounded-2xl max-w-[80%] bg-[#6A8DAD] text-[#F5F5F5] text-lg text-left"
-											: "text-left w-full text-lg py-2"
-									}`}
-									style={{
-										animation: "fadeIn 0.3s ease-in-out",
-									}}
-								>
-									{message.role === "user" ? (
-										<p className="whitespace-pre-wrap">{message.content}</p>
-									) : (
-										<ReactMarkdown
-											remarkPlugins={[remarkGfm, remarkMath]}
-											rehypePlugins={[rehypeRaw, rehypeKatex]}
-											components={markdownComponents}
-										>
-											{message.content}
-										</ReactMarkdown>
-									)}
-								</div>
-							</div>
-						))}
-						<div ref={messagesEndRef} />
-					</div>
-				)}
-			</div>
-		</div>
-	);
+    return (
+        <div className="flex-1 px-4 sm:px-6 md:px-8 py-6 flex justify-center text-foreground">
+            <div className="w-full max-w-3xl h-full">
+                {messages.length === 0 ? (
+                    <div className="h-full flex items-center justify-center text-gray-400">
+                        <p className="text-center">Start a conversation by typing a message below.</p>
+                    </div>
+                ) : (
+                    <div className="space-y-6">
+                        {messages.map((message, index) => {
+                            const isUser = message.role === "user";
+                            return (
+                                <div key={index} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+                                    {isUser ? (
+                                        <div className="max-w-[80%] sm:max-w-[75%] rounded-2xl bg-primary text-primary-foreground px-4 py-3 shadow-md">
+                                            <p className="whitespace-pre-wrap leading-relaxed text-[15px]">{message.content}</p>
+                                        </div>
+                                    ) : (
+                                        <div className="max-w-none w-full text-[15px] leading-7">
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkGfm, remarkMath]}
+                                                rehypePlugins={[rehypeRaw, rehypeKatex]}
+                                                components={markdownComponents}
+                                            >
+                                                {message.content}
+                                            </ReactMarkdown>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                        <div ref={messagesEndRef} />
+                    </div>
+                )}
+            </div>
+        </div>
+    );
 }
