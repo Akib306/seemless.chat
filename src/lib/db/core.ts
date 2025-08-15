@@ -71,10 +71,13 @@ export function createDbUtils(supabase: SupabaseClient, getUserId?: () => Promis
       const id = userId || (await getUserId?.());
       if (!id) throw new Error("User ID required");
 
+      // Prefer pinned chats first (desc by pinned_at), then recency by updated_at desc.
+      // Supabase allows multiple order calls; nullsFirst false to put nulls (unpinned) last.
       const { data, error } = await supabase
         .from("chats")
         .select("*")
         .eq("user_id", id)
+        .order("pinned_at", { ascending: false, nullsFirst: false })
         .order("updated_at", { ascending: false });
 
       if (error) throw new Error(`Failed to fetch chats: ${error.message}`);
