@@ -119,8 +119,35 @@ export function useChatActions() {
       try {
         if (chat.pinned_at) {
           await db.chats.unpinChat(chat.id);
+          // Fire-and-forget cache pin sync
+          try {
+            await fetch("/api/cache/pins", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ chatId: chat.id, pinned: false }),
+              cache: "no-store",
+            });
+          } catch {}
         } else {
           await db.chats.pinChat(chat.id);
+          try {
+            await fetch("/api/cache/pins", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ chatId: chat.id, pinned: true }),
+              cache: "no-store",
+            });
+          } catch {}
+          // Opportunistically warm the pinned chat's messages cache
+          try {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), 3000);
+            await fetch(`/api/cache/warm-chat?chatId=${encodeURIComponent(chat.id)}` , {
+              method: "GET",
+              cache: "no-store",
+              signal: controller.signal,
+            }).finally(() => clearTimeout(id));
+          } catch {}
         }
       } catch (error) {
         console.error("Failed to toggle pin:", error);
