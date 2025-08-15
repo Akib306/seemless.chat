@@ -3,11 +3,13 @@ import { createServerDb } from "@/lib/db/server";
 import { redis } from "@/lib/db/redis";
 import {
   CACHE_TTL_SECONDS,
+  METADATA_TTL_SECONDS,
   estimateBytes,
   heartbeat,
   ensureUnderQuota,
   recordChatSize,
   trackAccess,
+  userPinnedKey,
 } from "@/lib/cache/quota";
 
 export async function GET(request: Request) {
@@ -47,6 +49,18 @@ export async function GET(request: Request) {
       recordChatSize(user.id, chatId, approxBytes),
       trackAccess(user.id, chatId),
     ]);
+
+    // Best-effort: if this chat is pinned in Postgres, reflect that in Redis set
+    try {
+      const chat = await db.chats.getChat(chatId);
+      const pkey = userPinnedKey(user.id);
+      if ((chat as any)?.pinned_at) {
+        await redis.sadd(pkey, chatId);
+      } else {
+        await redis.srem(pkey, chatId);
+      }
+      await redis.expire(pkey, METADATA_TTL_SECONDS);
+    } catch {}
 
     // Enforce per-user budget after warming
     try {
