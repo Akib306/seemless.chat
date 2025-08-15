@@ -99,6 +99,7 @@ Helpful overviews in this repo:
 - [`src/app/README.md`](src/app/README.md) — App Router and pages
 - [`src/components/README.md`](src/components/README.md) — UI components
 - [`src/lib/README.md`](src/lib/README.md) — DB utilities and Supabase clients
+  - Pin-aware cache priority: pinned chats are prioritized for warming and eviction. See `src/lib/cache/`.
 - [`src/contexts/README.md`](src/contexts/README.md) — Global chat state
 - [`src/hooks/README.md`](src/hooks/README.md) — Custom hooks
 - [`src/types/README.md`](src/types/README.md) — Type definitions
