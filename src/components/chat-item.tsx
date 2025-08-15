@@ -21,8 +21,10 @@ import { cn } from "@/lib/utils";
 import { Chat } from "@/types/db";
 import { useChatActions } from "@/hooks/use-chat-actions";
 
-// Track which chats we've already warmed this session to avoid redundant requests
-const warmedChatIds = new Set<string>();
+// Track last time each chat was warmed to avoid redundant requests while allowing re-warm after TTL
+const warmedChatTimestamps = new Map<string, number>();
+const DEFAULT_CACHE_TTL_SECONDS = Number(process.env.NEXT_PUBLIC_CACHE_TTL_SECONDS ?? 3600);
+const WARM_COOLDOWN_MS = Math.max(30_000, DEFAULT_CACHE_TTL_SECONDS * 1000);
 
 interface ChatItemProps {
 	chat: Chat & { pinned_at?: string | null };
@@ -49,17 +51,29 @@ export function ChatItem({
 	// Warm this chat's messages cache on hover/focus to make navigation instant
 	const warmOnIntent = React.useCallback(() => {
 		if (!chat?.id) return;
-		if (warmedChatIds.has(chat.id)) return;
-		warmedChatIds.add(chat.id);
+		const last = warmedChatTimestamps.get(chat.id) || 0;
+		if (Date.now() - last < WARM_COOLDOWN_MS) return;
+		// Optimistically stamp now; if request fails, allow retry by clearing the stamp
+		warmedChatTimestamps.set(chat.id, Date.now());
 		try {
 			const controller = new AbortController();
-			const id = setTimeout(() => controller.abort(), 3000);
+			const id = setTimeout(() => controller.abort(), 10_000);
 			fetch(`/api/cache/warm-chat?chatId=${encodeURIComponent(chat.id)}`, {
 				method: "GET",
 				cache: "no-store",
 				signal: controller.signal,
-			}).finally(() => clearTimeout(id));
-		} catch {}
+			})
+				.then(() => {
+					// Success keeps the timestamp; nothing else to do
+				})
+				.catch(() => {
+					// On failure, remove timestamp so we can retry on next hover
+					warmedChatTimestamps.delete(chat.id);
+				})
+				.finally(() => clearTimeout(id));
+		} catch {
+			warmedChatTimestamps.delete(chat.id);
+		}
 	}, [chat?.id]);
 
 	return (
