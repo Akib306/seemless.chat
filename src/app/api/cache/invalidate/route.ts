@@ -1,6 +1,6 @@
 import { redis } from "@/lib/db/redis";
 import { createClient } from "@/lib/supabase/server";
-import { userRecencyKey, userSizesKey, userUsedBytesKey } from "@/lib/cache/quota";
+import { userRecencyKey, userSizesKey, userUsedBytesKey, userPinnedKey } from "@/lib/cache/quota";
 
 export async function POST(req: Request) {
   try {
@@ -41,6 +41,9 @@ export async function POST(req: Request) {
     const deleted = await redis.del(...safeKeys);
     await redis.hdel(userSizesKey(user.id), ...chatIds);
     await redis.zrem(userRecencyKey(user.id), ...chatIds);
+    try {
+      await redis.srem(userPinnedKey(user.id), ...chatIds);
+    } catch {}
 
     // Update used bytes
     const usedStr = await redis.get<string | null>(userUsedBytesKey(user.id));
