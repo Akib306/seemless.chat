@@ -15,6 +15,8 @@ export const activeUsersKey = "cache:v1:active_users"; // ZSET: member=userId, s
 export const userRecencyKey = (userId: string) => `cache:v1:user:${userId}:recency`; // ZSET: member=chatId, score=lastAccessMillis
 export const userSizesKey = (userId: string) => `cache:v1:user:${userId}:sizes`; // HASH: field=chatId, value=bytes (stringified int)
 export const userUsedBytesKey = (userId: string) => `cache:v1:user:${userId}:used_bytes`; // STRING: int bytes
+// SET of pinned chatIds for a user; membership used to prefer keeping pinned in cache
+export const userPinnedKey = (userId: string) => `cache:v1:user:${userId}:pinned`;
 
 export function getPerUserBudgetBytes(activeUsersCount: number): number {
   const divisor = Math.max(1, activeUsersCount);
@@ -91,26 +93,44 @@ export async function ensureUnderQuota(userId: string, budgetBytes: number): Pro
   const recencyKey = userRecencyKey(userId);
   const sizesKey = userSizesKey(userId);
   const usedKey = userUsedBytesKey(userId);
+  const pinnedKey = userPinnedKey(userId);
 
   let used = await getUsedBytes(userId);
   const evicted: Array<{ chatId: string; bytes: number }> = [];
 
-  // Evict least-recently-used chats until under budget
+  // Snapshot pinned set to avoid N round-trips during eviction loop
+  let pinnedSet: Set<string> = new Set();
+  try {
+    const pinnedMembers = await redis.smembers<string[]>(pinnedKey);
+    if (Array.isArray(pinnedMembers)) pinnedSet = new Set(pinnedMembers);
+  } catch {}
+
+  // Evict least-recently-used chats until under budget.
+  // Prefer evicting UNPINNED chats; only evict pinned when no unpinned remain.
   let safety = 1000; // prevent infinite loops
   while (used > budgetBytes && safety-- > 0) {
-    const lru = await redis.zrange<string[]>(recencyKey, 0, 0);
-    const lruChatId = Array.isArray(lru) && lru.length > 0 ? lru[0] : null;
-    if (!lruChatId) break;
+    // Fetch a small batch of the oldest chats to find the first UNPINNED candidate
+    const candidates = await redis.zrange<string[]>(recencyKey, 0, 50);
+    if (!Array.isArray(candidates) || candidates.length === 0) break;
 
-    const sizeStr = await redis.hget<string | null>(sizesKey, lruChatId);
+    // Determine first unpinned candidate; if none, fall back to the absolute LRU (which may be pinned)
+    let victimChatId: string | null = null;
+    for (const candidate of candidates) {
+      if (!pinnedSet.has(candidate)) { victimChatId = candidate; break; }
+    }
+    if (!victimChatId) {
+      victimChatId = candidates[0];
+    }
+
+    const sizeStr = await redis.hget<string | null>(sizesKey, victimChatId);
     const bytes = sizeStr ? Number(sizeStr) : 0;
 
     // Check if message key exists; if missing, still reclaim recorded size
-    const messageKey = `cache:v1:messages:byChat:${lruChatId}`;
+    const messageKey = `cache:v1:messages:byChat:${victimChatId}`;
     const pipe = redis.pipeline();
     pipe.del(messageKey);
-    pipe.hdel(sizesKey, lruChatId);
-    pipe.zrem(recencyKey, lruChatId);
+    pipe.hdel(sizesKey, victimChatId);
+    pipe.zrem(recencyKey, victimChatId);
     pipe.decrby(usedKey, Math.trunc(bytes));
     pipe.expire(sizesKey, METADATA_TTL_SECONDS);
     pipe.expire(recencyKey, METADATA_TTL_SECONDS);
@@ -118,7 +138,7 @@ export async function ensureUnderQuota(userId: string, budgetBytes: number): Pro
     await pipe.exec();
 
     used = Math.max(0, used - bytes);
-    evicted.push({ chatId: lruChatId, bytes });
+    evicted.push({ chatId: victimChatId, bytes });
   }
 
   return { evicted };
