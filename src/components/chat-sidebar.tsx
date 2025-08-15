@@ -102,21 +102,16 @@ export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 		};
 	}, []);
 	
-	// Sort chats: pinned chats first (by pinned_at desc), then unpinned chats (by updated_at desc)
+	// Server query already orders pinned first; keep client-side sort for safety
 	const sortedChatHistory = useMemo(() => {
 		return [...chatHistory].sort((a, b) => {
-			// If both are pinned or both are unpinned
-			if ((a.pinned_at && b.pinned_at) || (!a.pinned_at && !b.pinned_at)) {
-				if (a.pinned_at && b.pinned_at) {
-					// Both pinned: sort by pinned_at (most recently pinned first)
-					return new Date(b.pinned_at).getTime() - new Date(a.pinned_at).getTime();
-				} else {
-					// Both unpinned: sort by updated_at (most recently updated first)
-					return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-				}
+			const aPinned = Boolean(a.pinned_at);
+			const bPinned = Boolean(b.pinned_at);
+			if (aPinned !== bPinned) return aPinned ? -1 : 1;
+			if (aPinned && bPinned) {
+				return new Date(b.pinned_at as string).getTime() - new Date(a.pinned_at as string).getTime();
 			}
-			// One is pinned, one is not: pinned chat comes first
-			return a.pinned_at ? -1 : 1;
+			return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
 		});
 	}, [chatHistory]);
 	
