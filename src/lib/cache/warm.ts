@@ -2,11 +2,13 @@ import { createServerDb } from "@/lib/db/server";
 import { redis } from "@/lib/db/redis";
 import {
   CACHE_TTL_SECONDS,
+  METADATA_TTL_SECONDS,
   ensureUnderQuota,
   estimateBytes,
   heartbeat,
   recordChatSize,
   trackAccess,
+  userPinnedKey,
 } from "./quota";
 
 /**
@@ -39,10 +41,34 @@ export async function warmUserCacheIfNeeded(
       }
 
       const db = await createServerDb();
-      // Get most recent chats from the last session (ordered by updated_at desc)
+      // Get user's chats; will include pinned_at and updated_at
       const recentChats = await db.chats.getChats(userId);
       const WARM_CHATS_LIMIT = Math.max(1, Number(process.env.CACHE_WARM_CHATS_LIMIT || 8));
-      const targets = recentChats.slice(0, WARM_CHATS_LIMIT);
+
+      // Refresh the user's pinned set in Redis (used by eviction prioritization)
+      try {
+        const pinnedIds = recentChats
+          .filter((c: any) => Boolean(c?.pinned_at))
+          .map((c: any) => String(c.id));
+        const pkey = userPinnedKey(userId);
+        const pipe = redis.pipeline();
+        pipe.del(pkey);
+        if (pinnedIds.length > 0) {
+          // @ts-expect-error upstash types accept varargs
+          pipe.sadd(pkey, ...pinnedIds);
+        }
+        pipe.expire(pkey, METADATA_TTL_SECONDS);
+        await pipe.exec();
+      } catch {}
+
+      // Choose targets: pinned first (by pinned_at desc), then most recent unpinned (by updated_at desc)
+      const pinned = [...recentChats]
+        .filter((c: any) => Boolean(c?.pinned_at))
+        .sort((a: any, b: any) => new Date(b.pinned_at).getTime() - new Date(a.pinned_at).getTime());
+      const unpinned = [...recentChats]
+        .filter((c: any) => !c?.pinned_at)
+        .sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+      const targets = [...pinned, ...unpinned].slice(0, WARM_CHATS_LIMIT);
 
       if (targets.length > 0) {
         const toFetch = targets.map((chat) => ({
