@@ -21,10 +21,10 @@ import { cn } from "@/lib/utils";
 import { Chat } from "@/types/db";
 import { useChatActions } from "@/hooks/use-chat-actions";
 
-// Track last time each chat was warmed to avoid redundant requests while allowing re-warm after TTL
+// Track last time each chat was warmed to avoid redundant requests while allowing re-warm
+// after a short hover interval (10–15s) regardless of cache TTL
 const warmedChatTimestamps = new Map<string, number>();
-const DEFAULT_CACHE_TTL_SECONDS = Number(process.env.NEXT_PUBLIC_CACHE_TTL_SECONDS ?? 3600);
-const WARM_COOLDOWN_MS = Math.max(30_000, DEFAULT_CACHE_TTL_SECONDS * 1000);
+const HOVER_REWARM_INTERVAL_MS = 12_000; // re-warm if > ~12s since last hover
 
 interface ChatItemProps {
 	chat: Chat & { pinned_at?: string | null };
@@ -52,7 +52,7 @@ export function ChatItem({
 	const warmOnIntent = React.useCallback(() => {
 		if (!chat?.id) return;
 		const last = warmedChatTimestamps.get(chat.id) || 0;
-		if (Date.now() - last < WARM_COOLDOWN_MS) return;
+		if (Date.now() - last < HOVER_REWARM_INTERVAL_MS) return;
 		// Optimistically stamp now; if request fails, allow retry by clearing the stamp
 		warmedChatTimestamps.set(chat.id, Date.now());
 		try {
