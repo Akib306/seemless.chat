@@ -1,4 +1,4 @@
-import { heartbeat, getUsedBytes, HEARTBEAT_TTL_SECONDS } from "@/lib/cache/quota";
+import { heartbeat, getUsedBytes, HEARTBEAT_TTL_SECONDS, CACHE_TTL_SECONDS, userPinnedKey } from "@/lib/cache/quota";
 import { warmUserCacheIfNeeded } from "@/lib/cache/warm";
 import { redis } from "@/lib/db/redis";
 import { createClient } from "@/lib/supabase/server";
@@ -39,6 +39,19 @@ export async function GET(request: Request) {
 
     // Opportunistic cache warm-up: once per 24h, prefill most recent chats
     await warmUserCacheIfNeeded(userId, perUserBudgetBytes);
+
+    // Keep pinned chats resident by refreshing TTL if present in Redis
+    try {
+      const pkey = userPinnedKey(userId);
+      const pinnedIds = await redis.smembers<string[]>(pkey);
+      if (Array.isArray(pinnedIds) && pinnedIds.length > 0) {
+        const pipe = redis.pipeline();
+        for (const cid of pinnedIds) {
+          pipe.expire(`cache:v1:messages:byChat:${cid}`, CACHE_TTL_SECONDS);
+        }
+        await pipe.exec();
+      }
+    } catch {}
 
     const usedBytes = await getUsedBytes(userId);
     return Response.json({
