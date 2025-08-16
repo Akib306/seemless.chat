@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Send, Paperclip, X } from "lucide-react";
 import { useChatContext } from "@/contexts/chat-context";
-import { CACHE_TTL_SECONDS } from "@/lib/cache/quota";
+import { CACHE_TTL_SECONDS } from "@/lib/cache/config";
 import * as db from "@/lib/db/client";
 import { useRouter } from "next/navigation";
 

@@ -1,8 +1,7 @@
 import { createServerDb } from "@/lib/db/server";
 import { redis } from "@/lib/db/redis";
+import { CACHE_TTL_SECONDS, METADATA_TTL_SECONDS } from "./config";
 import {
-  CACHE_TTL_SECONDS,
-  METADATA_TTL_SECONDS,
   ensureUnderQuota,
   estimateBytes,
   heartbeat,

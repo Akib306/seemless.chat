@@ -5,7 +5,7 @@ import { Message } from "@/types/db";
 import * as db from "@/lib/db/client";
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { CACHE_TTL_SECONDS } from "@/lib/cache/quota";
+import { CACHE_TTL_SECONDS } from "@/lib/cache/config";
 
 type ChatContextType = UseChatHelpers & {
 	model: string;

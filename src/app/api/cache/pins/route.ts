@@ -1,6 +1,7 @@
 import { redis } from "@/lib/db/redis";
 import { createClient } from "@/lib/supabase/server";
-import { CACHE_TTL_SECONDS, METADATA_TTL_SECONDS, userPinnedKey } from "@/lib/cache/quota";
+import { userPinnedKey } from "@/lib/cache/quota";
+import { CACHE_TTL_SECONDS, METADATA_TTL_SECONDS } from "@/lib/cache/config";
 
 export async function POST(req: Request) {
   try {

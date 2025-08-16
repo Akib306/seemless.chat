@@ -1,7 +1,8 @@
 import ChatClient from "@/components/chat-client";
 import { createServerDb } from "@/lib/db/server";
 import { redis } from "@/lib/db/redis";
-import { CACHE_TTL_SECONDS, estimateBytes, recordChatSize, heartbeat, ensureUnderQuota } from "@/lib/cache/quota";
+import { estimateBytes, recordChatSize, heartbeat, ensureUnderQuota } from "@/lib/cache/quota";
+import { CACHE_TTL_SECONDS } from "@/lib/cache/config";
 import { createClient } from "@/lib/supabase/server";
 // SSR: keep minimal
 

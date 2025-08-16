@@ -1,4 +1,5 @@
-import { heartbeat, getUsedBytes, HEARTBEAT_TTL_SECONDS, CACHE_TTL_SECONDS, userPinnedKey } from "@/lib/cache/quota";
+import { heartbeat, getUsedBytes, userPinnedKey } from "@/lib/cache/quota";
+import { HEARTBEAT_TTL_SECONDS, CACHE_TTL_SECONDS } from "@/lib/cache/config";
 import { warmUserCacheIfNeeded } from "@/lib/cache/warm";
 import { redis } from "@/lib/db/redis";
 import { createClient } from "@/lib/supabase/server";

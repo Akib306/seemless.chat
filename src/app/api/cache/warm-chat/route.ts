@@ -1,9 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { createServerDb } from "@/lib/db/server";
 import { redis } from "@/lib/db/redis";
+import { CACHE_TTL_SECONDS, METADATA_TTL_SECONDS } from "@/lib/cache/config";
 import {
-  CACHE_TTL_SECONDS,
-  METADATA_TTL_SECONDS,
   estimateBytes,
   heartbeat,
   ensureUnderQuota,
