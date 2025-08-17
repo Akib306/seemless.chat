@@ -1,10 +1,14 @@
+"use client";
 import { ChatInput } from "@/components/chat-input";
-
 import { MessagesList } from "@/components/messages-list";
 import { ChatProvider } from "@/contexts/chat-context";
 import { Message } from "@/types/db";
 
-export default function ChatClient({
+/**
+ * Interactive chat client with full functionality.
+ * This is now dynamically imported to reduce initial bundle size.
+ */
+export default function ChatClientInteractive({
 	chatId,
 	initialMessages,
 }: {
