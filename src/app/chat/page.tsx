@@ -1,5 +1,5 @@
-import ChatClient from "@/components/chat-client";
+import ChatClientServer from "@/components/chat-client-server";
 
 export default async function NewChatPage() {
-	return <ChatClient chatId={null} initialMessages={[]} />;
+	return <ChatClientServer chatId={null} initialMessages={[]} />;
 }
