@@ -1,4 +1,4 @@
-import ChatClient from "@/components/chat-client";
+import ChatClientServer from "@/components/chat-client-server";
 import { createServerDb } from "@/lib/db/server";
 import { redis } from "@/lib/db/redis";
 import { estimateBytes, recordChatSize, heartbeat, ensureUnderQuota } from "@/lib/cache/quota";
@@ -37,5 +37,5 @@ export default async function ChatPage({
       ]);
     } catch {}
   }
-	return <ChatClient chatId={chatid} initialMessages={initialMessages} />;
+	return <ChatClientServer chatId={chatid} initialMessages={initialMessages} />;
 }
