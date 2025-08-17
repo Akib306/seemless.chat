@@ -48,7 +48,7 @@ export const markdownComponents: Components = {
 		}
 
 		return (
-			<code className="bg-[#2a2a2a] text-gray-100 px-1.5 py-0.5 rounded text-[0.875em]">
+			<code className="bg-[#2a2a2a] text-gray-100 px-1.5 py-0.5 rounded text-[0.875em] break-words whitespace-pre-wrap max-w-full">
 				{children}
 			</code>
 		);
@@ -69,7 +69,7 @@ export const markdownComponents: Components = {
 	),
 
 	// Paragraphs and lists
-	p: (props) => <p className="my-4 leading-relaxed text-gray-300" {...props} />,
+	p: (props) => <p className="my-4 leading-relaxed text-gray-300 break-words" {...props} />,
 	ul: (props) => (
 		<ul className="list-disc list-inside ml-6 my-4 text-gray-300" {...props} />
 	),
