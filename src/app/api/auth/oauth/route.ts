@@ -15,20 +15,20 @@ export async function GET(request: Request) {
 		const supabase = await createClient();
 		const { error } = await supabase.auth.exchangeCodeForSession(code);
 
-        if (!error) {
-            const { data } = await supabase.auth.getUser();
-            if (data.user) {
-                try {
-                    await db.profiles.getProfile(data.user.id);
-                } catch (error) {
-                    // Profile doesn't exist yet, create it for new OAuth users
-                    await db.profiles.createProfile(data.user.id);
-                }
-                // Warm caches for recent chats immediately after login to avoid cold starts
-                try {
-                    await warmUserCacheIfNeeded(data.user.id);
-                } catch {}
-            }
+		if (!error) {
+			const { data } = await supabase.auth.getUser();
+			if (data.user) {
+				try {
+					await db.profiles.getProfile(data.user.id);
+				} catch (error) {
+					// Profile doesn't exist yet, create it for new OAuth users
+					await db.profiles.createProfile(data.user.id);
+				}
+				// Warm caches for recent chats immediately after login to avoid cold starts
+				try {
+					await warmUserCacheIfNeeded(data.user.id);
+				} catch {}
+			}
 
 			const forwardedHost = request.headers.get("x-forwarded-host"); // original origin before load balancer
 			const forwardedProto = request.headers.get("x-forwarded-proto");
@@ -40,8 +40,9 @@ export async function GET(request: Request) {
 				// Respect x-forwarded-proto when present; avoid forcing https for localhost
 				const protocol =
 					forwardedProto ??
-					(forwardedHost.includes("localhost") || forwardedHost.startsWith("127.0.0.1")
-						? "http" 
+					(forwardedHost.includes("localhost") ||
+					forwardedHost.startsWith("127.0.0.1")
+						? "http"
 						: "https");
 				return NextResponse.redirect(`${protocol}://${forwardedHost}${next}`);
 			} else {

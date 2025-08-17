@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 @layer base {
-	/* Light theme variables */ 
+	/* Light theme variables */
 	:root {
 		--background: 0 0% 100%;
 		--foreground: 0 0% 3.9%;
-		--card: 0 0% 97%;                 /* #F7F7F7 - Subtle contrast from background */
+		--card: 0 0% 97%; /* #F7F7F7 - Subtle contrast from background */
 		--card-foreground: 0 0% 3.9%;
-		--popover: 0 0% 95%;               /* #F2F2F2 - More contrast for overlays */
+		--popover: 0 0% 95%; /* #F2F2F2 - More contrast for overlays */
 		--popover-foreground: 0 0% 3.9%;
 		--primary: 0 0% 9%;
 		--primary-foreground: 0 0% 98%;
@@ -43,7 +43,7 @@
 	/* Dark theme variables - Optimized for readability and accessibility */
 	.dark {
 		/* Base - deep slate with high-contrast foreground */
-		--background: 220 15% 7%;   /* ~slate-950 */
+		--background: 220 15% 7%; /* ~slate-950 */
 		--foreground: 210 40% 96%;
 
 		/* Surfaces */
@@ -53,11 +53,11 @@
 		--popover-foreground: 210 40% 96%;
 
 		/* Brand primary: tuned indigo */
-		--primary: 245 70% 60%;     /* slightly softer */
+		--primary: 245 70% 60%; /* slightly softer */
 		--primary-foreground: 210 40% 98%;
 
 		/* Secondary and neutrals */
-		--secondary: 220 15% 20%;   /* subtle slate */
+		--secondary: 220 15% 20%; /* subtle slate */
 		--secondary-foreground: 210 40% 92%;
 		--muted: 222 16% 16%;
 		--muted-foreground: 215 18% 72%;
@@ -124,12 +124,12 @@ body {
 		color: hsl(var(--foreground));
 		opacity: 0.94;
 	}
-	
+
 	.dark .text-hierarchy-secondary {
 		color: hsl(var(--foreground));
 		opacity: 0.78;
 	}
-	
+
 	.dark .text-hierarchy-tertiary {
 		color: hsl(var(--muted-foreground));
 		opacity: 0.88;

@@ -46,7 +46,7 @@ export function CodeBlock({ language, value }: CodeBlockProps) {
 					margin: 0,
 					fontSize: "1rem",
 					lineHeight: "1.5",
-					fontFamily: "JetBrains Mono"
+					fontFamily: "JetBrains Mono",
 				}}
 				codeTagProps={{
 					style: {

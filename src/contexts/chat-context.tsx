@@ -68,15 +68,17 @@ export const ChatProvider = ({
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify({
 							key,
-							append: [{
-								id: message.id,
-								chat_id: latestChatId.current,
-								content: message.content,
-								role: "assistant",
-								model_used: model,
-								created_at: new Date().toISOString(),
-							}],
-                            ex: CACHE_TTL_SECONDS,
+							append: [
+								{
+									id: message.id,
+									chat_id: latestChatId.current,
+									content: message.content,
+									role: "assistant",
+									model_used: model,
+									created_at: new Date().toISOString(),
+								},
+							],
+							ex: CACHE_TTL_SECONDS,
 						}),
 					});
 					// ignore response in UI

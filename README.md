@@ -53,18 +53,21 @@ seemless.chat/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/your-username/seemless.chat.git
    cd seemless.chat
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**
    Create a `.env.local` file and set:
+
    ```env
    # Supabase
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
@@ -76,6 +79,7 @@ seemless.chat/
    ```
 
 4. **Set up Supabase**
+
    ```bash
    # Install Supabase CLI
    npm install -g supabase
@@ -113,6 +117,7 @@ Helpful overviews in this repo:
 - `npm run format` — Format with Prettier
 
 Supabase CLI (installed globally):
+
 - `supabase db reset` — Reset local database and apply migrations
 - `supabase db push` — Push schema changes to remote
 

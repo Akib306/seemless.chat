@@ -4,10 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { EllipsisVertical, Trash2, Edit2, Pin, PinOff } from "lucide-react";
 
-import {
-	SidebarMenuButton,
-	SidebarMenuItem,
-} from "@/components/ui/sidebar";
+import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
 import {
 	DropdownMenu,
@@ -31,11 +28,8 @@ interface ChatItemProps {
 	isActive: boolean;
 }
 
-export function ChatItem({
-	chat,
-	isActive,
-}: ChatItemProps) {
-	const { 
+export function ChatItem({ chat, isActive }: ChatItemProps) {
+	const {
 		handleDeleteChat,
 		handleStartRename,
 		handleSaveRename,
@@ -77,40 +71,30 @@ export function ChatItem({
 	}, [chat?.id]);
 
 	return (
-        <SidebarMenuItem className="px-2 py-0" key={chat.id}>
-            <SidebarMenuButton
+		<SidebarMenuItem className="px-2 py-0" key={chat.id}>
+			<SidebarMenuButton
 				asChild
 				isActive={isActive}
-                className="flex flex-col items-start hover:bg-sidebar-accent/60 py-1 rounded-lg focus-visible:ring-0"
+				className="flex flex-col items-start hover:bg-sidebar-accent/60 py-1 rounded-lg focus-visible:ring-0"
 				tooltip={chat.title || "Chat"}
 			>
 				{chatIsRenaming ? (
 					<div className="w-full">
-						<div
-                            className={cn(
-                                "w-full flex justify-between items-start",
-                            )}
-						>
+						<div className={cn("w-full flex justify-between items-start")}>
 							<Input
 								value={renameValue}
 								onChange={(e) => handleRenameValueChange(e.target.value)}
 								onKeyDown={(e) => handleRenameKeyDown(e, chat.id)}
 								onBlur={() => handleSaveRename(chat.id)}
-                                className="flex-1 text-base h-auto p-0 border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+								className="flex-1 text-base h-auto p-0 border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
 								autoFocus
 							/>
 
 							<DropdownMenu>
-								<DropdownMenuTrigger
-									className="md:opacity-0 group-hover/menu-item:opacity-100 group-focus-within/menu-item:opacity-100"
-								>
+								<DropdownMenuTrigger className="md:opacity-0 group-hover/menu-item:opacity-100 group-focus-within/menu-item:opacity-100">
 									<EllipsisVertical className="h-5 w-5" />
 								</DropdownMenuTrigger>
-								<DropdownMenuContent
-									side="right"
-									align="start"
-									sideOffset={20}
-								>
+								<DropdownMenuContent side="right" align="start" sideOffset={20}>
 									<DropdownMenuItem onClick={handleTogglePin(chat)}>
 										{chat.pinned_at ? (
 											<PinOff className="mr-2 h-4 w-4" />
@@ -119,15 +103,11 @@ export function ChatItem({
 										)}
 										{chat.pinned_at ? "Unpin" : "Pin"}
 									</DropdownMenuItem>
-									<DropdownMenuItem
-										onClick={() => handleStartRename(chat.id)}
-									>
+									<DropdownMenuItem onClick={() => handleStartRename(chat.id)}>
 										<Edit2 className="mr-2 h-4 w-4" />
 										Rename
 									</DropdownMenuItem>
-									<DropdownMenuItem
-										onClick={handleDeleteChat(chat.id)}
-									>
+									<DropdownMenuItem onClick={handleDeleteChat(chat.id)}>
 										<Trash2 className="mr-2 h-4 w-4" />
 										Delete
 									</DropdownMenuItem>
@@ -148,20 +128,20 @@ export function ChatItem({
 								isActive && "text-green-500",
 							)}
 						>
-                            <div className="flex-1 text-sm leading-6 text-ellipsis overflow-hidden whitespace-nowrap">
-                                {chat.title}
-                            </div>
+							<div className="flex-1 text-sm leading-6 text-ellipsis overflow-hidden whitespace-nowrap">
+								{chat.title}
+							</div>
 
 							{/* Pin icon for pinned chats - visible by default, hidden on hover */}
 							{chat.pinned_at && (
 								<Pin className="h-5 w-5 group-hover/menu-item:opacity-0 transition-opacity" />
 							)}
 
-                            <DropdownMenu>
+							<DropdownMenu>
 								<DropdownMenuTrigger
 									className={cn(
 										"group-hover/menu-item:opacity-100 group-focus-within/menu-item:opacity-100 transition-opacity",
-										chat.pinned_at ? "opacity-0" : "md:opacity-0"
+										chat.pinned_at ? "opacity-0" : "md:opacity-0",
 									)}
 									onClick={(e) => {
 										e.preventDefault();
@@ -170,11 +150,7 @@ export function ChatItem({
 								>
 									<EllipsisVertical className="h-5 w-5" />
 								</DropdownMenuTrigger>
-								<DropdownMenuContent
-									side="right"
-									align="start"
-									sideOffset={20}
-								>
+								<DropdownMenuContent side="right" align="start" sideOffset={20}>
 									<DropdownMenuItem onClick={handleTogglePin(chat)}>
 										{chat.pinned_at ? (
 											<PinOff className="mr-2 h-4 w-4" />
@@ -183,15 +159,11 @@ export function ChatItem({
 										)}
 										{chat.pinned_at ? "Unpin" : "Pin"}
 									</DropdownMenuItem>
-									<DropdownMenuItem
-										onClick={() => handleStartRename(chat.id)}
-									>
+									<DropdownMenuItem onClick={() => handleStartRename(chat.id)}>
 										<Edit2 className="mr-2 h-4 w-4" />
 										Rename
 									</DropdownMenuItem>
-									<DropdownMenuItem
-										onClick={handleDeleteChat(chat.id)}
-									>
+									<DropdownMenuItem onClick={handleDeleteChat(chat.id)}>
 										<Trash2 className="mr-2 h-4 w-4" />
 										Delete
 									</DropdownMenuItem>
@@ -203,4 +175,4 @@ export function ChatItem({
 			</SidebarMenuButton>
 		</SidebarMenuItem>
 	);
-} 
+}

@@ -3,7 +3,6 @@ import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
 import { createServerDb } from "@/lib/db/server";
 
-
 async function generateTitle(message: string): Promise<string> {
 	try {
 		const result = await generateText({
@@ -32,7 +31,6 @@ async function generateTitle(message: string): Promise<string> {
 }
 
 export async function POST(req: Request) {
-
 	const db = await createServerDb();
 	const { message, chatId } = await req.json();
 

@@ -42,7 +42,14 @@ export default function Loading() {
 			{/* Sticky input area placeholder */}
 			<div
 				className="flex-shrink-0"
-				style={{ position: "sticky", bottom: 0, left: 0, width: "100%", background: "#1A1A1A", zIndex: 10 }}
+				style={{
+					position: "sticky",
+					bottom: 0,
+					left: 0,
+					width: "100%",
+					background: "#1A1A1A",
+					zIndex: 10,
+				}}
 			>
 				<div className="px-4 pb-6">
 					<div className="h-14 w-full bg-zinc-800 rounded animate-pulse" />
@@ -51,5 +58,3 @@ export default function Loading() {
 		</div>
 	);
 }
-
-
