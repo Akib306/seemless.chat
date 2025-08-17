@@ -1,14 +1,10 @@
 "use client";
-import ReactMarkdown from "react-markdown";
-import "katex/dist/katex.min.css";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
-import rehypeRaw from "rehype-raw";
-import { markdownComponents } from "@/components/markdown-components";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, lazy, Suspense } from "react";
 import { useChatContext } from "@/contexts/chat-context";
 import "katex/dist/katex.min.css";
+
+// Lazy load the heavy markdown component to reduce initial bundle size
+const MarkdownMessage = lazy(() => import("@/components/markdown-message").then(mod => ({ default: mod.MarkdownMessage })));
 
 export function MessagesList() {
 	const { messages } = useChatContext();
@@ -67,13 +63,9 @@ export function MessagesList() {
 									{message.role === "user" ? (
 										<p className="whitespace-pre-wrap">{message.content}</p>
 									) : (
-										<ReactMarkdown
-											remarkPlugins={[remarkGfm, remarkMath]}
-											rehypePlugins={[rehypeRaw, rehypeKatex]}
-											components={markdownComponents}
-										>
-											{message.content}
-										</ReactMarkdown>
+										<Suspense fallback={<div className="text-zinc-400">Loading message...</div>}>
+											<MarkdownMessage content={message.content} />
+										</Suspense>
 									)}
 								</div>
 							</div>
