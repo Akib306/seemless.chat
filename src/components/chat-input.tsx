@@ -147,9 +147,9 @@ export function ChatInput() {
 		}
 	};
 
-	return (
-		<div className="p-4 flex justify-center" style={{ borderColor: "#333333" }}>
-			<form onSubmit={onSubmit} className="relative w-full max-w-3xl">
+    return (
+        <div className="p-4 sm:p-6 flex justify-center">
+            <form onSubmit={onSubmit} className="relative w-full max-w-3xl">
 				{/* File previews */}
 				{files.length > 0 && (
 					<div className="flex flex-wrap gap-2 mb-2">
@@ -178,20 +178,18 @@ export function ChatInput() {
 				)}
 
 				{/* Input area */}
-				<div
-					className="flex flex-col rounded-xl p-2"
-					style={{ backgroundColor: "rgba(42, 42, 42, 0.7)" }}
-					onDrop={handleDrop}
-					onDragOver={handleDragOver}
-				>
+                <div
+                    className="flex flex-col rounded-2xl p-2 bg-neutral-900/60 backdrop-blur border border-neutral-800 shadow-sm"
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                >
 					<textarea
 						ref={textareaRef}
 						value={input}
 						onChange={handleTextareaChange}
 						placeholder="Type your message..."
 						disabled={isLoading}
-						className="flex-1 bg-transparent border-none resize-none outline-none min-h-[48px] max-h-[200px] px-3 py-2"
-						style={{ color: "#F5F5F5" }}
+                        className="flex-1 text-[15px] text-neutral-100 bg-transparent border-none resize-none outline-none min-h-[48px] max-h-[200px] px-3 py-2 placeholder:text-neutral-500"
 						rows={1}
 						onKeyDown={(e) => {
 							if (e.key === "Enter" && !e.shiftKey) {
@@ -201,19 +199,18 @@ export function ChatInput() {
 					/>
 
 					<div className="flex items-center gap-2 mt-2">
-						<Select value={model} onValueChange={setModel}>
+                        <Select value={model} onValueChange={setModel}>
 							<SelectTrigger
-								className="w-auto min-w-[140px] h-9 px-3 rounded-md  bg-transparent text-[#F5F5F5] hover:bg-[#3A3A3A] focus:outline-none focus:ring-0 focus:ring-offset-0 transition-colors"
-								style={{ color: "#F5F5F5" }}
+                                className="w-auto min-w-[150px] h-9 px-3 rounded-md bg-transparent text-neutral-100 hover:bg-neutral-800/70 border-0 focus:outline-none focus:ring-0 focus:ring-offset-0 transition-colors"
 							>
 								<SelectValue placeholder="Select a model" />
 							</SelectTrigger>
 							<SelectContent
-								style={{
-									backgroundColor: "#2A2A2A",
-									color: "#F5F5F5",
-									borderColor: "#333333",
-								}}
+                                style={{
+                                    backgroundColor: "#1f1f1f",
+                                    color: "#F5F5F5",
+                                    borderColor: "#2d2d2d",
+                                }}
 							>
 								<SelectItem value="gemini-2.0-flash">
 									Gemini 2.0 Flash
@@ -230,8 +227,7 @@ export function ChatInput() {
 							<button
 								type="button"
 								onClick={() => fileInputRef.current?.click()}
-								className="p-2 rounded-full hover:bg-[#333333] flex items-center justify-center"
-								style={{ color: "#CCCCCC" }}
+                                className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/70 flex items-center justify-center"
 							>
 								<Paperclip size={20} />
 								<input
@@ -243,18 +239,11 @@ export function ChatInput() {
 								/>
 							</button>
 
-							<Button
-								type="submit"
-								disabled={isLoading || (!input.trim() && files.length === 0)}
-								className="rounded-full p-2 flex items-center justify-center"
-								style={{
-									backgroundColor:
-										isLoading || (!input.trim() && files.length === 0)
-											? "#333333"
-											: "#6A8DAD",
-									color: "#F5F5F5",
-								}}
-							>
+                            <Button
+                                type="submit"
+                                disabled={isLoading || (!input.trim() && files.length === 0)}
+                                className="rounded-full p-2 flex items-center justify-center bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground"
+                            >
 								{isLoading ? (
 									<div className="h-5 w-5 animate-spin rounded-full border-2 border-[#F5F5F5] border-t-transparent" />
 								) : (

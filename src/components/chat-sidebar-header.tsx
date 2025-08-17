@@ -1,107 +1,51 @@
 "use client";
 
-import { SidebarHeader, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { Button } from "./ui/button";
 import Image from "next/image";
+import { LogoMark } from "@/components/ui/logo";
 import { useRouter } from "next/navigation";
-import { Edit, Search, PanelLeft } from "lucide-react";
+import { Edit, Search, BookMarked, Play, Grid3X3 } from "lucide-react";
 import { SearchModal } from "./search-modal";
-import { useSidebar } from "@/components/ui/sidebar";
 
 export function ChatSidebarHeader() {
   const router = useRouter();
-  const { state, toggleSidebar } = useSidebar();
-  
-	return (
-    <>
-			{/* Fixed header that's always visible */}
-			<div
-				className={`fixed top-4 z-50 flex items-center ${
-					state === "expanded"
-						? "left-4 w-64"
-						: "left-0 w-[--sidebar-width-icon] justify-center"
-				}`}
-			>
-				{state === "expanded" ? (
-					<div className="flex justify-between items-center w-full">
-						<div className="relative w-10 h-10">
-							<Image
-								src="/logo.svg"
-								alt="Seemless Chat Logo"
-								fill
-								className="object-contain"
-								style={{
-									filter:
-										"invert(45%) sepia(80%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(90%)",
-								}}
-							/>
-						</div>
-						<SidebarTrigger className="h-10 w-10" />
-					</div>
-				) : (
-					<>
-						{/* Logo that becomes toggle on hover */}
-						<div 
-							className="relative w-10 h-10 flex items-center justify-center cursor-pointer group/logo"
-							onClick={toggleSidebar}
-						>
-                            <Image
-								src="/logo.svg"
-								alt="Seemless Chat Logo"
-								fill
-                                className="object-contain object-center transition-opacity duration-200 group-hover/logo:opacity-0 pointer-events-none"
-								style={{
-									filter:
-										"invert(45%) sepia(80%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(90%)",
-								}}
-							/>
-							<PanelLeft 
-								className="absolute inset-0 m-auto h-5 w-5 opacity-0 transition-opacity duration-200 group-hover/logo:opacity-100 pointer-events-none" 
-							/>
-						</div>
-					</>
-				)}
-			</div>
+  const { state } = useSidebar();
 
-      {/* Content based on state */}
-			{state === "expanded" ? (
-				<>
-					{/* New Chat Button */}
-					<div className="px-2 py-2">
-						<Button
-							variant="default"
-							className="w-full flex items-center justify-center gap-2"
-							onClick={() => {
-								router.push("/chat");
-							}}
-						>
-							<Edit className="h-5 w-5" />
-							New Chat
-						</Button>
-					</div>
+  return (
+    <div className="px-2">
+      {/* Top bar: logo + collapse trigger */}
+        <div className={`flex items-center ${state === "expanded" ? "justify-between" : "justify-center"} px-2 ${state === "expanded" ? "py-1" : "py-2"}`}>
+        <LogoMark className="h-5 w-5 text-foreground" />
+        {state === "expanded" && <SidebarTrigger />}
+      </div>
 
-					{/* Search Form */}
-					<SearchModal collapsed={false} />
-				</>
-			) : (
-				<>
-					{/* Collapsed mode icons */}
-					<div className="flex flex-col items-center gap-4 px-2 py-2 w-full">
-						<Button
-							variant="ghost"
-							size="icon"
-							className="h-10 w-10"
-							onClick={() => {
-								router.push("/chat");
-							}}
-						>
-							<Edit className="h-5 w-5" />
-						</Button>
-						
-						<SearchModal collapsed={true} />
-					</div>
-				</>
-			)}
-    </>
+      {state === "expanded" ? (
+        <div className="space-y-1 pb-1">
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-3 px-3 py-2 h-10 rounded-lg text-foreground"
+            onClick={() => router.push("/chat")}
+          >
+            <Edit className="h-4 w-4 text-foreground" />
+            New chat
+          </Button>
+
+          {/* Search row uses modal */}
+          <SearchModal collapsed={false} />
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-3 py-2">
+          {/* Toggle placed in the same grid as the other icon buttons for consistent sizing */}
+          <Button variant="ghost" size="icon" className="h-10 w-10 text-foreground" asChild>
+            <span><SidebarTrigger /></span>
+          </Button>
+          <Button variant="ghost" size="icon" className="h-10 w-10 text-foreground" onClick={() => router.push("/chat")}> 
+            <Edit className="h-5 w-5 text-foreground" />
+          </Button>
+          <SearchModal collapsed={true} />
+        </div>
+      )}
+    </div>
   );
 }

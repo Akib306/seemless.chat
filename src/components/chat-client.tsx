@@ -17,12 +17,9 @@ export default function ChatClientInteractive({
 }) {
 	return (
 		<ChatProvider initialMessages={initialMessages} chatId={chatId}>
-			<div
-				className="h-screen w-full flex flex-col overflow-hidden"
-				style={{
-					backgroundColor: "#1A1A1A",
-				}}
-			>
+            <div
+                className="h-screen w-full flex flex-col overflow-hidden bg-[rgb(18,18,18)]"
+            >
 				<div className="flex-1 min-h-0 overflow-auto flex justify-center">
 					<MessagesList />
 				</div>
@@ -32,17 +29,9 @@ export default function ChatClientInteractive({
                     We use position: sticky and bottom: 0 so it remains visible at the bottom as you scroll.
                     The background ensures it doesn't overlap with content behind, and zIndex keeps it above other elements.
                 */}
-				<div
-					className="flex-shrink-0"
-					style={{
-						position: "sticky", // Keeps the input bar stuck to the bottom of its container
-						bottom: 0, // Stick to the bottom edge
-						left: 0,
-						width: "100%",
-						background: "#1A1A1A", // Match chat background
-						zIndex: 10, // Ensure it's above other content
-					}}
-				>
+                <div
+                    className="flex-shrink-0 sticky bottom-0 left-0 w-full bg-[rgb(18,18,18)]/95 backdrop-blur supports-[backdrop-filter]:bg-[rgb(18,18,18)]/80 z-10 border-t border-neutral-900"
+                >
 					<ChatInput />
 				</div>
 			</div>

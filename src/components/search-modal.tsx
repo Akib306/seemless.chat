@@ -154,28 +154,25 @@ export function SearchModal({ collapsed = false }: SearchModalProps){
       return date.toLocaleDateString();
     }
 	
-	// Handle keyboard shortcuts
-	useEffect(() => {
-		const handleKeyDown = (event: KeyboardEvent) => {
-			// Handle Cmd+K (Mac) or Ctrl+K (Windows/Linux) to toggle search
-			if (event.key === 'k' && (event.metaKey || event.ctrlKey)) {
-				event.preventDefault();
-				setOpen(prev => !prev);
-				return;
-			}
-			
-			// Handle Escape key to close modal
-			if (event.key === 'Escape' && open) {
-				setOpen(false);
-			}
-		};
+    // Keyboard shortcuts: Cmd/Ctrl+K toggles; Escape closes
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'k' && (event.metaKey || event.ctrlKey)) {
+                event.preventDefault();
+                setOpen(prev => !prev);
+                return;
+            }
+            if (event.key === 'Escape' && open) {
+                setOpen(false);
+            }
+        };
 
-		document.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('keydown', handleKeyDown);
 
-		return () => {
-			document.removeEventListener('keydown', handleKeyDown);
-		};
-	}, [open]);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [open]);
 
     // Perform search when query changes (debounced) with cache and SWR-like behavior
     useEffect(() => {
@@ -269,7 +266,7 @@ export function SearchModal({ collapsed = false }: SearchModalProps){
 					</div>
 					
 					<kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5">
-						<span className="text-base">⌘+K</span>
+						<span className="text-xs">⌘</span>K
 					</kbd>
 				</Button>
 			)}
