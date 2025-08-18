@@ -158,19 +158,17 @@ export function ChatInput() {
 						{files.map((file, index) => (
 							<div
 								key={index}
-								className="relative p-2 rounded-md flex items-center gap-2"
-								style={{ backgroundColor: "#2A2A2A" }}
+								className="relative p-2 rounded-md flex items-center gap-2 bg-muted"
 							>
 								<span
-									className="text-sm truncate max-w-[150px]"
-									style={{ color: "#F5F5F5" }}
+									className="text-sm truncate max-w-[150px] text-foreground"
 								>
 									{file.name}
 								</span>
 								<button
 									type="button"
 									onClick={() => removeFile(index)}
-									className="text-[#CCCCCC] hover:text-[#FF4C4C]"
+									className="text-muted-foreground hover:text-destructive"
 								>
 									<X size={16} />
 								</button>
@@ -181,7 +179,7 @@ export function ChatInput() {
 
 				{/* Input area */}
 				<div
-					className="flex flex-col rounded-2xl p-2 bg-neutral-900/60 backdrop-blur border border-neutral-800 shadow-sm"
+					className="flex flex-col rounded-2xl p-2 bg-accent/60 backdrop-blur border border-border shadow-sm"
 					onDrop={handleDrop}
 					onDragOver={handleDragOver}
 				>
@@ -191,7 +189,7 @@ export function ChatInput() {
 						onChange={handleTextareaChange}
 						placeholder="Type your message..."
 						disabled={isLoading}
-						className="flex-1 text-[15px] text-neutral-100 bg-transparent border-none resize-none outline-none min-h-[48px] max-h-[200px] px-3 py-2 placeholder:text-neutral-500"
+						className="flex-1 text-[15px] text-foreground bg-transparent border-none resize-none outline-none min-h-[48px] max-h-[200px] px-3 py-2 placeholder:text-muted-foreground"
 						rows={1}
 						onKeyDown={(e) => {
 							if (e.key === "Enter" && !e.shiftKey) {
@@ -202,16 +200,10 @@ export function ChatInput() {
 
 					<div className="flex items-center gap-2 mt-2">
 						<Select value={model} onValueChange={setModel}>
-							<SelectTrigger className="w-auto min-w-[150px] h-9 px-3 rounded-md bg-transparent text-neutral-100 hover:bg-neutral-800/70 border-0 focus:outline-none focus:ring-0 focus:ring-offset-0 transition-colors">
+							<SelectTrigger className="w-auto min-w-[150px] h-9 px-3 rounded-md bg-transparent text-foreground hover:bg-accent/70 border-0 focus:outline-none focus:ring-0 focus:ring-offset-0 transition-colors">
 								<SelectValue placeholder="Select a model" />
 							</SelectTrigger>
-							<SelectContent
-								style={{
-									backgroundColor: "#1f1f1f",
-									color: "#F5F5F5",
-									borderColor: "#2d2d2d",
-								}}
-							>
+							<SelectContent>
 								<SelectItem value="gemini-2.0-flash">
 									Gemini 2.0 Flash
 								</SelectItem>
@@ -245,7 +237,7 @@ export function ChatInput() {
 								className="rounded-full p-2 flex items-center justify-center bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground"
 							>
 								{isLoading ? (
-									<div className="h-5 w-5 animate-spin rounded-full border-2 border-[#F5F5F5] border-t-transparent" />
+									<div className="h-5 w-5 animate-spin rounded-full border-2 border-foreground border-t-transparent" />
 								) : (
 									<Send className="h-5 w-5" />
 								)}

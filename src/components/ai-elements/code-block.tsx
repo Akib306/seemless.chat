@@ -95,7 +95,7 @@ export function CodeBlockCopyButton({
 		<Button
 			size="sm"
 			variant="ghost"
-			className={cn("h-7 px-2 text-neutral-300 hover:text-white", className)}
+			className={cn("h-7 px-2 text-muted-foreground hover:text-foreground", className)}
 			onClick={handleCopy}
 			{...props}
 		>

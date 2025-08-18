@@ -34,7 +34,7 @@ export function MessagesList() {
 		<div className="flex-1 px-4 sm:px-6 md:px-8 py-6 flex justify-center text-foreground">
 			<div className="w-full max-w-3xl h-full">
 				{messages.length === 0 ? (
-					<div className="h-full flex items-center justify-center text-gray-400">
+					<div className="h-full flex items-center justify-center text-muted-foreground">
 						<p className="text-center">
 							Start a conversation by typing a message below.
 						</p>
@@ -58,7 +58,7 @@ export function MessagesList() {
 										<div className="max-w-none w-full text-[15px] leading-7">
 											<Suspense
 												fallback={
-													<div className="text-zinc-400">
+													<div className="text-muted-foreground">
 														Loading message...
 													</div>
 												}

@@ -46,7 +46,7 @@ export function OAuthButtons({
 
 	return (
 		<div className={cn(className)} {...props}>
-			{error && <p className="text-sm text-red-500">{error}</p>}
+			{error && <p className="text-sm text-destructive">{error}</p>}
 
 			<Button
 				className="mb-4 flex items-center justify-center"

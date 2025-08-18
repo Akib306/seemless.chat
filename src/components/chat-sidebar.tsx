@@ -219,7 +219,7 @@ export function ChatSidebar({
 								<DropdownMenuSeparator />
 								<DropdownMenuItem
 									onSelect={handleLogout}
-									className="rounded-xl px-3 py-2 text-base text-red-600 focus:text-red-600"
+									className="rounded-xl px-3 py-2 text-base text-destructive focus:text-destructive"
 								>
 									<LogOut className="mr-2 h-4 w-4" /> Log out
 								</DropdownMenuItem>
@@ -258,7 +258,7 @@ export function ChatSidebar({
 								<DropdownMenuSeparator />
 								<DropdownMenuItem
 									onSelect={handleLogout}
-									className="rounded-xl px-3 py-2 text-base text-red-600 focus:text-red-600"
+									className="rounded-xl px-3 py-2 text-base text-destructive focus:text-destructive"
 								>
 									<LogOut className="mr-2 h-4 w-4" /> Log out
 								</DropdownMenuItem>

@@ -22,12 +22,12 @@ export function CodeBlock({ language, value }: CodeBlockProps) {
 	};
 
 	return (
-		<div className="my-6 overflow-hidden rounded-md ring-1 ring-[#2a2a2a] bg-[#1e1e1e]">
-			<div className="flex justify-between items-center px-4 py-2 text-xs text-gray-400 bg-[#2a2a2a]">
+		<div className="my-6 overflow-hidden rounded-md ring-1 ring-border bg-card">
+			<div className="flex justify-between items-center px-4 py-2 text-xs text-muted-foreground bg-card border-b border-border">
 				<span className="">{language}</span>
 				<button
 					onClick={handleCopy}
-					className="flex items-center gap-1 text-gray-300 hover:text-white transition-colors"
+					className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
 				>
 					{copied ? (
 						<Check className="h-4 w-4" />

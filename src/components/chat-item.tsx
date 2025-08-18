@@ -125,7 +125,7 @@ export function ChatItem({ chat, isActive }: ChatItemProps) {
 						<div
 							className={cn(
 								"w-full flex justify-between items-start",
-								isActive && "text-green-500",
+								isActive && "text-sidebar-accent-foreground",
 							)}
 						>
 							<div className="flex-1 text-sm leading-6 text-ellipsis overflow-hidden whitespace-nowrap">
