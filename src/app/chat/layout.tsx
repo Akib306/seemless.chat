@@ -10,7 +10,7 @@ export default function ChatLayout({
 		<div className="flex h-full w-full">
 			<SidebarProvider>
 				<ChatSidebar />
-				<main className="flex-1">{children}</main>
+				<main className="flex-1 chat-theme">{children}</main>
 			</SidebarProvider>
 		</div>
 	);

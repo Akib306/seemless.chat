@@ -68,9 +68,13 @@
 		--input: hsl(222 18% 16%);
 		--ring: hsl(245 70% 60%);
 
+		--chat-background: hsl(210 11% 15%);
+		--chat-foreground: hsl(210 16% 93%);
+	
+
 		/* Sidebar */
-		--sidebar-background: hsl(220 15% 7%);
-		--sidebar-foreground: hsl(210 35% 88%);
+		--sidebar-background: hsl(0 0% 9.02%);
+		--sidebar-foreground: hsl(210 17% 98%);
 		--sidebar-primary: hsl(243 75% 62%);
 		--sidebar-primary-foreground: hsl(210 40% 98%);
 		--sidebar-border: hsl(222 18% 12%);
@@ -94,6 +98,14 @@
 	}
 	body {
 		@apply bg-background text-foreground font-sans;
+	}
+}
+
+@layer base {
+	.dark .chat-theme {
+		--background: var(--chat-background);
+		--foreground: var(--chat-foreground);
+		--ring: var(--chat-ring);
 	}
 }
 
