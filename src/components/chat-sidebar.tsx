@@ -178,7 +178,7 @@ export function ChatSidebar({
 					</SidebarMenu>
 				</SidebarContent>
 
-				<SidebarFooter className="border-t border-sidebar-border">
+				<SidebarFooter>
 					<div className="group-data-[collapsible=icon]:hidden">
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
