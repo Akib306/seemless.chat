@@ -75,7 +75,7 @@ export function ChatItem({ chat, isActive }: ChatItemProps) {
 			<SidebarMenuButton
 				asChild
 				isActive={isActive}
-				className="flex flex-col items-start hover:bg-sidebar-accent/60 py-1 rounded-lg focus-visible:ring-0"
+				className="flex flex-col items-start py-1 rounded-lg focus-visible:ring-0"
 				tooltip={chat.title || "Chat"}
 			>
 				{chatIsRenaming ? (
@@ -125,16 +125,23 @@ export function ChatItem({ chat, isActive }: ChatItemProps) {
 						<div
 							className={cn(
 								"w-full flex justify-between items-start",
-								isActive && "text-sidebar-accent-foreground",
+								isActive && "text-foreground-primary",
 							)}
 						>
-							<div className="flex-1 text-sm leading-6 text-ellipsis overflow-hidden whitespace-nowrap">
+							<div
+								className={cn(
+									"flex-1 text-sm leading-6 text-ellipsis overflow-hidden whitespace-nowrap",
+									isActive
+										? "text-foreground-primary"
+										: "text-foreground-muted group-hover/menu-item:text-foreground-primary",
+								)}
+							>
 								{chat.title}
 							</div>
 
 							{/* Pin icon for pinned chats - visible by default, hidden on hover */}
 							{chat.pinned_at && (
-								<Pin className="h-5 w-5 group-hover/menu-item:opacity-0 transition-opacity" />
+								<Pin className={cn("h-5 w-5 group-hover/menu-item:opacity-0 transition-opacity", isActive ? "text-foreground-primary" : "text-foreground-muted")} />
 							)}
 
 							<DropdownMenu>
@@ -150,8 +157,10 @@ export function ChatItem({ chat, isActive }: ChatItemProps) {
 								>
 									<EllipsisVertical className="h-5 w-5" />
 								</DropdownMenuTrigger>
-								<DropdownMenuContent side="right" align="start" sideOffset={20}>
-									<DropdownMenuItem onClick={handleTogglePin(chat)}>
+								<DropdownMenuContent side="right" align="start" sideOffset={20} className="bg-card text-foreground-muted">
+									<DropdownMenuItem onClick={handleTogglePin(chat)}
+										className="hover:text-foreground-primary"
+									>
 										{chat.pinned_at ? (
 											<PinOff className="mr-2 h-4 w-4" />
 										) : (
@@ -159,11 +168,15 @@ export function ChatItem({ chat, isActive }: ChatItemProps) {
 										)}
 										{chat.pinned_at ? "Unpin" : "Pin"}
 									</DropdownMenuItem>
-									<DropdownMenuItem onClick={() => handleStartRename(chat.id)}>
+									<DropdownMenuItem onClick={() => handleStartRename(chat.id)}
+										className="hover:text-foreground-primary"
+									>
 										<Edit2 className="mr-2 h-4 w-4" />
 										Rename
 									</DropdownMenuItem>
-									<DropdownMenuItem onClick={handleDeleteChat(chat.id)}>
+									<DropdownMenuItem onClick={handleDeleteChat(chat.id)}
+										className="hover:text-foreground-primary"
+									>
 										<Trash2 className="mr-2 h-4 w-4" />
 										Delete
 									</DropdownMenuItem>
