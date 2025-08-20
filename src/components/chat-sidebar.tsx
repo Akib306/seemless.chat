@@ -155,7 +155,7 @@ export function ChatSidebar({
 
 				<SidebarContent>
 					<SidebarMenu className="group-data-[collapsible=icon]:hidden px-2">
-						<div className="px-2 py-1 text-xs uppercase tracking-wide text-muted-foreground">
+						<div className="px-2 py-1 text-xs uppercase tracking-wide text-foreground-muted">
 							Chats
 						</div>
 						{sortedChatHistory.map((chat) => {

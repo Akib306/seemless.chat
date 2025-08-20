@@ -61,7 +61,7 @@ export default function ChatClientServer({
 				>
 					<div className="flex-1 min-h-0 overflow-auto flex justify-center">
 						<div className="w-full max-w-3xl flex items-center justify-center">
-							<div className="text-muted-foreground">Loading chat...</div>
+							<div className="text-foreground-muted">Loading chat...</div>
 						</div>
 					</div>
 				</div>

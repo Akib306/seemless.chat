@@ -12,7 +12,7 @@ export const markdownComponents: Components = {
 	table: ({ children, ...props }) => (
 		<div className="overflow-x-auto my-8 rounded-lg border border-border shadow-sm">
 			<table
-				className="min-w-full table-auto border-collapse text-[15px] leading-7 text-foreground"
+				className="min-w-full table-auto border-collapse text-[15px] leading-7 text-foreground-primary"
 				{...props}
 			>
 				{children}
@@ -26,7 +26,7 @@ export const markdownComponents: Components = {
 	),
 	th: ({ children, ...props }) => (
 		<th
-			className="px-5 py-3 text-left font-semibold text-foreground whitespace-nowrap border-r border-border last:border-r-0"
+			className="px-5 py-3 text-left font-semibold text-foreground-primary whitespace-nowrap border-r border-border last:border-r-0"
 			{...props}
 		>
 			{children}
@@ -34,7 +34,7 @@ export const markdownComponents: Components = {
 	),
 	td: ({ children, ...props }) => (
 		<td
-			className="px-5 py-3 align-top text-muted-foreground border-t border-border border-r last:border-r-0"
+			className="px-5 py-3 align-top text-foreground-muted border-t border-border border-r last:border-r-0"
 			{...props}
 		>
 			{children}
@@ -60,7 +60,7 @@ export const markdownComponents: Components = {
 
 		// Inline code
 		return (
-			<code className="bg-muted text-foreground px-1.5 py-0.5 rounded text-[0.92em] font-mono break-words whitespace-pre-wrap max-w-full">
+			<code className="bg-muted text-foreground-primary px-1.5 py-0.5 rounded text-[0.92em] font-mono break-words whitespace-pre-wrap max-w-full">
 				{children}
 			</code>
 		);
@@ -68,25 +68,25 @@ export const markdownComponents: Components = {
 
 	// Headings
 	h1: (props) => (
-		<h1 className="text-3xl font-semibold mt-8 mb-3 text-foreground" {...props} />
+		<h1 className="text-3xl font-semibold mt-8 mb-3 text-foreground-primary" {...props} />
 	),
 	h2: (props) => (
-		<h2 className="text-2xl font-semibold mt-7 mb-3 text-foreground" {...props} />
+		<h2 className="text-2xl font-semibold mt-7 mb-3 text-foreground-primary" {...props} />
 	),
 	h3: (props) => (
-		<h3 className="text-xl font-medium mt-6 mb-2 text-foreground" {...props} />
+		<h3 className="text-xl font-medium mt-6 mb-2 text-foreground-primary" {...props} />
 	),
 	h4: (props) => (
-		<h4 className="text-lg font-medium mt-5 mb-2 text-foreground" {...props} />
+		<h4 className="text-lg font-medium mt-5 mb-2 text-foreground-primary" {...props} />
 	),
 
 	// Paragraphs and lists
 	p: (props) => (
-		<p className="my-3 leading-7 text-foreground break-words" {...props} />
+		<p className="my-3 leading-7 text-foreground-primary break-words" {...props} />
 	),
 	ul: ({ children, ...props }) => (
 		<ul
-			className="list-disc list-outside ml-6 my-4 space-y-2 text-foreground"
+			className="list-disc list-outside ml-6 my-4 space-y-2 text-foreground-primary"
 			{...props}
 		>
 			{children}
@@ -94,7 +94,7 @@ export const markdownComponents: Components = {
 	),
 	ol: ({ children, ...props }) => (
 		<ol
-			className="list-decimal list-outside ml-6 my-3 space-y-2 text-foreground"
+			className="list-decimal list-outside ml-6 my-3 space-y-2 text-foreground-primary"
 			{...props}
 		>
 			{children}
@@ -106,13 +106,13 @@ export const markdownComponents: Components = {
 		</li>
 	),
 	// Text styles
-	strong: (props) => <strong className="font-semibold text-foreground" {...props} />,
-	em: (props) => <em className="italic text-muted-foreground" {...props} />,
+	strong: (props) => <strong className="font-semibold text-foreground-primary" {...props} />,
+	em: (props) => <em className="italic text-foreground-muted" {...props} />,
 
 	// Quotes
 	blockquote: (props) => (
 		<blockquote
-			className="my-5 rounded-xl border border-border bg-accent/60 p-4 text-muted-foreground shadow-sm"
+			className="my-5 rounded-xl border border-border bg-accent/60 p-4 text-foreground-muted shadow-sm"
 			{...props}
 		/>
 	),

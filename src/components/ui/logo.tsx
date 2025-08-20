@@ -89,8 +89,8 @@ export function Logo({
 }) {
 	return (
 		<span className={cn("inline-flex items-center gap-2", className)}>
-			<LogoMark className={cn("text-foreground", markClassName)} />
-			<span className="select-none text-base font-semibold tracking-tight text-foreground">
+			<LogoMark className={cn("text-foreground-primary", markClassName)} />
+			<span className="select-none text-base font-semibold tracking-tight text-foreground-primary">
 				Seemless
 				<span className="opacity-70">.chat</span>
 			</span>

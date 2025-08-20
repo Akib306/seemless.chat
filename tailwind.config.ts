@@ -24,6 +24,9 @@ const config = {
 			ring: 'var(--ring)',
 			background: 'var(--background)',
 			foreground: 'var(--foreground)',
+			'foreground-primary': 'var(--foreground-primary, var(--foreground))',
+			'foreground-secondary': 'var(--foreground-secondary, var(--foreground))',
+			'foreground-muted': 'var(--foreground-muted, var(--muted-foreground))',
 			primary: {
 				DEFAULT: 'var(--primary)',
 				foreground: 'var(--primary-foreground)'

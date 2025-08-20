@@ -37,7 +37,7 @@ export function CodeBlock({
 				{...rest}
 			>
 				{/* Header with language label and optional actions */}
-				<div className="flex items-center justify-between px-4 py-2 text-[11px] text-muted-foreground bg-card border-b">
+				<div className="flex items-center justify-between px-4 py-2 text-[11px] text-foreground-muted bg-card border-b">
 					<span>{label}</span>
 					<div className="flex items-center gap-1">{children}</div>
 				</div>
@@ -95,7 +95,7 @@ export function CodeBlockCopyButton({
 		<Button
 			size="sm"
 			variant="ghost"
-			className={cn("h-7 px-2 text-muted-foreground hover:text-foreground", className)}
+			className={cn("h-7 px-2 text-foreground-muted hover:text-foreground-primary", className)}
 			onClick={handleCopy}
 			{...props}
 		>

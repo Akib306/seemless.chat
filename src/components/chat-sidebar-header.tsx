@@ -18,7 +18,7 @@ export function ChatSidebarHeader() {
 			<div
 				className={`flex items-center ${state === "expanded" ? "justify-between" : "justify-center"} px-2 ${state === "expanded" ? "py-1" : "py-2"}`}
 			>
-				<LogoMark className="h-5 w-5 text-foreground" />
+				<LogoMark className="h-5 w-5 text-foreground-primary" />
 				{state === "expanded" && <SidebarTrigger />}
 			</div>
 
@@ -26,10 +26,10 @@ export function ChatSidebarHeader() {
 				<div className="space-y-1 pb-1 border-b">
 					<Button
 						variant="ghost"
-						className="w-full justify-start gap-3 px-3 py-2 h-10 rounded-lg text-foreground"
+						className="w-full justify-start gap-3 px-3 py-2 h-10 rounded-lg text-foreground-primary"
 						onClick={() => router.push("/chat")}
 					>
-						<Edit className="h-4 w-4 text-foreground" />
+						<Edit className="h-4 w-4 text-foreground-primary" />
 						New chat
 					</Button>
 
@@ -42,7 +42,7 @@ export function ChatSidebarHeader() {
 					<Button
 						variant="ghost"
 						size="icon"
-						className="h-10 w-10 text-foreground"
+						className="h-10 w-10 text-foreground-primary"
 						asChild
 					>
 						<span>
@@ -52,10 +52,10 @@ export function ChatSidebarHeader() {
 					<Button
 						variant="ghost"
 						size="icon"
-						className="h-10 w-10 text-foreground"
+						className="h-10 w-10 text-foreground-primary"
 						onClick={() => router.push("/chat")}
 					>
-						<Edit className="h-5 w-5 text-foreground" />
+						<Edit className="h-5 w-5 text-foreground-primary" />
 					</Button>
 					<SearchModal collapsed={true} />
 				</div>

@@ -308,13 +308,13 @@ export function SearchModal({ collapsed = false }: SearchModalProps) {
 										<div className="font-medium truncate flex-1">
 											{result.chat_title || "Untitled Chat"}
 										</div>
-										<div className="flex items-center gap-1 text-xs text-foreground/60">
-											<Clock className="h-3 w-3 text-foreground/60" />
+										<div className="flex items-center gap-1 text-xs text-foreground-primary/60">
+											<Clock className="h-3 w-3 text-foreground-primary/60" />
 											<span>{formatRelative(result.created_at)}</span>
 										</div>
 									</div>
 									<div
-										className="text-sm text-foreground/70 line-clamp-2 [&_b]:text-inherit [&_b]:font-medium"
+										className="text-sm text-foreground-primary/70 line-clamp-2 [&_b]:text-inherit [&_b]:font-medium"
 										dangerouslySetInnerHTML={{
 											__html:
 												result.highlighted_content ||

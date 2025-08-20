@@ -36,7 +36,7 @@ const CommandDialog = ({ children, ...props }: DialogProps) => {
 				</DialogDescription>
 				<Command
 					shouldFilter={false}
-					className="[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-3 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5"
+					className="[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-foreground-muted [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-3 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5"
 				>
 					{children}
 				</Command>
@@ -51,11 +51,11 @@ const CommandInput = React.forwardRef<
 >(({ className, ...props }, ref) => (
 	<div className="border-b px-3 py-2 bg-transparent" cmdk-input-wrapper="">
 		<div className="flex items-center gap-2 px-1.5">
-			<Search className="h-4 w-4 shrink-0 text-muted-foreground/80" />
+			<Search className="h-4 w-4 shrink-0 text-foreground-muted" />
 			<CommandPrimitive.Input
 				ref={ref}
 				className={cn(
-					"flex h-10 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/80 disabled:cursor-not-allowed disabled:opacity-50",
+					"flex h-10 w-full bg-transparent text-sm outline-none placeholder:text-foreground-muted disabled:cursor-not-allowed disabled:opacity-50",
 					className,
 				)}
 				{...props}
@@ -99,7 +99,7 @@ const CommandGroup = React.forwardRef<
 	<CommandPrimitive.Group
 		ref={ref}
 		className={cn(
-			"overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground",
+			"overflow-hidden p-1 text-foreground-primary [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-foreground-muted",
 			className,
 		)}
 		{...props}
@@ -143,7 +143,7 @@ const CommandShortcut = ({
 	return (
 		<span
 			className={cn(
-				"ml-auto text-xs tracking-widest text-muted-foreground",
+				"ml-auto text-xs tracking-widest text-foreground-muted",
 				className,
 			)}
 			{...props}

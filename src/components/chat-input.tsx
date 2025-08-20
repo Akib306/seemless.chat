@@ -161,14 +161,14 @@ export function ChatInput() {
 								className="relative p-2 rounded-md flex items-center gap-2 bg-muted"
 							>
 								<span
-									className="text-sm truncate max-w-[150px] text-foreground"
+									className="text-sm truncate max-w-[150px] text-foreground-primary"
 								>
 									{file.name}
 								</span>
 								<button
 									type="button"
 									onClick={() => removeFile(index)}
-									className="text-muted-foreground hover:text-destructive"
+									className="text-foreground-muted hover:text-destructive"
 								>
 									<X size={16} />
 								</button>
@@ -189,7 +189,7 @@ export function ChatInput() {
 						onChange={handleTextareaChange}
 						placeholder="Type your message..."
 						disabled={isLoading}
-						className="flex-1 text-[15px] text-foreground bg-transparent border-none resize-none outline-none min-h-[48px] max-h-[200px] px-3 py-2 placeholder:text-muted-foreground"
+						className="flex-1 text-[15px] text-foreground-primary bg-transparent border-none resize-none outline-none min-h-[48px] max-h-[200px] px-3 py-2 placeholder:text-foreground-muted"
 						rows={1}
 						onKeyDown={(e) => {
 							if (e.key === "Enter" && !e.shiftKey) {
@@ -200,7 +200,7 @@ export function ChatInput() {
 
 					<div className="flex items-center gap-2 mt-2">
 						<Select value={model} onValueChange={setModel}>
-							<SelectTrigger className="w-auto min-w-[150px] h-9 px-3 rounded-md bg-transparent text-foreground hover:bg-accent/70 border-0 focus:outline-none focus:ring-0 focus:ring-offset-0 transition-colors">
+							<SelectTrigger className="w-auto min-w-[150px] h-9 px-3 rounded-md bg-transparent text-foreground-primary hover:bg-accent/70 border-0 focus:outline-none focus:ring-0 focus:ring-offset-0 transition-colors">
 								<SelectValue placeholder="Select a model" />
 							</SelectTrigger>
 							<SelectContent>
@@ -219,7 +219,7 @@ export function ChatInput() {
 							<button
 								type="button"
 								onClick={() => fileInputRef.current?.click()}
-								className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/70 flex items-center justify-center"
+								className="p-2 rounded-full text-foreground-muted hover:text-foreground-primary hover:bg-accent/70 flex items-center justify-center"
 							>
 								<Paperclip size={20} />
 								<input
@@ -234,7 +234,7 @@ export function ChatInput() {
 							<Button
 								type="submit"
 								disabled={isLoading || (!input.trim() && files.length === 0)}
-								className="rounded-full p-2 flex items-center justify-center bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground"
+								className="rounded-full p-2 flex items-center justify-center bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-foreground-muted"
 							>
 								{isLoading ? (
 									<div className="h-5 w-5 animate-spin rounded-full border-2 border-foreground border-t-transparent" />

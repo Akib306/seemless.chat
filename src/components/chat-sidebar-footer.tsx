@@ -39,7 +39,7 @@ export function ChatSidebarFooter({
 									<span className="text-sm font-medium leading-5">
 										{displayName}
 									</span>
-									<span className="text-xs text-muted-foreground leading-4">
+									<span className="text-xs text-foreground-muted leading-4">
 										Signed in
 									</span>
 								</span>
@@ -53,7 +53,7 @@ export function ChatSidebarFooter({
 						className="w-80 rounded-2xl p-2 shadow-xl border border-sidebar-border/60"
 					>
 						<DropdownMenuLabel className="font-normal">
-							<div className="flex items-center gap-2 text-muted-foreground">
+							<div className="flex items-center gap-2 text-foreground-muted">
 								<CircleUser className="h-4 w-4" />
 								<p className="text-sm leading-none">
 									{userEmail ?? displayName}
@@ -92,7 +92,7 @@ export function ChatSidebarFooter({
 						className="w-80 rounded-2xl p-2 shadow-xl border border-sidebar-border/60"
 					>
 						<DropdownMenuLabel className="font-normal">
-							<div className="flex items-center gap-2 text-muted-foreground">
+							<div className="flex items-center gap-2 text-foreground-muted">
 								<CircleUser className="h-4 w-4" />
 								<p className="text-sm leading-none">
 									{userEmail ?? displayName}
