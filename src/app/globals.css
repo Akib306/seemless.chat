@@ -3,8 +3,68 @@
 @tailwind utilities;
 
 @layer base {
-	/* Light theme variables */
+	/* Dark theme variables (default) */
 	:root {
+		/* Base */
+		--background: hsl(220 15% 7%);
+
+		/* Unified foreground system */
+		--foreground-primary: hsl(210 16% 90%);
+		--foreground-secondary: hsl(210 16% 75%);
+		--foreground-muted: hsl(210 16% 60%);
+		--foreground: var(--foreground-primary);
+
+		/* Surfaces */
+		--card: hsl(210 11% 16%);
+		--card-foreground: var(--foreground-primary);
+		--popover: hsl(222 15% 12%);
+		--popover-foreground: var(--foreground-primary);
+
+		/* Brand */
+		--primary: hsl(245 70% 60%);
+		--primary-foreground: hsl(0 0% 98%);
+
+		/* Secondary and neutrals */
+		--secondary: hsl(220 15% 20%);
+		--secondary-foreground: var(--foreground-primary);
+		--muted: hsl(222 16% 16%);
+		--muted-foreground: hsl(215 18% 72%);
+		--accent: hsl(210 9% 31%);
+		--accent-foreground: var(--foreground-primary);
+
+		/* Destructive */
+		--destructive: hsl(0 75% 52%);
+		--destructive-foreground: hsl(0 0% 98%);
+
+		/* Borders & inputs */
+		--border: hsl(212 29% 36%);
+		--input: hsl(222 18% 16%);
+		--ring: hsl(245 70% 60%);
+		--radius: 0.5rem;
+
+		/* Chat */
+		--chat-background: hsl(210 11% 12%);
+		--chat-foreground: hsl(210 16% 93%);
+		--chat-ring: var(--ring);
+
+		/* Sidebar */
+		--sidebar-background: hsl(210 11% 8%);
+		--sidebar-foreground: hsl(210 17% 98%);
+		--sidebar-primary: hsl(243 75% 62%);
+		--sidebar-primary-foreground: hsl(0 0% 98%);
+		--sidebar-accent: hsl(223 24% 18%);
+		--sidebar-accent-foreground: hsl(210 17% 98%);
+		--sidebar-border: hsl(212 29% 36%);
+		--sidebar-ring: hsl(245 70% 60%);
+
+		/* Semantics */
+		--success: hsl(145 60% 45%);
+		--warning: hsl(38 90% 55%);
+		--info: hsl(208 90% 60%);
+	}
+
+	/* Light theme variables */
+	.light, [data-theme="light"] {
 		--background: hsl(0 0% 100%);
 		--foreground: hsl(0 0% 3.9%);
 		--card: hsl(0 0% 97%);
@@ -25,6 +85,13 @@
 		--input: hsl(0 0% 89.8%);
 		--ring: hsl(0 0% 3.9%);
 		--radius: 0.5rem;
+
+		/* Chat */
+		--chat-background: hsl(0 0% 98%);
+		--chat-foreground: hsl(240 5.3% 26.1%);
+		--chat-ring: var(--ring);
+
+		/* Sidebar */
 		--sidebar-background: hsl(0 0% 98%);
 		--sidebar-foreground: hsl(240 5.3% 26.1%);
 		--sidebar-primary: hsl(240 5.9% 10%);
@@ -33,55 +100,11 @@
 		--sidebar-accent-foreground: hsl(240 5.9% 10%);
 		--sidebar-border: hsl(220 13% 91%);
 		--sidebar-ring: hsl(217.2 91.2% 59.8%);
-	}
 
-	/* Dark theme variables - Optimized for readability and accessibility */
-	.dark {
-		/* Base - deep slate with high-contrast foreground */
-		--background: hsl(220 15% 7%);
-
-		/* Unified foreground system - warm whites for reduced eye strain */
-		--foreground-primary: hsl(210 16% 93);        
-		--foreground-secondary: hsl(210 14% 89); 
-		--foreground-muted: hsl(210 14% 83);      
-
-		/* Surfaces */
-		--card: hsl(210 11% 16%);
-		--popover: hsl(222 15% 12%);
-
-		/* Brand primary: tuned indigo */
-		--primary: hsl(245 70% 60%); /* slightly softer */
-
-		/* Secondary and neutrals */
-		--secondary: hsl(220 15% 20%); /* subtle slate */
-		--muted: hsl(222 16% 16%);
-		--muted-foreground: hsl(215 18% 72%);
-		--accent: hsl(210 9% 31%);
-
-		/* Destructive */
-		--destructive: hsl(0 75% 52%);
-
-		/* Borders & inputs */
-		--border: hsl(212 29% 36%);
-		--input: hsl(222 18% 16%);
-		--ring: hsl(245 70% 60%);
-
-		--chat-background: hsl(210 11% 12%);
-		--chat-foreground: hsl(210 16% 93%);
-	
-
-		/* Sidebar */
-		--sidebar-background: hsl(210 11% 8%);
-		--sidebar-foreground: hsl(210 17% 98%);
-		--sidebar-primary: hsl(243 75% 62%);
-		--sidebar-border: hsl(212 29% 36%);
-		--sidebar-accent: hsl(223 24% 18%);
-		--sidebar-ring: hsl(245 70% 60%);
-
-		/* Semantics */
-		--success: hsl(145 60% 45%);
-		--warning: hsl(38 90% 55%);
-		--info: hsl(208 90% 60%);
+		/* Foreground tiers (optional for light) */
+		--foreground-primary: hsl(0 0% 3.9%);
+		--foreground-secondary: hsl(0 0% 30%);
+		--foreground-muted: hsl(0 0% 45.1%);
 	}
 }
 
