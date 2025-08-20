@@ -2,9 +2,9 @@
 import { Components } from "react-markdown";
 // Prefer Vercel AI Elements CodeBlock so code in AI responses uses their UI
 import {
-	CodeBlock as AICodeBlock,
+	CodeBlock,
 	CodeBlockCopyButton,
-} from "@/components/ai-elements/code-block";
+} from "@/components/code-block";
 import { ReactNode } from "react";
 
 export const markdownComponents: Components = {
@@ -52,9 +52,9 @@ export const markdownComponents: Components = {
 		if (isBlock) {
 			const language = match ? match[1] : "plaintext";
 			return (
-				<AICodeBlock code={codeString} language={language}>
+				<CodeBlock code={codeString} language={language}>
 					<CodeBlockCopyButton />
-				</AICodeBlock>
+				</CodeBlock>
 			);
 		}
 
