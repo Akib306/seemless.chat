@@ -2,15 +2,27 @@
 
 import { SidebarHeader, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { Button } from "./ui/button";
-import Image from "next/image";
 import { LogoMark } from "@/components/ui/logo";
 import { useRouter } from "next/navigation";
-import { Edit, Search, BookMarked, Play, Grid3X3 } from "lucide-react";
+import { useEffect } from "react";
+import { Edit, ArrowBigUp, Command } from "lucide-react";
 import { SearchModal } from "./search-modal";
 
 export function ChatSidebarHeader() {
 	const router = useRouter();
 	const { state } = useSidebar();
+
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key.toLowerCase() === "o" && event.metaKey && event.shiftKey) {
+				event.preventDefault();
+				router.push("/chat");
+			}
+		};
+
+		document.addEventListener("keydown", handleKeyDown);
+		return () => document.removeEventListener("keydown", handleKeyDown);
+	}, [router]);
 
 	return (
 		<SidebarHeader>
@@ -30,8 +42,15 @@ export function ChatSidebarHeader() {
 							className="w-full justify-start gap-2 py-2 px-2 h-10 rounded-lg text-base"
 							onClick={() => router.push("/chat")}
 						>
-							<Edit className="h-4 w-4" />
-							New chat
+							<div className="flex items-center justify-between w-full">
+								<div className="flex items-center gap-2">
+									<Edit className="h-4 w-4" />
+									New chat
+								</div>
+								<div>
+									<kbd className="inline-flex h-5 items-center gap-1 rounded border bg-muted px-1.5 text-lg"><Command /> <ArrowBigUp /> O</kbd>
+								</div>
+							</div>
 						</Button>
 
 						{/* Search row uses modal */}
