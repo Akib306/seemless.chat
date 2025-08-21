@@ -149,21 +149,17 @@ export function ChatSidebar({
 	return (
 		<>
 			<Sidebar collapsible="icon" {...props}>
-				<SidebarHeader className="pt-2">
-					<ChatSidebarHeader />
-				</SidebarHeader>
+				<ChatSidebarHeader />
 
-				<SidebarContent>
-					<SidebarMenu className="group-data-[collapsible=icon]:hidden px-2">
-						<div className="px-2 py-1 text-xs uppercase tracking-wide text-foreground-muted">
-							Chats
-						</div>
-						{sortedChatHistory.map((chat) => {
-							const isActive = chat.id === currentChatId;
-
-							return <ChatItem key={chat.id} chat={chat} isActive={isActive} />;
-						})}
-					</SidebarMenu>
+				<SidebarContent className="overflow-visible pr-2">
+					<div className="min-h-0 h-full w-full overflow-y-auto">
+						<SidebarMenu className="group-data-[collapsible=icon]:hidden px-0">
+							{sortedChatHistory.map((chat) => {
+								const isActive = chat.id === currentChatId;
+								return <ChatItem key={chat.id} chat={chat} isActive={isActive} />;
+							})}
+						</SidebarMenu>
+					</div>
 				</SidebarContent>
 
 				<SidebarFooter>
