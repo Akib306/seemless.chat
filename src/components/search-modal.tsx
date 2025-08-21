@@ -270,12 +270,12 @@ export function SearchModal({ collapsed = false }: SearchModalProps) {
 					className="w-full justify-between text-base px-2"
 				>
 					<div className="flex items-center justify-between w-full">
-						<div className="flex items-center">
-							<Search className="w-4 h-4 mr-1" />
+						<div className="flex items-center gap-2">
+							<Search className="w-4 h-4" />
 							Search Chats
 						</div>
 						<div>
-							<kbd className="inline-flex h-5 items-center gap-1 rounded border bg-muted px-1.5 text-lg"><Command /> K</kbd>
+							<kbd className="inline-flex h-5 items-center gap-1 rounded border bg-muted px-1.5 text-lg"><Command />K</kbd>
 						</div>
 					</div>
 				</Button>
