@@ -43,12 +43,12 @@
 		--radius: 0.5rem;
 
 		/* Chat */
-		--chat-background: hsl(210 11% 12%);
+		--chat-background: hsl(210 11% 14%);
 		--chat-foreground: hsl(210 16% 93%);
 		--chat-ring: var(--ring);
 
 		/* Sidebar */
-		--sidebar-background: hsl(210 11% 8%);
+		--sidebar-background: hsl(210 11% 10%);
 		--sidebar-foreground: hsl(210 17% 98%);
 		--sidebar-primary: hsl(243 75% 62%);
 		--sidebar-primary-foreground: hsl(0 0% 98%);
