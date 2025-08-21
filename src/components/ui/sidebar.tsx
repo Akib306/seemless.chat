@@ -259,9 +259,8 @@ const Sidebar = React.forwardRef<
 						// Adjust the padding for floating and inset variants.
 						variant === "floating" || variant === "inset"
 							? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
-							: "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[collapsible=icon]:border-r border-sidebar-border/10",
-						// Always show a subtle border to delineate the sidebar from content.
-						side === "left" ? "border-r border-sidebar-border" : "border-l border-sidebar-border",
+							: "group-data-[collapsible=icon]:w-[--sidebar-width-icon]",
+						side === "right" ? "border-l border-sidebar-border" : "",
 						className,
 					)}
 					{...props}
