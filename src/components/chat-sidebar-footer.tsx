@@ -27,7 +27,7 @@ export function ChatSidebarFooter({
 			<div className="group-data-[collapsible=icon]:hidden">
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<button className="w-full flex items-center justify-between gap-3 rounded-xl px-3 py-2 bg-transparent border border-transparent transition-colors hover:bg-sidebar-accent/40">
+						<button className="w-full flex items-center justify-between gap-2 rounded-xl px-0 py-2 bg-transparent border border-transparent transition-colors hover:bg-sidebar-accent/40">
 							<span className="flex items-center gap-3">
 								<Avatar>
 									<AvatarImage src={undefined} alt={displayName} />
