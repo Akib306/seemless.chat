@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Select,
@@ -28,8 +28,10 @@ export function ChatInput() {
 
 	const router = useRouter();
 	const [files, setFiles] = useState<File[]>([]);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	const formRef = useRef<HTMLFormElement>(null);
 	// Auto-resize textarea as content grows
 	const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		handleInputChange(e);
@@ -83,9 +85,19 @@ export function ChatInput() {
 		}
 	}
 
-	const onSubmit = async (e: React.FormEvent) => {
+
+	useEffect(() => {
+		if (!isLoading) {
+			setIsSubmitting(false);
+		}
+	}, [isLoading]);
+
+	const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		// Guard against concurrent submissions and pre-isLoading window
+		if (isLoading || isSubmitting) return;
 		if (!input.trim() && files.length === 0) return;
+		setIsSubmitting(true);
 
 		try {
 			if (files.length > 0) {
@@ -131,7 +143,7 @@ export function ChatInput() {
 							ex: CACHE_TTL_SECONDS,
 						}),
 					});
-				} catch (_) {}
+				} catch (_) { }
 			}
 
 			// After creating the chat and storing the first message
@@ -146,12 +158,14 @@ export function ChatInput() {
 			setFiles([]);
 		} catch (error) {
 			console.error("Error in chat submission:", error);
+			setIsSubmitting(false);
 		}
+
 	};
 
 	return (
 		<div className="p-4 sm:p-6 flex justify-center">
-			<form onSubmit={onSubmit} className="relative w-full max-w-3xl">
+			<form ref={formRef} onSubmit={onSubmit} className="relative w-full max-w-3xl">
 				{/* File previews */}
 				{files.length > 0 && (
 					<div className="flex flex-wrap gap-2 mb-2">
@@ -188,12 +202,15 @@ export function ChatInput() {
 						value={input}
 						onChange={handleTextareaChange}
 						placeholder="Type your message..."
-						disabled={isLoading}
+						disabled={isLoading || isSubmitting}
 						className="flex-1 text-[15px] text-foreground-primary bg-transparent border-none resize-none outline-none min-h-[48px] max-h-[200px] px-3 py-2 placeholder:text-foreground-muted"
 						rows={1}
 						onKeyDown={(e) => {
 							if (e.key === "Enter" && !e.shiftKey) {
-								onSubmit(e);
+								e.preventDefault();
+								if (!isLoading && !isSubmitting) {
+									formRef.current?.requestSubmit();
+								}
 							}
 						}}
 					/>
@@ -233,7 +250,7 @@ export function ChatInput() {
 
 							<Button
 								type="submit"
-								disabled={isLoading || (!input.trim() && files.length === 0)}
+								disabled={isLoading || isSubmitting || (!input.trim() && files.length === 0)}
 								className="rounded-full p-2 flex items-center justify-center bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-foreground-muted"
 							>
 								{isLoading ? (
