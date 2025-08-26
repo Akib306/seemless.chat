@@ -1,5 +1,5 @@
 create table if not exists attachments (
-  id            uuid         not null primary key default uuid_generate_v4(),
+  id            uuid         not null primary key default gen_random_uuid(),
   message_id    uuid         not null references messages(id) on delete cascade,
   user_id       uuid         not null references profiles(id) on delete cascade,
   storage_path  text         not null unique, -- e.g., '{user_id}/{message_id}/{uuid}.{ext}'
