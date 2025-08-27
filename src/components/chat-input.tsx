@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, useEffect, type FormEvent } from "react";
+import { useRef, useState, useEffect, useCallback, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Select,
@@ -12,7 +12,6 @@ import { Send, Paperclip, X } from "lucide-react";
 import { useChatContext } from "@/contexts/chat-context";
 import { CACHE_TTL_SECONDS } from "@/lib/cache/config";
 import * as db from "@/lib/db/client";
-import { useRouter } from "next/navigation";
 import { createClient as createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { getSignedUploadUrl, recordAttachment } from "@/app/actions/attachment-actions";
 
@@ -28,7 +27,6 @@ export function ChatInput() {
 		setChatId,
 	} = useChatContext();
 
-	const router = useRouter();
 	const [files, setFiles] = useState<File[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -56,19 +54,18 @@ export function ChatInput() {
 		setFiles((prev) => prev.filter((_, i) => i !== index));
 	};
 
-	// Handle file drop
-	const handleDrop = (e: React.DragEvent) => {
-		e.preventDefault();
-		if (e.dataTransfer.files) {
-			const newFiles = Array.from(e.dataTransfer.files);
-			setFiles((prev) => [...prev, ...newFiles]);
-		}
-	};
+	// Listen for page-level drop events and append files here
+	const onFilesDrop = useCallback((e: CustomEvent<{ files: File[] }>) => {
+		if (!e?.detail?.files?.length) return;
+		setFiles((prev) => [...prev, ...e.detail.files]);
+	}, []);
 
-	// Prevent default behavior for drag events
-	const handleDragOver = (e: React.DragEvent) => {
-		e.preventDefault();
-	};
+	useEffect(() => {
+		// @ts-ignore CustomEvent typing at window
+		const handler = (ev: Event) => onFilesDrop(ev as any);
+		window.addEventListener("chat:files-drop", handler as any);
+		return () => window.removeEventListener("chat:files-drop", handler as any);
+	}, [onFilesDrop]);
 
 	async function generateTitleAsync(chatId: string, message: string) {
 		try {
@@ -238,8 +235,6 @@ export function ChatInput() {
 				{/* Input area */}
 				<div
 					className="flex flex-col rounded-2xl p-2 bg-accent/60 backdrop-blur border border-border shadow-sm"
-					onDrop={handleDrop}
-					onDragOver={handleDragOver}
 				>
 					<textarea
 						ref={textareaRef}
