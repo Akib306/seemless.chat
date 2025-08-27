@@ -52,44 +52,50 @@ export function ChatInput() {
 
 	const preUploadFiles = useCallback(async (filesToAdd: File[]) => {
 		const supabase = createSupabaseBrowserClient();
-		for (const file of filesToAdd) {
+		const entries = filesToAdd.map((file) => {
 			const id = crypto.randomUUID();
 			setUploads((prev) => [...prev, { id, file, status: "uploading" }]);
-			try {
-				const signed = await getSignedPreUploadUrl(file.name);
-				// @ts-ignore runtime narrowing
-				if (signed?.error) {
+			return { id, file };
+		});
+
+		await Promise.allSettled(
+			entries.map(async ({ id, file }) => {
+				try {
+					const signed = await getSignedPreUploadUrl(file.name);
+					// @ts-ignore runtime narrowing
+					if (signed?.error) {
+						setUploads((prev) =>
+							prev.map((u) =>
+								u.id === id ? { ...u, status: "error", error: String(signed.error) } : u,
+							),
+						);
+						return;
+					}
+					// @ts-ignore runtime narrowing
+					const { token, fullPath } = (signed.success as { token: string; fullPath: string });
+					const { error: uploadError } = await supabase.storage
+						.from("chat_attachments")
+						.uploadToSignedUrl(fullPath, token, file);
+					if (uploadError) {
+						setUploads((prev) =>
+							prev.map((u) =>
+								u.id === id ? { ...u, status: "error", error: uploadError.message } : u,
+							),
+						);
+						return;
+					}
+					setUploads((prev) =>
+						prev.map((u) => (u.id === id ? { ...u, status: "uploaded", preUploadPath: fullPath } : u)),
+					);
+				} catch (err: any) {
 					setUploads((prev) =>
 						prev.map((u) =>
-							u.id === id ? { ...u, status: "error", error: String(signed.error) } : u,
+							u.id === id ? { ...u, status: "error", error: String(err?.message || err) } : u,
 						),
 					);
-					continue;
 				}
-				// @ts-ignore runtime narrowing
-				const { token, fullPath } = signed.success as { token: string; fullPath: string };
-				const { error: uploadError } = await supabase.storage
-					.from("chat_attachments")
-					.uploadToSignedUrl(fullPath, token, file);
-				if (uploadError) {
-					setUploads((prev) =>
-						prev.map((u) =>
-							u.id === id ? { ...u, status: "error", error: uploadError.message } : u,
-						),
-					);
-					continue;
-				}
-				setUploads((prev) =>
-					prev.map((u) => (u.id === id ? { ...u, status: "uploaded", preUploadPath: fullPath } : u)),
-				);
-			} catch (err: any) {
-				setUploads((prev) =>
-					prev.map((u) =>
-						u.id === id ? { ...u, status: "error", error: String(err?.message || err) } : u,
-					),
-				);
-			}
-		}
+			}),
+		);
 	}, []);
 
 	// Handle file selection: pre-upload immediately
