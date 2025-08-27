@@ -13,8 +13,16 @@ import { useChatContext } from "@/contexts/chat-context";
 import { CACHE_TTL_SECONDS } from "@/lib/cache/config";
 import * as db from "@/lib/db/client";
 import { createClient as createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { getSignedUploadUrl, recordAttachment } from "@/app/actions/attachment-actions";
+import { getSignedPreUploadUrl, finalizePreUpload } from "@/app/actions/attachment-actions";
 import { toast } from "sonner";
+
+type UploadItem = {
+	id: string;
+	file: File;
+	preUploadPath?: string;
+	status: "queued" | "uploading" | "uploaded" | "error";
+	error?: string;
+};
 
 export function ChatInput() {
 	const {
@@ -28,7 +36,7 @@ export function ChatInput() {
 		setChatId,
 	} = useChatContext();
 
-	const [files, setFiles] = useState<File[]>([]);
+	const [uploads, setUploads] = useState<UploadItem[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -42,24 +50,73 @@ export function ChatInput() {
 		}
 	};
 
-	// Handle file selection
-	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		if (e.target.files) {
-			const newFiles = Array.from(e.target.files);
-			setFiles((prev) => [...prev, ...newFiles]);
+	const preUploadFiles = useCallback(async (filesToAdd: File[]) => {
+		const supabase = createSupabaseBrowserClient();
+		for (const file of filesToAdd) {
+			const id = crypto.randomUUID();
+			setUploads((prev) => [...prev, { id, file, status: "uploading" }]);
+			try {
+				const signed = await getSignedPreUploadUrl(file.name);
+				// @ts-ignore runtime narrowing
+				if (signed?.error) {
+					setUploads((prev) =>
+						prev.map((u) =>
+							u.id === id ? { ...u, status: "error", error: String(signed.error) } : u,
+						),
+					);
+					continue;
+				}
+				// @ts-ignore runtime narrowing
+				const { token, fullPath } = signed.success as { token: string; fullPath: string };
+				const { error: uploadError } = await supabase.storage
+					.from("chat_attachments")
+					.uploadToSignedUrl(fullPath, token, file);
+				if (uploadError) {
+					setUploads((prev) =>
+						prev.map((u) =>
+							u.id === id ? { ...u, status: "error", error: uploadError.message } : u,
+						),
+					);
+					continue;
+				}
+				setUploads((prev) =>
+					prev.map((u) => (u.id === id ? { ...u, status: "uploaded", preUploadPath: fullPath } : u)),
+				);
+			} catch (err: any) {
+				setUploads((prev) =>
+					prev.map((u) =>
+						u.id === id ? { ...u, status: "error", error: String(err?.message || err) } : u,
+					),
+				);
+			}
 		}
+	}, []);
+
+	// Handle file selection: pre-upload immediately
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (!e.target.files || e.target.files.length === 0) return;
+		await preUploadFiles(Array.from(e.target.files));
+		// reset
+		if (fileInputRef.current) fileInputRef.current.value = "";
 	};
 
-	// Handle file removal
-	const removeFile = (index: number) => {
-		setFiles((prev) => prev.filter((_, i) => i !== index));
+	// Handle file removal (try to remove temp upload as well)
+	const removeFile = async (id: string) => {
+		const item = uploads.find((u) => u.id === id);
+		if (item?.preUploadPath && item.status === "uploaded") {
+			try {
+				const supabase = createSupabaseBrowserClient();
+				await supabase.storage.from("chat_attachments").remove([item.preUploadPath]);
+			} catch (_) {}
+		}
+		setUploads((prev) => prev.filter((u) => u.id !== id));
 	};
 
 	// Listen for page-level drop events and append files here
 	const onFilesDrop = useCallback((e: CustomEvent<{ files: File[] }>) => {
 		if (!e?.detail?.files?.length) return;
-		setFiles((prev) => [...prev, ...e.detail.files]);
-	}, []);
+		preUploadFiles(e.detail.files);
+	}, [preUploadFiles]);
 
 	useEffect(() => {
 		// @ts-ignore CustomEvent typing at window
@@ -94,14 +151,21 @@ export function ChatInput() {
 	const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		// Guard against concurrent submissions and pre-isLoading window
-		if (isLoading || isSubmitting) return;
-		if (!input.trim() && files.length === 0) return;
+		const hasUploads = uploads.length > 0;
+		const isUploadingAny = uploads.some((u) => u.status === "uploading" || u.status === "queued");
+		if (isLoading || isSubmitting || isUploadingAny) {
+			if (isUploadingAny) {
+				toast("Uploading attachments…", { description: "Please wait for uploads to finish." });
+			}
+			return;
+		}
+		if (!input.trim() && !hasUploads) return;
 		setIsSubmitting(true);
 
 		try {
-			if (files.length > 0) {
-				const fileNames = files.map((f) => f.name).join(", ");
-				console.log("Files to upload:", fileNames);
+			if (uploads.length > 0) {
+				const fileNames = uploads.map((u) => u.file.name).join(", ");
+				console.log("Files to attach:", fileNames);
 			}
 
 			// Handle chat creation for new chats
@@ -147,64 +211,38 @@ export function ChatInput() {
 				} catch (_) {}
 			}
 
-			// If there are files, upload each to storage via signed URL and record metadata
-			if (files.length > 0 && createdMessageId) {
-				const supabase = createSupabaseBrowserClient();
-				for (const file of files) {
-					try {
-						const signed = await getSignedUploadUrl(file.name, createdMessageId);
-						// @ts-ignore runtime narrowing
-						if (signed?.error) {
-							// @ts-ignore runtime narrowing
-							console.error("getSignedUploadUrl error", signed.error);
-							continue;
-						}
-						// @ts-ignore runtime narrowing
-						const { token, fullPath } = signed.success as { token: string; fullPath: string };
+			// Start streaming immediately
+			handleSubmit(e);
 
-						const { error: uploadError } = await supabase.storage
-							.from("chat_attachments")
-							.uploadToSignedUrl(fullPath, token, file);
-						if (uploadError) {
-							console.error("uploadToSignedUrl failed", uploadError);
-							continue;
-						}
-
-						const recorded = await recordAttachment(
+			// Finalize attachments in the background
+			if (uploads.length > 0 && createdMessageId) {
+				const uploadedItems = uploads.filter((u) => u.status === "uploaded" && !!u.preUploadPath);
+				Promise.allSettled(
+					uploadedItems.map((u) =>
+						finalizePreUpload(
 							createdMessageId,
-							fullPath,
-							file.name,
-							file.size,
-							file.type,
-						);
-						// @ts-ignore runtime narrowing
-						if (recorded?.error) {
-							// @ts-ignore
-							toast.error("File upload failed", {
-								description: `${file.name}`,
-							});
-							
-						} else {
-							toast.success("File uploaded", {
-								description: `${file.name}`,
-							});
-						}
-					} catch (err) {
-						console.error("Attachment upload failed", err);
-					}
-				}
+							u.preUploadPath as string,
+							u.file.name,
+							u.file.size,
+							u.file.type,
+						).then((res) => {
+							// @ts-ignore runtime narrowing
+							if (res?.error) {
+								toast.error("File failed", { description: u.file.name });
+							} else {
+								toast.success("File attached", { description: u.file.name });
+							}
+						}),
+					),
+				);
 			}
 
 			// After creating the chat and storing the first message
 			if (!chatId && currentChatId) {
-				// This is the first message in a new chat
 				generateTitleAsync(currentChatId, input.trim());
 			}
 
-			// Let useChat handle the submission
-			handleSubmit(e);
-
-			setFiles([]);
+			setUploads([]);
 		} catch (error) {
 			console.error("Error in chat submission:", error);
 			setIsSubmitting(false);
@@ -216,21 +254,24 @@ export function ChatInput() {
 		<div className="p-4 sm:p-6 flex justify-center">
 			<form ref={formRef} onSubmit={onSubmit} className="relative w-full max-w-3xl">
 				{/* File previews */}
-				{files.length > 0 && (
+				{uploads.length > 0 && (
 					<div className="flex flex-wrap gap-2 mb-2">
-						{files.map((file, index) => (
+						{uploads.map((item) => (
 							<div
-								key={index}
+								key={item.id}
 								className="relative p-2 rounded-md flex items-center gap-2 bg-muted"
 							>
 								<span
 									className="text-sm truncate max-w-[150px] text-foreground-primary"
 								>
-									{file.name}
+									{item.file.name}
 								</span>
+								{item.status === "uploading" && (
+									<div className="h-3 w-3 animate-spin rounded-full border-2 border-foreground border-t-transparent" />
+								)}
 								<button
 									type="button"
-									onClick={() => removeFile(index)}
+									onClick={() => removeFile(item.id)}
 									className="text-foreground-muted hover:text-destructive"
 								>
 									<X size={16} />
@@ -255,7 +296,8 @@ export function ChatInput() {
 						onKeyDown={(e) => {
 							if (e.key === "Enter" && !e.shiftKey) {
 								e.preventDefault();
-								if (!isLoading && !isSubmitting) {
+								const isUploadingAny = uploads.some((u) => u.status === "uploading" || u.status === "queued");
+								if (!isLoading && !isSubmitting && !isUploadingAny) {
 									formRef.current?.requestSubmit();
 								}
 							}
@@ -297,7 +339,12 @@ export function ChatInput() {
 
 							<Button
 								type="submit"
-								disabled={isLoading || isSubmitting || (!input.trim() && files.length === 0)}
+								disabled={
+									isLoading ||
+									isSubmitting ||
+									uploads.some((u) => u.status === "uploading" || u.status === "queued") ||
+									(!input.trim() && uploads.length === 0)
+								}
 								className="rounded-full p-2 flex items-center justify-center bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-foreground-muted"
 							>
 								{isLoading ? (
