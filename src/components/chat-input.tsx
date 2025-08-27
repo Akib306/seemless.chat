@@ -14,6 +14,7 @@ import { CACHE_TTL_SECONDS } from "@/lib/cache/config";
 import * as db from "@/lib/db/client";
 import { createClient as createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { getSignedUploadUrl, recordAttachment } from "@/app/actions/attachment-actions";
+import { toast } from "sonner";
 
 export function ChatInput() {
 	const {
@@ -179,7 +180,14 @@ export function ChatInput() {
 						// @ts-ignore runtime narrowing
 						if (recorded?.error) {
 							// @ts-ignore
-							console.error("recordAttachment error", recorded.error);
+							toast.error("File upload failed", {
+								description: `${file.name}`,
+							});
+							
+						} else {
+							toast.success("File uploaded", {
+								description: `${file.name}`,
+							});
 						}
 					} catch (err) {
 						console.error("Attachment upload failed", err);
