@@ -13,6 +13,8 @@ import { useChatContext } from "@/contexts/chat-context";
 import { CACHE_TTL_SECONDS } from "@/lib/cache/config";
 import * as db from "@/lib/db/client";
 import { useRouter } from "next/navigation";
+import { createClient as createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getSignedUploadUrl, recordAttachment } from "@/app/actions/attachment-actions";
 
 export function ChatInput() {
 	const {
@@ -85,7 +87,6 @@ export function ChatInput() {
 		}
 	}
 
-
 	useEffect(() => {
 		if (!isLoading) {
 			setIsSubmitting(false);
@@ -114,13 +115,15 @@ export function ChatInput() {
 			}
 
 			// Persist the user's message so it isn’t lost on refresh
+			let createdMessageId: string | null = null;
 			if (currentChatId) {
-				await db.messages.createMessage(
+				const created = await db.messages.createMessage(
 					currentChatId,
 					input.trim(),
 					"user",
 					model,
 				);
+				createdMessageId = created.id;
 
 				// Write-through cache: append the user message to cached array
 				try {
@@ -132,7 +135,7 @@ export function ChatInput() {
 							key,
 							append: [
 								{
-									id: Date.now().toString(),
+									id: createdMessageId || Date.now().toString(),
 									chat_id: currentChatId,
 									content: input.trim(),
 									role: "user",
@@ -143,7 +146,48 @@ export function ChatInput() {
 							ex: CACHE_TTL_SECONDS,
 						}),
 					});
-				} catch (_) { }
+				} catch (_) {}
+			}
+
+			// If there are files, upload each to storage via signed URL and record metadata
+			if (files.length > 0 && createdMessageId) {
+				const supabase = createSupabaseBrowserClient();
+				for (const file of files) {
+					try {
+						const signed = await getSignedUploadUrl(file.name, createdMessageId);
+						// @ts-ignore runtime narrowing
+						if (signed?.error) {
+							// @ts-ignore runtime narrowing
+							console.error("getSignedUploadUrl error", signed.error);
+							continue;
+						}
+						// @ts-ignore runtime narrowing
+						const { token, fullPath } = signed.success as { token: string; fullPath: string };
+
+						const { error: uploadError } = await supabase.storage
+							.from("chat_attachments")
+							.uploadToSignedUrl(fullPath, token, file);
+						if (uploadError) {
+							console.error("uploadToSignedUrl failed", uploadError);
+							continue;
+						}
+
+						const recorded = await recordAttachment(
+							createdMessageId,
+							fullPath,
+							file.name,
+							file.size,
+							file.type,
+						);
+						// @ts-ignore runtime narrowing
+						if (recorded?.error) {
+							// @ts-ignore
+							console.error("recordAttachment error", recorded.error);
+						}
+					} catch (err) {
+						console.error("Attachment upload failed", err);
+					}
+				}
 			}
 
 			// After creating the chat and storing the first message
