@@ -8,13 +8,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Send, Paperclip, X } from "lucide-react";
+import { Send, Paperclip } from "lucide-react";
 import { useChatContext } from "@/contexts/chat-context";
 import { CACHE_TTL_SECONDS } from "@/lib/cache/config";
 import * as db from "@/lib/db/client";
 import { createClient as createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { getSignedPreUploadUrl, finalizePreUpload } from "@/app/actions/attachment-actions";
 import { toast } from "sonner";
+import { AttachmentPreviewGrid } from "@/components/attachment-preview-grid";
 
 type UploadItem = {
 	id: string;
@@ -49,6 +50,8 @@ export function ChatInput() {
 			textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
 		}
 	};
+
+
 
 	const preUploadFiles = useCallback(async (filesToAdd: File[]) => {
 		const supabase = createSupabaseBrowserClient();
@@ -261,30 +264,7 @@ export function ChatInput() {
 			<form ref={formRef} onSubmit={onSubmit} className="relative w-full max-w-3xl">
 				{/* File previews */}
 				{uploads.length > 0 && (
-					<div className="flex flex-wrap gap-2 mb-2">
-						{uploads.map((item) => (
-							<div
-								key={item.id}
-								className="relative p-2 rounded-md flex items-center gap-2 bg-muted"
-							>
-								<span
-									className="text-sm truncate max-w-[150px] text-foreground-primary"
-								>
-									{item.file.name}
-								</span>
-								{item.status === "uploading" && (
-									<div className="h-3 w-3 animate-spin rounded-full border-2 border-foreground border-t-transparent" />
-								)}
-								<button
-									type="button"
-									onClick={() => removeFile(item.id)}
-									className="text-foreground-muted hover:text-destructive"
-								>
-									<X size={16} />
-								</button>
-							</div>
-						))}
-					</div>
+					<AttachmentPreviewGrid uploads={uploads} onRemove={removeFile} />
 				)}
 
 				{/* Input area */}
@@ -362,6 +342,8 @@ export function ChatInput() {
 						</div>
 					</div>
 				</div>
+
+
 			</form>
 		</div>
 	);
