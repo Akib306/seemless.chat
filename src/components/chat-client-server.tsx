@@ -1,4 +1,3 @@
-"use client";
 import { Message } from "@/types/db";
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
@@ -36,7 +35,6 @@ const ChatClientInteractive = dynamic(
 				</div>
 			</div>
 		),
-		ssr: false,
 	},
 );
 
