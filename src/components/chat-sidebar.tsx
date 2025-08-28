@@ -104,6 +104,12 @@ export function ChatSidebar({
 						}
 
 						if (payload.eventType === "UPDATE") {
+							// If we somehow missed the INSERT (race at subscription time),
+							// add the chat to the list on first UPDATE.
+							const index = prev.findIndex((chat) => chat.id === payload.new.id);
+							if (index === -1) {
+								return [payload.new as ChatWithPin, ...prev];
+							}
 							return prev.map((chat) =>
 								chat.id === payload.new.id
 									? (payload.new as ChatWithPin)
