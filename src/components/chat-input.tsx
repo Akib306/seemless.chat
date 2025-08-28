@@ -56,7 +56,7 @@ export function ChatInput() {
 	const preUploadFiles = useCallback(async (filesToAdd: File[]) => {
 		const remainingSlots = MAX_ATTACHMENTS - uploads.length;
 		if (remainingSlots <= 0) {
-			toast("Attachment limit reached", {
+			toast.warning("Attachment limit reached", {
 				description: `You can attach up to ${MAX_ATTACHMENTS} files per message.`,
 			});
 			return;
@@ -64,7 +64,7 @@ export function ChatInput() {
 
 		const toUpload = filesToAdd.slice(0, remainingSlots);
 		if (filesToAdd.length > remainingSlots) {
-			toast("Only some files were added", {
+			toast.warning("Only some files were added", {
 				description: `Only the first ${remainingSlots} file(s) were queued (max ${MAX_ATTACHMENTS}).`,
 			});
 		}
