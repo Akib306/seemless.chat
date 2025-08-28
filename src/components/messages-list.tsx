@@ -2,6 +2,7 @@
 import { useEffect, useRef, lazy, Suspense } from "react";
 import { useChatContext } from "@/contexts/chat-context";
 import "katex/dist/katex.min.css";
+import MessageAttachments from "@/components/message-attachments";
 
 // Lazy load the heavy markdown component to reduce initial bundle size
 const MarkdownMessage = lazy(() =>
@@ -11,7 +12,7 @@ const MarkdownMessage = lazy(() =>
 );
 
 export function MessagesList() {
-	const { messages } = useChatContext();
+	const { messages, chatId } = useChatContext();
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 
 	const scrollToBottom = () => {
@@ -49,10 +50,15 @@ export function MessagesList() {
 									className={`flex ${isUser ? "justify-end" : "justify-start"}`}
 								>
 									{isUser ? (
-										<div className="max-w-[80%] sm:max-w-[75%] rounded-2xl bg-primary text-primary-foreground px-4 py-3 shadow-md">
-											<p className="whitespace-pre-wrap leading-relaxed text-[15px]">
-												{message.content}
-											</p>
+										<div className="max-w-[80%] sm:max-w-[75%]">
+											{/* Persisted attachments for this message */}
+											{/* We don't have chat_id on UI message type; resolve via context later if needed */}
+											<MessageAttachments messageId={message.id} chatId={chatId ?? ""} content={message.content} isUser={isUser} />
+											<div className="rounded-2xl bg-primary text-primary-foreground px-4 py-3 shadow-md">
+												<p className="whitespace-pre-wrap leading-relaxed text-[15px]">
+													{message.content}
+												</p>
+											</div>
 										</div>
 									) : (
 										<div className="max-w-none w-full text-[15px] leading-7">
