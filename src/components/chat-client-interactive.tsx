@@ -115,7 +115,7 @@ export default function ChatClientInteractive({
 				>
 					<div className="flex h-full w-full items-center justify-center">
 						<div className="pointer-events-none mx-4 sm:mx-6 md:mx-8 w-full max-w-3xl rounded-2xl border-2 border-dashed border-primary/60 bg-primary/5 px-6 py-8 text-center text-foreground-primary">
-							<div className="text-base text-foreground-primary">Drop files to attach</div>
+							<div className="text-base text-foreground-primary">Drop files to attach (max 10)</div>
 							<div className="mt-1 text-xs text-foreground-secondary">Files will be added to your next message</div>
 						</div>
 					</div>
