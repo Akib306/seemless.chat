@@ -3,6 +3,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { randomUUID } from "node:crypto";
 
+const MAX_ATTACHMENTS = 10;
+
 /**
  * Generate a signed upload URL for a user's attachment under:
  *   {userId}/{messageId}/{uuid}.{ext}
@@ -89,6 +91,15 @@ export async function recordAttachment(
 		return { error: "Authorization error: invalid storage path." } as const;
 	}
 
+	// Enforce per-message attachment limit
+	const { count: existingCount } = await supabase
+		.from("attachments")
+		.select("id", { count: "exact", head: true })
+		.eq("message_id", messageId);
+	if ((existingCount ?? 0) >= MAX_ATTACHMENTS) {
+		return { error: `You can attach up to ${MAX_ATTACHMENTS} files per message.` } as const;
+	}
+
 	const { data, error } = await supabase
 		.from("attachments")
 		.insert({
@@ -132,6 +143,18 @@ export async function finalizePreUpload(
 		return { error: "Authorization error: invalid preupload path." } as const;
 	}
 
+	// Check current count before moving to avoid orphaning finalized files
+	const { count: existingCount } = await supabase
+		.from("attachments")
+		.select("id", { count: "exact", head: true })
+		.eq("message_id", messageId);
+	if ((existingCount ?? 0) >= MAX_ATTACHMENTS) {
+		try {
+			await supabase.storage.from("chat_attachments").remove([preUploadPath]);
+		} catch (_) {}
+		return { error: `You can attach up to ${MAX_ATTACHMENTS} files per message.` } as const;
+	}
+
 	const basename = preUploadPath.split("/").pop() || fileName;
 	const finalPath = `${userId}/${messageId}/${basename}`;
 
@@ -157,6 +180,9 @@ export async function finalizePreUpload(
 		.single();
 
 	if (error) {
+		try {
+			await supabase.storage.from("chat_attachments").remove([finalPath]);
+		} catch (_) {}
 		console.error("finalizePreUpload: insert failed", error);
 		return { error: "Failed to save attachment details." } as const;
 	}
