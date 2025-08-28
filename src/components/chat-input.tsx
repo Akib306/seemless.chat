@@ -16,6 +16,7 @@ import { createClient as createSupabaseBrowserClient } from "@/lib/supabase/clie
 import { getSignedPreUploadUrl, finalizePreUpload } from "@/app/actions/attachment-actions";
 import { toast } from "sonner";
 import { AttachmentPreviewGrid } from "@/components/attachment-preview-grid";
+import { useRouter, usePathname } from "next/navigation";
 
 const MAX_ATTACHMENTS = 10;
 
@@ -38,6 +39,9 @@ export function ChatInput() {
 		chatId,
 		setChatId,
 	} = useChatContext();
+
+	const router = useRouter();
+	const pathname = usePathname();
 
 	const [uploads, setUploads] = useState<UploadItem[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -198,6 +202,13 @@ export function ChatInput() {
 				const chat = await db.chats.createChat("New Chat");
 				currentChatId = chat.id;
 				setChatId(chat.id);
+				// Navigate immediately so sidebar highlights and URL reflects the new chat
+				try {
+					const targetPath = `/chat/${chat.id}`;
+					if (pathname !== targetPath) {
+						router.push(targetPath, { scroll: false } as any);
+					}
+				} catch {}
 			}
 
 			// Persist the user's message so it isn’t lost on refresh
@@ -255,6 +266,12 @@ export function ChatInput() {
 								toast.error("File failed", { description: u.file.name });
 							} else {
 								toast.success("File attached", { description: u.file.name });
+								// Notify UI to refresh attachments immediately for this message
+								try {
+									window.dispatchEvent(
+										new CustomEvent("chat:attachments-finalized", { detail: { messageId: createdMessageId } }),
+									);
+								} catch {}
 							}
 						}),
 					),
@@ -263,7 +280,10 @@ export function ChatInput() {
 
 			// After creating the chat and storing the first message
 			if (!chatId && currentChatId) {
-				generateTitleAsync(currentChatId, input.trim());
+				// Fallback to attachment names when no text is provided
+				const attachmentNames = uploads.map((u) => u.file.name).slice(0, 4).join(", ");
+				const titleSource = input.trim() || attachmentNames || "New Chat";
+				generateTitleAsync(currentChatId, titleSource);
 			}
 
 			setUploads([]);
