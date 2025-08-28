@@ -17,6 +17,8 @@ import { getSignedPreUploadUrl, finalizePreUpload } from "@/app/actions/attachme
 import { toast } from "sonner";
 import { AttachmentPreviewGrid } from "@/components/attachment-preview-grid";
 
+const MAX_ATTACHMENTS = 10;
+
 type UploadItem = {
 	id: string;
 	file: File;
@@ -51,11 +53,24 @@ export function ChatInput() {
 		}
 	};
 
-
-
 	const preUploadFiles = useCallback(async (filesToAdd: File[]) => {
+		const remainingSlots = MAX_ATTACHMENTS - uploads.length;
+		if (remainingSlots <= 0) {
+			toast("Attachment limit reached", {
+				description: `You can attach up to ${MAX_ATTACHMENTS} files per message.`,
+			});
+			return;
+		}
+
+		const toUpload = filesToAdd.slice(0, remainingSlots);
+		if (filesToAdd.length > remainingSlots) {
+			toast("Only some files were added", {
+				description: `Only the first ${remainingSlots} file(s) were queued (max ${MAX_ATTACHMENTS}).`,
+			});
+		}
+
 		const supabase = createSupabaseBrowserClient();
-		const entries = filesToAdd.map((file) => {
+		const entries = toUpload.map((file) => {
 			const id = crypto.randomUUID();
 			setUploads((prev) => [...prev, { id, file, status: "uploading" }]);
 			return { id, file };
@@ -99,7 +114,7 @@ export function ChatInput() {
 				}
 			}),
 		);
-	}, []);
+	}, [uploads.length]);
 
 	// Handle file selection: pre-upload immediately
 	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
