@@ -1,14 +1,13 @@
 import { Message } from "@/types/db";
-import { Suspense } from "react";
 import dynamic from "next/dynamic";
 
-// Dynamically import the heavy client components to reduce initial bundle size
+// Dynamically import the heavy client component with a loading fallback
 const ChatClientInteractive = dynamic(
 	() => import("@/components/chat-client-interactive"),
 	{
 		loading: () => (
 			<div
-				className="h-screen w-full flex flex-col overflow-hidden bg-background"
+				className="h-screen w-full flex flex-col overflow-hidden bg-card"
 			>
 				<div className="flex-1 min-h-0 overflow-auto flex justify-center">
 					<div className="w-full max-w-3xl px-4 py-6 space-y-4">
@@ -29,10 +28,6 @@ const ChatClientInteractive = dynamic(
 						</div>
 					</div>
 				</div>
-				{/* Loading input area */}
-				<div className="flex-shrink-0 px-4 pb-6">
-					<div className="h-14 w-full bg-muted rounded animate-pulse" />
-				</div>
 			</div>
 		),
 	},
@@ -52,23 +47,6 @@ export default function ChatClientServer({
 	initialMessages,
 }: ChatClientServerProps) {
 	return (
-		<Suspense
-			fallback={
-				<div
-					className="h-screen w-full flex flex-col overflow-hidden bg-background"
-				>
-					<div className="flex-1 min-h-0 overflow-auto flex justify-center">
-						<div className="w-full max-w-3xl flex items-center justify-center">
-							<div className="text-foreground-muted">Loading chat...</div>
-						</div>
-					</div>
-				</div>
-			}
-		>
-			<ChatClientInteractive
-				chatId={chatId}
-				initialMessages={initialMessages}
-			/>
-		</Suspense>
+		<ChatClientInteractive chatId={chatId} initialMessages={initialMessages} />
 	);
 }
