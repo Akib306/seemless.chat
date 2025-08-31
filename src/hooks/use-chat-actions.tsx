@@ -16,12 +16,14 @@ export function useChatActions() {
 	 * Returns a delete handler function that can be used directly in onClick events
 	 */
 	const handleDeleteChat = (chatId: string) => {
-		return async (e: React.MouseEvent) => {
-			e.preventDefault();
-			e.stopPropagation();
-
+		return async () => {
 			try {
 				await db.chats.deleteChat(chatId);
+				// Notify UI immediately for optimistic sidebar update
+				try {
+					// @ts-ignore CustomEvent typing
+					window.dispatchEvent(new CustomEvent("chat:deleted", { detail: { chatId } }));
+				} catch {}
 				// Fire-and-forget cache invalidation to reclaim bytes immediately
 				try {
 					await fetch("/api/cache/invalidate", {
