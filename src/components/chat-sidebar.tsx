@@ -139,7 +139,7 @@ export function ChatSidebar({
 				.on("broadcast", { event: "DELETE" }, (p: any) => handleBroadcast(p, "DELETE"))
 				.subscribe();
 
-			// Fallback: also listen to Postgres Changes for robustness (scoped to the user)
+			// Fallback: Postgres Changes scoped to the user for redundancy
 			try {
 				changesChannel = supabase
 					.channel(`chats:changes:${userId}`)
@@ -150,28 +150,28 @@ export function ChatSidebar({
 							const eventType = payload.eventType as "INSERT" | "UPDATE" | "DELETE" | string;
 							const newRow = payload.new as ChatWithPin | undefined;
 							const oldRow = payload.old as ChatWithPin | undefined;
-							if (eventType === "INSERT") {
+							if (eventType === "INSERT" && newRow) {
 								setChatHistory((prev) => {
-									const exists = newRow ? prev.some((chat) => chat.id === newRow.id) : false;
+									const exists = prev.some((chat) => chat.id === newRow.id);
 									if (exists) return prev;
-									return newRow ? [newRow, ...prev] : prev;
+									return [newRow, ...prev];
 								});
 							}
-							if (eventType === "UPDATE") {
+							if (eventType === "UPDATE" && newRow) {
 								setChatHistory((prev) => {
-									if (!newRow) return prev;
 									const index = prev.findIndex((chat) => chat.id === newRow.id);
 									if (index === -1) return [newRow, ...prev];
 									return prev.map((chat) => (chat.id === newRow.id ? newRow : chat));
 								});
 							}
-							if (eventType === "DELETE") {
-								setChatHistory((prev) => (oldRow ? prev.filter((chat) => chat.id !== oldRow.id) : prev));
+							if (eventType === "DELETE" && oldRow) {
+								setChatHistory((prev) => prev.filter((chat) => chat.id !== oldRow.id));
 							}
 						},
 					)
 					.subscribe();
 			} catch {}
+
 		};
 
 		init();
@@ -197,6 +197,23 @@ export function ChatSidebar({
 		// @ts-ignore CustomEvent typing at window
 		window.addEventListener("chat:deleted", onDeleted as any);
 		return () => window.removeEventListener("chat:deleted", onDeleted as any);
+	}, []);
+
+	// Keep Realtime Authorization token fresh on session changes
+	useEffect(() => {
+		const { data: authSub } = supabase.auth.onAuthStateChange(async (_event, session) => {
+			try {
+				if (session?.access_token) {
+					// @ts-ignore setAuth availability differs by version
+					await supabase.realtime.setAuth(session.access_token);
+				}
+			} catch {}
+		});
+		return () => {
+			try {
+				authSub?.subscription?.unsubscribe?.();
+			} catch {}
+		};
 	}, []);
 
 	// Server query already orders pinned first; keep client-side sort for safety
