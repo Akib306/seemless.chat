@@ -281,9 +281,13 @@ export function ChatInput() {
 			// After creating the chat and storing the first message
 			if (!chatId && currentChatId) {
 				// Fallback to attachment names when no text is provided
-				const attachmentNames = uploads.map((u) => u.file.name).slice(0, 4).join(", ");
-				const titleSource = input.trim() || attachmentNames || "New Chat";
-				generateTitleAsync(currentChatId, titleSource);
+				if (input.trim() == "") {
+					const attachmentNames = uploads.map((u) => u.file.name).slice(0, 4).join(", ");
+					const titleSource = input.trim() || attachmentNames || "New Chat";
+					generateTitleAsync(currentChatId, titleSource);
+				} else {
+					generateTitleAsync(currentChatId, input.trim());
+				}
 			}
 
 			setUploads([]);
