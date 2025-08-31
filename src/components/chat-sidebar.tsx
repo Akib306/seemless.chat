@@ -53,6 +53,9 @@ export function ChatSidebar({
 	useEffect(() => {
 		let isMounted = true;
 		let timer: any;
+		let channel: ReturnType<typeof supabase.channel> | null = null;
+		let changesChannel: ReturnType<typeof supabase.channel> | null = null;
+
 		const beat = async () => {
 			try {
 				// Optional: include user id header to skip server getUser call
@@ -60,78 +63,140 @@ export function ChatSidebar({
 				try {
 					userId = await db.getCurrentUserId();
 				} catch {}
-				const res = await fetch("/api/cache/heartbeat", {
+				await fetch("/api/cache/heartbeat", {
 					method: "GET",
 					headers: userId ? { "x-user-id": userId } : undefined,
 					cache: "no-store",
 				});
-				// ignore body, server tracks
 			} catch {}
 			if (!isMounted) return;
 			timer = setTimeout(beat, 45000); // ~45s cadence, TTL default 60s
 		};
 		beat();
 
-		const fetchChatHistory = async () => {
+		const init = async () => {
 			const userId = await db.getCurrentUserId();
 			const chats = await db.chats.getChats(userId);
+			if (!isMounted) return;
 			setChatHistory(chats as ChatWithPin[]);
 
 			// Load profile and auth email
 			try {
 				const p = await db.profiles.getProfile(userId);
-				setProfile(p);
+				if (isMounted) setProfile(p);
 			} catch {}
 			const {
 				data: { user },
 			} = await supabase.auth.getUser();
-			setUserEmail(user?.email ?? null);
-		};
-		fetchChatHistory();
+			if (isMounted) setUserEmail(user?.email ?? null);
 
-		const channel = supabase
-			.channel("realtime:chats")
-			.on(
-				"postgres_changes",
-				{ event: "*", schema: "public", table: "chats" },
-				(payload) => {
-					setChatHistory((prev) => {
-						if (payload.eventType === "INSERT") {
-							// Check for duplicates before adding
-							const exists = prev.some((chat) => chat.id === payload.new.id);
-							if (exists) return prev;
-							return [payload.new as ChatWithPin, ...prev];
-						}
+			// Ensure Realtime Authorization (if available)
+			try {
+				const {
+					data: { session },
+				} = await supabase.auth.getSession();
+				if (session?.access_token) {
+					// @ts-ignore types for setAuth may vary across versions
+					await supabase.realtime.setAuth(session.access_token);
+				}
+			} catch {}
 
-						if (payload.eventType === "UPDATE") {
-							// If we somehow missed the INSERT (race at subscription time),
-							// add the chat to the list on first UPDATE.
-							const index = prev.findIndex((chat) => chat.id === payload.new.id);
-							if (index === -1) {
-								return [payload.new as ChatWithPin, ...prev];
+			// Subscribe to per-user chats broadcast topic
+			const topic = `chats:user:${userId}`;
+			channel = supabase.channel(topic, {
+				config: { broadcast: { ack: true, self: true } },
+			});
+
+			const handleBroadcast = (payload: any, expectedEvent: "INSERT" | "UPDATE" | "DELETE") => {
+				const body = payload?.payload ?? payload ?? {};
+				const table = body?.table || body?.table_name;
+				const schema = body?.schema || body?.table_schema;
+				if (schema && schema !== "public") return;
+				if (table && table !== "chats") return;
+				const newRow = (body?.record ?? body?.new ?? payload?.new) as ChatWithPin | undefined;
+				const oldRow = (body?.old_record ?? body?.old ?? payload?.old) as ChatWithPin | undefined;
+				setChatHistory((prev) => {
+					if (expectedEvent === "INSERT" && newRow) {
+						const exists = prev.some((chat) => chat.id === newRow.id);
+						if (exists) return prev;
+						return [newRow, ...prev];
+					}
+					if (expectedEvent === "UPDATE" && newRow) {
+						const index = prev.findIndex((chat) => chat.id === newRow.id);
+						if (index === -1) return [newRow, ...prev];
+						return prev.map((chat) => (chat.id === newRow.id ? newRow : chat));
+					}
+					if (expectedEvent === "DELETE" && oldRow) {
+						return prev.filter((chat) => chat.id !== oldRow.id);
+					}
+					return prev;
+				});
+			};
+
+			channel
+				.on("broadcast", { event: "INSERT" }, (p: any) => handleBroadcast(p, "INSERT"))
+				.on("broadcast", { event: "UPDATE" }, (p: any) => handleBroadcast(p, "UPDATE"))
+				.on("broadcast", { event: "DELETE" }, (p: any) => handleBroadcast(p, "DELETE"))
+				.subscribe();
+
+			// Fallback: also listen to Postgres Changes for robustness (scoped to the user)
+			try {
+				changesChannel = supabase
+					.channel(`chats:changes:${userId}`)
+					.on(
+						"postgres_changes",
+						{ event: "*", schema: "public", table: "chats", filter: `user_id=eq.${userId}` },
+						(payload) => {
+							const eventType = payload.eventType as "INSERT" | "UPDATE" | "DELETE" | string;
+							const newRow = payload.new as ChatWithPin | undefined;
+							const oldRow = payload.old as ChatWithPin | undefined;
+							if (eventType === "INSERT") {
+								setChatHistory((prev) => {
+									const exists = newRow ? prev.some((chat) => chat.id === newRow.id) : false;
+									if (exists) return prev;
+									return newRow ? [newRow, ...prev] : prev;
+								});
 							}
-							return prev.map((chat) =>
-								chat.id === payload.new.id
-									? (payload.new as ChatWithPin)
-									: chat,
-							);
-						}
+							if (eventType === "UPDATE") {
+								setChatHistory((prev) => {
+									if (!newRow) return prev;
+									const index = prev.findIndex((chat) => chat.id === newRow.id);
+									if (index === -1) return [newRow, ...prev];
+									return prev.map((chat) => (chat.id === newRow.id ? newRow : chat));
+								});
+							}
+							if (eventType === "DELETE") {
+								setChatHistory((prev) => (oldRow ? prev.filter((chat) => chat.id !== oldRow.id) : prev));
+							}
+						},
+					)
+					.subscribe();
+			} catch {}
+		};
 
-						if (payload.eventType === "DELETE") {
-							return prev.filter((chat) => chat.id !== payload.old.id);
-						}
-
-						return prev;
-					});
-				},
-			)
-			.subscribe();
+		init();
 
 		return () => {
-			supabase.removeChannel(channel);
+			try {
+				if (channel) supabase.removeChannel(channel);
+				if (changesChannel) supabase.removeChannel(changesChannel);
+			} catch {}
 			isMounted = false;
 			if (timer) clearTimeout(timer);
 		};
+	}, []);
+
+	// Optimistic local delete handler to immediately remove from UI in case realtime is delayed
+	useEffect(() => {
+		const onDeleted = (e: Event) => {
+			const ev = e as CustomEvent<{ chatId: string }>;
+			const deletedId = ev?.detail?.chatId;
+			if (!deletedId) return;
+			setChatHistory((prev) => prev.filter((c) => c.id !== deletedId));
+		};
+		// @ts-ignore CustomEvent typing at window
+		window.addEventListener("chat:deleted", onDeleted as any);
+		return () => window.removeEventListener("chat:deleted", onDeleted as any);
 	}, []);
 
 	// Server query already orders pinned first; keep client-side sort for safety
