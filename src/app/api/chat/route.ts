@@ -60,7 +60,7 @@ export async function POST(req: Request) {
 				console.log();
 			},
 		});
-		return stream.toDataStreamResponse();
+		return stream.toUIMessageStreamResponse();
 	} catch (error) {
 		console.error("Error processing chat request:", error);
 		return new Response(
