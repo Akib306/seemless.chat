@@ -27,7 +27,7 @@
 		/* Secondary and neutrals */
 		--secondary: hsl(220 15% 20%);
 		--secondary-foreground: var(--foreground-primary);
-		--muted: hsl(222 16% 16%);
+		--muted: hsl(222 16% 20%);
 		--muted-foreground: hsl(215 18% 72%);
 		--accent: hsl(210 9% 31%);
 		--accent-foreground: var(--foreground-primary);
