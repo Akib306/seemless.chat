@@ -107,7 +107,7 @@ export function ChatItem({ chat, isActive }: ChatItemProps) {
 										<Edit2 className="mr-2 h-4 w-4" />
 										Rename
 									</DropdownMenuItem>
-									<DropdownMenuItem onClick={handleDeleteChat(chat.id)}>
+									<DropdownMenuItem onClick={handleDeleteChat(chat.id, isActive)}>
 										<Trash2 className="mr-2 h-4 w-4" />
 										Delete
 									</DropdownMenuItem>
@@ -174,7 +174,7 @@ export function ChatItem({ chat, isActive }: ChatItemProps) {
 										<Edit2 className="mr-2 h-4 w-4" />
 										Rename
 									</DropdownMenuItem>
-									<DropdownMenuItem onClick={handleDeleteChat(chat.id)}
+									<DropdownMenuItem onClick={handleDeleteChat(chat.id, isActive)}
 										className="hover:text-foreground-primary"
 									>
 										<Trash2 className="mr-2 h-4 w-4" />
