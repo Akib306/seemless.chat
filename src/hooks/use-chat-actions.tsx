@@ -15,8 +15,13 @@ export function useChatActions() {
 	/**
 	 * Returns a delete handler function that can be used directly in onClick events
 	 */
-	const handleDeleteChat = (chatId: string) => {
-		return async () => {
+	const handleDeleteChat = (chatId: string, isActive?: boolean) => {
+		return async (e?: React.MouseEvent) => {
+			// Prevent the underlying chat link from navigating when clicking Delete
+			try {
+				e?.preventDefault?.();
+				e?.stopPropagation?.();
+			} catch {}
 			try {
 				await db.chats.deleteChat(chatId);
 				// Notify UI immediately for optimistic sidebar update
@@ -35,7 +40,10 @@ export function useChatActions() {
 						cache: "no-store",
 					});
 				} catch (_) {}
-				router.push("/chat");
+				// If deleting the active chat, replace history so back won't return to it
+				if (isActive) {
+					router.replace("/chat");
+				}
 			} catch (error) {
 				console.error("Failed to delete chat:", error);
 				// Could extend this to show user-facing error messages
