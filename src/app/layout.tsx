@@ -25,7 +25,15 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" className={geistSans.className} suppressHydrationWarning>
-			<body className="bg-background text-foreground-primary">
+			<body>
+
+				{/* Azure Depths */}
+				<div
+					className="absolute inset-0 -z-10"
+					style={{
+						background: "radial-gradient(125% 125% at 50% 10%, #000000 40%, #010133 100%)",
+					}}
+				/>
 				<ThemeProvider
 					attribute="class"
 					defaultTheme="dark"
