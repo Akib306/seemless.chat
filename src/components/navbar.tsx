@@ -2,12 +2,14 @@
 
 import { LogoutButton } from "@/components/logout-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export function Navbar() {
 	const pathname = usePathname();
 	const isChatPage = pathname?.startsWith("/chat");
+	const isLandingPage = pathname === "/";
 
 	if (isChatPage) {
 		return null;
@@ -23,6 +25,11 @@ export function Navbar() {
 				</div>
 				<div className="flex items-center gap-4">
 					{/* <LogoutButton /> */}
+					{isLandingPage && (
+						<Button asChild size="sm" variant="ghost">
+							<Link href="/auth/login">Log In</Link>
+						</Button>
+					)}
 					<ThemeSwitcher />
 				</div>
 			</div>
