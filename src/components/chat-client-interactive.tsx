@@ -4,6 +4,8 @@ import { MessagesList } from "@/components/messages-list";
 import { ChatProvider } from "@/contexts/chat-context";
 import { Message } from "@/types/db";
 import { useRef, useEffect, type DragEvent } from "react";
+import { useRouter } from "next/navigation";
+import * as db from "@/lib/db/client";
 
 /**
  * Interactive chat client with full functionality.
@@ -18,6 +20,7 @@ export default function ChatClientInteractive({
 }) {
 	const overlayRef = useRef<HTMLDivElement | null>(null);
 	const dragDepthRef = useRef(0);
+	const router = useRouter();
 
 	const isFileDrag = (e: DragEvent) => {
 		const types = Array.from(e.dataTransfer?.types ?? []);
@@ -86,6 +89,31 @@ export default function ChatClientInteractive({
 			window.removeEventListener("drop", preventDefaultForFiles);
 		};
 	}, []);
+
+	// Guard against navigating back to a deleted or inaccessible chat
+	useEffect(() => {
+		let cancelled = false;
+		(async () => {
+			if (!chatId) {
+				try {
+					router.replace("/chat");
+				} catch {}
+				return;
+			}
+			try {
+				await db.chats.getChat(chatId);
+			} catch {
+				if (!cancelled) {
+					try {
+						router.replace("/chat");
+					} catch {}
+				}
+			}
+		})();
+		return () => {
+			cancelled = true;
+		};
+	}, [chatId, router]);
 
 	return (
 		<ChatProvider initialMessages={initialMessages} chatId={chatId}>
