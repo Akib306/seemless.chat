@@ -18,5 +18,12 @@ export async function getCurrentUserId(): Promise<string> {
 }
 
 // Create client-side database utilities
-export const { profiles, chats, messages, subscriptions, apiUsage, search } =
-	createDbUtils(supabase, getCurrentUserId);
+export const {
+	profiles,
+	chats,
+	messages,
+	messageParts,
+	subscriptions,
+	apiUsage,
+	search,
+} = createDbUtils(supabase, getCurrentUserId);
