@@ -21,7 +21,7 @@
 		--popover-foreground: var(--foreground-primary);
 
 		/* Brand */
-		--primary: hsl(245 70% 60%);
+		--primary: hsl(245 70% 50%);
 		--primary-foreground: hsl(0 0% 98%);
 
 		/* Secondary and neutrals */
