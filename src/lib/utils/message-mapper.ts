@@ -2,7 +2,7 @@ import type { Message, MessagePart } from "@/types/db";
 import type { AppUIMessage } from "@/types/ui";
 
 
-function mapDbPartsToUiParts(parts: MessagePart[]): AppUIMessage["parts"] {
+export function mapDbPartsToUiParts(parts: MessagePart[]): AppUIMessage["parts"] {
     if (!parts || parts.length === 0) {
         return [] as AppUIMessage["parts"];
     }
