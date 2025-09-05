@@ -168,7 +168,6 @@ export function createDbUtils(
 	const messages = {
 		async createMessage(
 			chatId: string,
-			content: string,
 			role: "user" | "assistant",
 			modelUsed?: string,
 			userId?: string,
@@ -181,7 +180,6 @@ export function createDbUtils(
 				.insert({
 					chat_id: chatId,
 					user_id: id,
-					content,
 					role,
 					model_used: modelUsed,
 				})
