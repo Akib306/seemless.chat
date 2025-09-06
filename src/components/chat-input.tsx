@@ -308,7 +308,7 @@ export function ChatInput() {
 
 				{/* Input area */}
 				<div
-					className="flex flex-col rounded-2xl p-2 bg-accent/60 backdrop-blur border border-border shadow-sm"
+					className="flex flex-col rounded-2xl p-2 bg-accent/60 backdrop-blur-sm border border-border shadow-xs"
 				>
 					<textarea
 						ref={textareaRef}
@@ -316,7 +316,7 @@ export function ChatInput() {
 						onChange={handleTextareaChange}
 						placeholder="Type your message..."
 						disabled={isLoading || isSubmitting}
-						className="flex-1 text-[15px] text-foreground-primary bg-transparent border-none resize-none outline-none min-h-[48px] max-h-[200px] px-3 py-2 placeholder:text-foreground-muted"
+						className="flex-1 text-[15px] text-foreground-primary bg-transparent border-none resize-none outline-hidden min-h-[48px] max-h-[200px] px-3 py-2 placeholder:text-foreground-muted"
 						rows={1}
 						onKeyDown={(e) => {
 							if (e.key === "Enter" && !e.shiftKey) {
@@ -331,7 +331,7 @@ export function ChatInput() {
 
 					<div className="flex items-center gap-2 mt-2">
 						<Select value={model} onValueChange={setModel}>
-							<SelectTrigger className="w-auto min-w-[150px] h-9 px-3 rounded-md bg-transparent text-foreground-primary hover:bg-accent/70 border-0 focus:outline-none focus:ring-0 focus:ring-offset-0 transition-colors">
+							<SelectTrigger className="w-auto min-w-[150px] h-9 px-3 rounded-md bg-transparent text-foreground-primary hover:bg-accent/70 border-0 focus:outline-hidden focus:ring-0 focus:ring-offset-0 transition-colors">
 								<SelectValue placeholder="Select a model" />
 							</SelectTrigger>
 							<SelectContent>

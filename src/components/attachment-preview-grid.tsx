@@ -108,7 +108,7 @@ export function AttachmentPreviewGrid({ uploads, onRemove }: AttachmentPreviewGr
 						{/* Remove button */}
 						<button
 							type="button"
-							className="absolute top-1 right-1 rounded-full p-1 bg-background/80 text-foreground-muted hover:text-destructive shadow-sm"
+							className="absolute top-1 right-1 rounded-full p-1 bg-background/80 text-foreground-muted hover:text-destructive shadow-xs"
 							onClick={(e) => {
 								e.stopPropagation();
 								onRemove(item.id);

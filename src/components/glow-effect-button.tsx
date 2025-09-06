@@ -28,7 +28,7 @@ export function GlowEffectButton({
         scale={1.0}
       />
       <button 
-        className={`relative inline-flex items-center gap-1 rounded-md bg-zinc-950 px-4 py-2 text-sm text-zinc-50 outline outline-1 outline-[#fff2f21f] hover:bg-zinc-900 transition-colors ${className}`}
+        className={`relative inline-flex items-center gap-1 rounded-md bg-zinc-950 px-4 py-2 text-sm text-zinc-50 outline-solid outline-1 outline-[#fff2f21f] hover:bg-zinc-900 transition-colors ${className}`}
         onClick={onClick}
       >
         {children} {showArrow && <ArrowRight className='h-4 w-4' />}

@@ -10,7 +10,7 @@ import { ReactNode } from "react";
 export const markdownComponents: Components = {
 	// Tables
 	table: ({ children, ...props }) => (
-		<div className="overflow-x-auto my-8 rounded-lg border border-border shadow-sm">
+		<div className="overflow-x-auto my-8 rounded-lg border border-border shadow-xs">
 			<table
 				className="min-w-full table-auto border-collapse text-[15px] leading-7 text-foreground-primary"
 				{...props}
@@ -112,7 +112,7 @@ export const markdownComponents: Components = {
 	// Quotes
 	blockquote: (props) => (
 		<blockquote
-			className="my-5 rounded-xl border border-border bg-accent/60 p-4 text-foreground-muted shadow-sm"
+			className="my-5 rounded-xl border border-border bg-accent/60 p-4 text-foreground-muted shadow-xs"
 			{...props}
 		/>
 	),

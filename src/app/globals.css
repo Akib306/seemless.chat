@@ -1,6 +1,257 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+  @media (width >= --theme(--breakpoint-sm)) {
+    max-width: none;
+  }
+  @media (width >= 1400px) {
+    max-width: 1400px;
+  }
+}
+
+@theme {
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-foreground-primary: var(--foreground-primary);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-foreground-muted: var(--foreground-muted);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-sidebar: var(--sidebar-background);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility dark {
+  /* Text hierarchy with opacity for dark mode */
+  & .text-hierarchy-primary {
+    color: var(--foreground);
+    opacity: 0.94;
+  }
+
+  & .text-hierarchy-secondary {
+    color: var(--foreground);
+    opacity: 0.78;
+  }
+
+  & .text-hierarchy-tertiary {
+    color: var(--muted-foreground);
+    opacity: 0.88;
+  }
+
+  /* Enhanced focus states for accessibility */
+  & .focus-enhanced:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px hsl(from var(--ring) h s l / 0.1);
+  }
+
+  /* Improved button hover states for dark mode */
+  & .button-hover-enhanced:hover {
+    background-color: var(--accent);
+    border-color: var(--border);
+    transition: all 0.2s ease-in-out;
+  }
+
+  /* Better card elevation in dark mode */
+  & .card-elevated {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 12px hsl(from var(--background) h s l / 0.4);
+  }
+
+  /* Optimized input styles for dark mode */
+  & .input-enhanced {
+    background-color: var(--input);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+  }
+
+  & .input-enhanced:focus {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 2px hsl(from var(--ring) h s l / 0.2);
+  }
+
+  & .input-enhanced::placeholder {
+    color: var(--muted-foreground);
+    opacity: 0.7;
+  }
+
+  /* Sidebar specific enhancements */
+  & .sidebar-item-hover:hover {
+    background-color: var(--sidebar-accent);
+    color: var(--sidebar-accent-foreground);
+    transition: all 0.15s ease-in-out;
+  }
+
+  /* Improved scrollbar for dark mode */
+  & ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  & ::-webkit-scrollbar-track {
+    background: var(--muted);
+  }
+
+  & ::-webkit-scrollbar-thumb {
+    background: hsl(from var(--muted-foreground) h s l / 0.3);
+    border-radius: 4px;
+  }
+
+  & ::-webkit-scrollbar-thumb:hover {
+    background: hsl(from var(--muted-foreground) h s l / 0.5);
+  }
+
+  /* Selection colors optimized for dark mode */
+  & ::selection {
+    background-color: hsl(from var(--primary) h s l / 0.2);
+    color: var(--foreground);
+  }
+}
+@utility text-hierarchy-primary {
+  /* Text hierarchy with opacity for dark mode */
+  .dark & {
+    color: var(--foreground);
+    opacity: 0.94;
+  }
+}
+@utility text-hierarchy-secondary {
+  .dark & {
+    color: var(--foreground);
+    opacity: 0.78;
+  }
+}
+@utility text-hierarchy-tertiary {
+  .dark & {
+    color: var(--muted-foreground);
+    opacity: 0.88;
+  }
+}
+@utility focus-enhanced {
+  /* Enhanced focus states for accessibility */
+  .dark &:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px hsl(from var(--ring) h s l / 0.1);
+  }
+}
+@utility button-hover-enhanced {
+  /* Improved button hover states for dark mode */
+  .dark &:hover {
+    background-color: var(--accent);
+    border-color: var(--border);
+    transition: all 0.2s ease-in-out;
+  }
+}
+@utility card-elevated {
+  /* Better card elevation in dark mode */
+  .dark & {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 12px hsl(from var(--background) h s l / 0.4);
+  }
+}
+@utility input-enhanced {
+  /* Optimized input styles for dark mode */
+  .dark & {
+    background-color: var(--input);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+  }
+
+  .dark &:focus {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 2px hsl(from var(--ring) h s l / 0.2);
+  }
+
+  .dark &::placeholder {
+    color: var(--muted-foreground);
+    opacity: 0.7;
+  }
+}
+@utility sidebar-item-hover {
+  /* Sidebar specific enhancements */
+  .dark &:hover {
+    background-color: var(--sidebar-accent);
+    color: var(--sidebar-accent-foreground);
+    transition: all 0.15s ease-in-out;
+  }
+}
 
 @layer base {
 	/* Dark theme variables (default) */
@@ -125,101 +376,16 @@
 	}
 }
 
-html,
-body {
-	height: 100%;
-	margin: 0;
-	padding: 0;
-	overflow: hidden;
-}
-
-/* Enhanced dark mode utilities for optimal readability */
 @layer utilities {
-	/* Text hierarchy with opacity for dark mode */
-	.dark .text-hierarchy-primary {
-		color: var(--foreground);
-		opacity: 0.94;
-	}
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
 
-	.dark .text-hierarchy-secondary {
-		color: var(--foreground);
-		opacity: 0.78;
-	}
-
-	.dark .text-hierarchy-tertiary {
-		color: var(--muted-foreground);
-		opacity: 0.88;
-	}
-
-	/* Enhanced focus states for accessibility */
-	.dark .focus-enhanced:focus-visible {
-		outline: 2px solid var(--ring);
-		outline-offset: 2px;
-		box-shadow: 0 0 0 4px hsl(from var(--ring) h s l / 0.1);
-	}
-
-	/* Improved button hover states for dark mode */
-	.dark .button-hover-enhanced:hover {
-		background-color: var(--accent);
-		border-color: var(--border);
-		transition: all 0.2s ease-in-out;
-	}
-
-	/* Better card elevation in dark mode */
-	.dark .card-elevated {
-		background-color: var(--card);
-		border: 1px solid var(--border);
-		box-shadow: 0 4px 12px hsl(from var(--background) h s l / 0.4);
-	}
-
-	/* Optimized input styles for dark mode */
-	.dark .input-enhanced {
-		background-color: var(--input);
-		border: 1px solid var(--border);
-		color: var(--foreground);
-	}
-
-	.dark .input-enhanced:focus {
-		border-color: var(--ring);
-		box-shadow: 0 0 0 2px hsl(from var(--ring) h s l / 0.2);
-	}
-
-	.dark .input-enhanced::placeholder {
-		color: var(--muted-foreground);
-		opacity: 0.7;
-	}
-
-	/* Sidebar specific enhancements */
-	.dark .sidebar-item-hover:hover {
-		background-color: var(--sidebar-accent);
-		color: var(--sidebar-accent-foreground);
-		transition: all 0.15s ease-in-out;
-	}
-
-	/* Improved scrollbar for dark mode */
-	.dark ::-webkit-scrollbar {
-		width: 8px;
-		height: 8px;
-	}
-
-	.dark ::-webkit-scrollbar-track {
-		background: var(--muted);
-	}
-
-	.dark ::-webkit-scrollbar-thumb {
-		background: hsl(from var(--muted-foreground) h s l / 0.3);
-		border-radius: 4px;
-	}
-
-	.dark ::-webkit-scrollbar-thumb:hover {
-		background: hsl(from var(--muted-foreground) h s l / 0.5);
-	}
-
-	/* Selection colors optimized for dark mode */
-	.dark ::selection {
-		background-color: hsl(from var(--primary) h s l / 0.2);
-		color: var(--foreground);
-	}
+  /* Enhanced dark mode utilities for optimal readability */
 }
 
 @layer base {
