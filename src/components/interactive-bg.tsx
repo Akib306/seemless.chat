@@ -1,152 +1,147 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react";
 
 interface WebNode {
-  x: number
-  y: number
-  originalX: number
-  originalY: number
+  x: number;
+  y: number;
+  ox: number;
+  oy: number;
 }
 
 export function InteractiveBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const mouseRef = useRef({ x: 0, y: 0 })
-  const animationRef = useRef<number | null>(null)
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rafRef = useRef<number | null>(null);
+  const mouse = useRef({ x: 0, y: 0 });
+  const [size, setSize] = useState({ w: 0, h: 0 });
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
+    let nodes: WebNode[] = [];
+    let cols = 0;
+    let rows = 0;
+    const GRID = 80;
+    const MAX_DIST = 200;
+    const RETURN_SPEED = 0.05;
 
-    // Set canvas size
-    const updateSize = () => {
-      const rect = canvas.getBoundingClientRect()
-      canvas.width = rect.width * window.devicePixelRatio
-      canvas.height = rect.height * window.devicePixelRatio
-      // Reset and set transform for crisp rendering on HiDPI screens
-      if (typeof ctx.setTransform === "function") {
-        ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0)
-      } else {
-        ctx.scale(window.devicePixelRatio, window.devicePixelRatio)
+    const build = () => {
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      // Reset transform before resizing/scaling
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(window.innerHeight * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      setSize({ w: window.innerWidth, h: window.innerHeight });
+
+      cols = Math.ceil(window.innerWidth / GRID) + 2;
+      rows = Math.ceil(window.innerHeight / GRID) + 2;
+
+      nodes = [];
+      const offsetX = -GRID;
+      const offsetY = -GRID;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const x = offsetX + c * GRID;
+          const y = offsetY + r * GRID;
+          nodes.push({ x, y, ox: x, oy: y });
+        }
       }
-      setDimensions({ width: rect.width, height: rect.height })
-    }
+    };
 
-    updateSize()
-    window.addEventListener("resize", updateSize)
+    const onPointerMove = (e: PointerEvent) => {
+      mouse.current.x = e.clientX;
+      mouse.current.y = e.clientY;
+    };
 
-    const gridSize = 80
-    const nodes: WebNode[] = []
+    const prefersReduced =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // Calculate grid dimensions to center the grid
-    const cols = Math.floor(dimensions.width / gridSize)
-    const rows = Math.floor(dimensions.height / gridSize)
-    const offsetX = (dimensions.width - (cols - 1) * gridSize) / 2
-    const offsetY = (dimensions.height - (rows - 1) * gridSize) / 2
-
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        const x = offsetX + col * gridSize
-        const y = offsetY + row * gridSize
-        nodes.push({
-          x,
-          y,
-          originalX: x,
-          originalY: y,
-        })
-      }
-    }
-
-    // Mouse move handler
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect()
-      mouseRef.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      }
-    }
-
-    // Track mouse globally so the canvas doesn't block UI interactions
-    window.addEventListener("mousemove", handleMouseMove)
-
-    // Animation loop
     const animate = () => {
-      ctx.clearRect(0, 0, dimensions.width, dimensions.height)
+      ctx.clearRect(0, 0, size.w, size.h);
 
-      nodes.forEach((node) => {
-        const dx = mouseRef.current.x - node.originalX
-        const dy = mouseRef.current.y - node.originalY
-        const distance = Math.sqrt(dx * dx + dy * dy)
-
-        // Stretch effect - nodes move toward mouse with falloff
-        const maxDistance = 200
-        if (distance < maxDistance) {
-          const force = ((maxDistance - distance) / maxDistance) * 0.3
-          node.x = node.originalX + dx * force
-          node.y = node.originalY + dy * force
+      // Update
+      for (const n of nodes) {
+        const dx = mouse.current.x - n.ox;
+        const dy = mouse.current.y - n.oy;
+        const dist = Math.hypot(dx, dy);
+        if (!prefersReduced && dist < MAX_DIST) {
+          const force = ((MAX_DIST - dist) / MAX_DIST) * 0.3;
+          n.x = n.ox + dx * force;
+          n.y = n.oy + dy * force;
         } else {
-          // Return to original position
-          node.x += (node.originalX - node.x) * 0.05
-          node.y += (node.originalY - node.y) * 0.05
+          n.x += (n.ox - n.x) * RETURN_SPEED;
+          n.y += (n.oy - n.y) * RETURN_SPEED;
         }
-      })
+      }
 
-      nodes.forEach((node, i) => {
-        const col = i % cols
-        const row = Math.floor(i / cols)
+      // Draw
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(255,255,255,0.15)";
+      ctx.fillStyle = "rgba(255,255,255,0.3)";
 
-        // Draw horizontal connections (to the right)
-        if (col < cols - 1) {
-          const rightNode = nodes[i + 1]
-          ctx.strokeStyle = "rgba(255, 255, 255, 0.15)"
-          ctx.lineWidth = 1
-          ctx.beginPath()
-          ctx.moveTo(node.x, node.y)
-          ctx.lineTo(rightNode.x, rightNode.y)
-          ctx.stroke()
+      for (let i = 0; i < nodes.length; i++) {
+        const col = i % cols;
+        const row = (i / cols) | 0;
+
+        if (col < cols - 1 && row < rows - 1) {
+          const d = nodes[i + cols + 1];
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(d.x, d.y);
+          ctx.stroke();
         }
-
-        // Draw vertical connections (downward)
-        if (row < rows - 1) {
-          const bottomNode = nodes[i + cols]
-          ctx.strokeStyle = "rgba(255, 255, 255, 0.15)"
-          ctx.lineWidth = 1
-          ctx.beginPath()
-          ctx.moveTo(node.x, node.y)
-          ctx.lineTo(bottomNode.x, bottomNode.y)
-          ctx.stroke()
+        if (col > 0 && row < rows - 1) {
+          const d = nodes[i + cols - 1];
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(d.x, d.y);
+          ctx.stroke();
         }
 
-        // Draw node
-        ctx.fillStyle = "rgba(255, 255, 255, 0.3)"
-        ctx.beginPath()
-        ctx.arc(node.x, node.y, 1.5, 0, Math.PI * 2)
-        ctx.fill()
-      })
+        ctx.beginPath();
+        ctx.arc(nodes[i].x, nodes[i].y, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
-      animationRef.current = requestAnimationFrame(animate)
-    }
+      rafRef.current = requestAnimationFrame(animate);
+    };
 
-    animate()
+    const onVisibility = () => {
+      if (document.hidden && rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      } else if (!rafRef.current) {
+        rafRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    build();
+    window.addEventListener("resize", build, { passive: true });
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    document.addEventListener("visibilitychange", onVisibility);
+
+    rafRef.current = requestAnimationFrame(animate);
 
     return () => {
-      window.removeEventListener("resize", updateSize)
-      window.removeEventListener("mousemove", handleMouseMove)
-      if (animationRef.current !== null) {
-        cancelAnimationFrame(animationRef.current)
-      }
-    }
-  }, [dimensions.width, dimensions.height])
+      window.removeEventListener("resize", build);
+      window.removeEventListener("pointermove", onPointerMove);
+      document.removeEventListener("visibilitychange", onVisibility);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [size.w, size.h]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 z-0 w-full h-full pointer-events-none"
-      style={{ background: "transparent" }}
+      className="fixed inset-0 h-full w-full pointer-events-none opacity-30"
+      aria-hidden
     />
-  )
+  );
 }
