@@ -308,7 +308,7 @@ export function ChatInput() {
 
 				{/* Input area */}
 				<div
-					className="flex flex-col rounded-2xl p-2 bg-accent/60 backdrop-blur-sm border border-border shadow-xs"
+					className="flex flex-col rounded-2xl p-2 bg- border shadow-xs"
 				>
 					<textarea
 						ref={textareaRef}
