@@ -2,8 +2,8 @@
 import { ChatInput } from "@/components/chat-input";
 import { MessagesList } from "@/components/messages-list";
 import { ChatProvider } from "@/contexts/chat-context";
-import { Message } from "@/types/db";
-import { useRef, useEffect, type DragEvent } from "react";
+import { useRef, useEffect, type DragEvent, useState } from "react";
+import { AppUIMessage } from "@/types/ui";
 
 /**
  * Interactive chat client with full functionality.
@@ -13,9 +13,12 @@ export default function ChatClientInteractive({
 	chatId,
 	initialMessages,
 }: {
-	chatId: string | null;
-	initialMessages: Message[];
+	chatId: string | undefined;
+	initialMessages: AppUIMessage[];
 }) {
+
+
+
 	const overlayRef = useRef<HTMLDivElement | null>(null);
 	const dragDepthRef = useRef(0);
 
@@ -71,6 +74,9 @@ export default function ChatClientInteractive({
 		}
 	};
 
+
+
+	
 	// Prevent the browser from navigating when dropping files outside the chat area (e.g., sidebar)
 	useEffect(() => {
 		const preventDefaultForFiles = (e: any) => {
@@ -86,6 +92,9 @@ export default function ChatClientInteractive({
 			window.removeEventListener("drop", preventDefaultForFiles);
 		};
 	}, []);
+
+
+	
 
 	return (
 		<ChatProvider initialMessages={initialMessages} chatId={chatId}>

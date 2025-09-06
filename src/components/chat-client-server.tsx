@@ -1,4 +1,4 @@
-import { Message } from "@/types/db";
+import { AppUIMessage } from "@/types/ui";
 import dynamic from "next/dynamic";
 
 // Dynamically import the heavy client component with a loading fallback
@@ -34,8 +34,8 @@ const ChatClientInteractive = dynamic(
 );
 
 interface ChatClientServerProps {
-	chatId: string | null;
-	initialMessages: Message[];
+	chatId: string | undefined;
+	initialMessages: AppUIMessage[];
 }
 
 /**
