@@ -1,7 +1,5 @@
 import * as React from "react";
-
 import { cn } from "@/lib/utils";
-import { GlowEffect } from "@/components/ui/glow-effect";
 
 const Card = React.forwardRef<
 	HTMLDivElement,
@@ -10,7 +8,7 @@ const Card = React.forwardRef<
 	<div
 		ref={ref}
 		className={cn(
-			"rounded-lg border first-line:text-card-foreground shadow-xs hover:shadow-md transition-shadow duration-200",
+			"rounded-lg border bg-card/80 z-10 first-line:text-card-foreground shadow-xs hover:shadow-md transition-shadow duration-200",
 			className,
 		)}
 		{...props}
