@@ -53,6 +53,10 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
+  --color-chat-background: var(--chat-background);
+  --color-chat-foreground: var(--chat-foreground);
+  --color-chat-ring: var(--chat-ring);
+
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
@@ -266,9 +270,9 @@
 		--foreground: var(--foreground-primary);
 
 		/* Surfaces */
-		--card: hsl(210 11% 16%);
+		--card: hsl(210 11% 14%);
 		--card-foreground: var(--foreground-primary);
-		--popover: hsl(222 15% 12%);
+		--popover: hsl(222 11% 16%);
 		--popover-foreground: var(--foreground-primary);
 
 		/* Brand */
@@ -288,13 +292,13 @@
 		--destructive-foreground: hsl(0 0% 98%);
 
 		/* Borders & inputs */
-		--border: hsl(212 29% 36%);
+		--border: hsl(212 29% 38%);
 		--input: hsl(222 18% 16%);
 		--ring: hsl(245 70% 60%);
 		--radius: 0.5rem;
 
 		/* Chat */
-		--chat-background: hsl(210 11% 14%);
+		--chat-background: hsl(210 11% 12%);
 		--chat-foreground: hsl(210 16% 93%);
 		--chat-ring: var(--ring);
 
