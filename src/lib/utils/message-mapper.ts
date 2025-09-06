@@ -1,4 +1,4 @@
-import type { Message, MessagePart } from "@/types/db";
+import type { Message, MessagePart, MessagePartInsert } from "@/types/db";
 import type { AppUIMessage } from "@/types/ui";
 
 
@@ -93,4 +93,73 @@ export function convertManyToUIMessages(
     partsByMessageId: Record<string, MessagePart[]>
 ): AppUIMessage[] {
     return messages.map((m) => convertToUIMessage(m, partsByMessageId[m.id] ?? []));
+}
+
+
+export function mapUiPartsToDbParts(
+    parts: AppUIMessage["parts"],
+): Array<Omit<MessagePartInsert, "message_id">> {
+    if (!parts || parts.length === 0) return [];
+
+    const rows: Array<Omit<MessagePartInsert, "message_id">> = [];
+
+    for (let i = 0; i < parts.length; i += 1) {
+        const part = parts[i] as any;
+
+        // text / reasoning
+        if (part.type === "text" || part.type === "reasoning") {
+            if (typeof part.text === "string") {
+                rows.push({ idx: i, type: part.type, text: part.text });
+            }
+            continue;
+        }
+
+        // file (images and other files are represented as file with mediaType)
+        if (part.type === "file") {
+            rows.push({
+                idx: i,
+                type: "file",
+                url: part.url ?? null,
+                media_type: part.mediaType ?? null,
+                filename: part.filename ?? null,
+            });
+            continue;
+        }
+
+        // data-* -> type: data + data_name
+        if (typeof part.type === "string" && part.type.startsWith("data-")) {
+            const dataName = part.type.slice("data-".length);
+            rows.push({
+                idx: i,
+                type: "data",
+                data_name: dataName,
+                data: (part.data as any) ?? null,
+            });
+            continue;
+        }
+
+        // tool-* -> type: tool + tool_name
+        if (typeof part.type === "string" && part.type.startsWith("tool-")) {
+            const toolName = part.type.slice("tool-".length);
+            rows.push({
+                idx: i,
+                type: "tool",
+                tool_name: toolName,
+                tool_call_id: part.toolCallId ?? null,
+                state: part.state ?? null,
+                tool_input: part.input ?? null,
+                tool_output: part.output ?? null,
+                error_text: part.errorText ?? null,
+            });
+            continue;
+        }
+
+        // Unknown part types are ignored to avoid DB errors, but log for awareness
+        try {
+            // eslint-disable-next-line no-console
+            console.warn("[message-mapper] skipping unknown UI part type", part?.type);
+        } catch {}
+    }
+
+    return rows;
 }
