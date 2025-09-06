@@ -118,7 +118,7 @@ export default function ChatClientInteractive({
 	return (
 		<ChatProvider initialMessages={initialMessages} chatId={chatId}>
 			<div
-				className="h-screen w-full flex flex-col overflow-hidden bg-background relative"
+				className="h-screen w-full flex flex-col overflow-hidden bg-chat-background relative"
 				onDragEnter={handleDragEnter}
 				onDragOver={handleDragOver}
 				onDragLeave={handleDragLeave}
@@ -133,7 +133,7 @@ export default function ChatClientInteractive({
                     We use position: sticky and bottom: 0 so it remains visible at the bottom as you scroll.
                     The background ensures it doesn't overlap with content behind, and zIndex keeps it above other elements.
                 */}
-				<div className="shrink-0 sticky bottom-0 left-0 w-full bg-background z-10">
+				<div className="shrink-0 sticky bottom-0 left-0 w-full bg-chat-background z-10">
 					<ChatInput />
 				</div>
 
