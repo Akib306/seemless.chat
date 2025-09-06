@@ -1,7 +1,7 @@
 export default function Loading() {
   return (
     <div
-				className="h-screen w-full flex flex-col overflow-hidden bg-background"
+				className="h-screen w-full flex flex-col overflow-hidden bg-chat-background"
 			>
 				<div className="flex-1 min-h-0 overflow-auto flex justify-center">
 					<div className="w-full max-w-3xl px-4 py-6 space-y-4">
