@@ -43,9 +43,25 @@ export const ChatProvider = ({
 		id: chatId,
 		messages: initialMessages,
 		transport: new DefaultChatTransport({
-			api: "/api/chat"
+			api: "/api/chat",
+			prepareSendMessagesRequest: ({ messages }) => {
+				const last = messages[messages.length - 1];
+				console.log(messages)
+				if (chatId) {
+					void (async () => {
+						try {
+							const parent = await db.messages.createMessage(chatId, "user", model);
+							const parts = mapUiPartsToDbParts((last as any).parts ?? (last as any).content ?? "");
+							if (parts.length) await db.messageParts.createParts(parent.id, parts);
+						} catch { }
+					})();
+				}
+
+				return { body: { model, chatId, messages } };
+
+			}
 		}),
-		onFinish: async ({message}) => {
+		onFinish: async ({ message }) => {
 			if (latestChatId.current) {
 				const created = await db.messages.createMessage(
 					latestChatId.current,
@@ -79,13 +95,13 @@ export const ChatProvider = ({
 		},
 	});
 
-return (
-	<ChatContext.Provider
-		value={{ ...chat, model, setModel, chatId: chatIdState, setChatId }}
-	>
-		{children}
-	</ChatContext.Provider>
-);
+	return (
+		<ChatContext.Provider
+			value={{ ...chat, model, setModel, chatId: chatIdState, setChatId }}
+		>
+			{children}
+		</ChatContext.Provider>
+	);
 };
 
 export const useChatContext = () => {
