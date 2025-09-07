@@ -9,10 +9,10 @@
 		"analyze": "ANALYZE=true next build"
 	},
 	"dependencies": {
-		"@ai-sdk/google": "^1.2.13",
-		"@next/bundle-analyzer": "^15.5.2",
+		"@ai-sdk/google": "^2.0.12",
 		"@ai-sdk/openai": "^2.0.23",
 		"@ai-sdk/react": "^2.0.28",
+		"@next/bundle-analyzer": "^15.5.2",
 		"@radix-ui/react-avatar": "1.1.10",
 		"@radix-ui/react-checkbox": "^1.1.1",
 		"@radix-ui/react-dialog": "^1.1.14",
