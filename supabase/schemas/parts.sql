@@ -1,5 +1,6 @@
+create extension if not exists "pgcrypto";
 create table if not exists message_parts (
-  id                uuid         primary key default uuid_generate_v4(),
+  id                uuid         primary key default gen_random_uuid(),
   message_id        uuid         not null references messages(id) on delete cascade,
   idx               integer      not null,
   type              text         not null,
