@@ -18,11 +18,11 @@ async function generateTitle(message: string): Promise<string> {
       - Examples: "React Auth Setup", "Database Design", "Python Debug"
 
       Title:`,
-			maxOutputTokens: 15, // Reduced for shorter titles
+			maxOutputTokens: 16, // Reduced for shorter titles
 		});
 
 		// Clean up the response and ensure it's not too long
-		const title = result.text.text.trim().replace(/^["']|["']$/g, ""); // Remove quotes if any
+		const title = result.text.trim().replace(/^["']|["']$/g, ""); // Remove quotes if any
 		return title.length > 30 ? title.substring(0, 27) + "..." : title;
 	} catch (error) {
 		console.error("Title generation failed:", error);
