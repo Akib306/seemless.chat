@@ -1,11 +1,13 @@
-import { streamText } from "ai";
+import { convertToModelMessages, streamText } from "ai";
 import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
-import { type Message } from "@ai-sdk/react";
-// Set this to true to use debug responses instead of real AI calls
+
+
 
 export async function POST(req: Request) {
 	let { messages, model } = await req.json();
+
+	console.log(messages[0])
 
 	// Define the system prompt with LaTeX instructions
 	const systemPrompt = `You are a helpful AI assistant. Follow these formatting rules for mathematical content:
@@ -49,10 +51,7 @@ export async function POST(req: Request) {
 		const stream = await streamText({
 			model: modelProvider,
 			system: systemPrompt,
-			messages: messages.map(({ role, content }: Message) => ({
-				role: role === "user" ? "user" : "assistant",
-				content,
-			})),
+			messages: convertToModelMessages(messages),
 			onFinish: ({ usage }) => {
 				// for saving the chat history or recording usage
 				console.log();
