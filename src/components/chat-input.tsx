@@ -29,11 +29,11 @@ type UploadItem = {
 };
 
 export function ChatInput() {
+
+	const [input, setInput] = useState('')
 	const {
-		input,
-		handleInputChange,
-		handleSubmit,
-		isLoading,
+		sendMessage,
+		status,
 		model,
 		setModel,
 		chatId,
@@ -44,13 +44,12 @@ export function ChatInput() {
 	const pathname = usePathname();
 
 	const [uploads, setUploads] = useState<UploadItem[]>([]);
-	const [isSubmitting, setIsSubmitting] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const formRef = useRef<HTMLFormElement>(null);
 	// Auto-resize textarea as content grows
 	const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		handleInputChange(e);
+		setInput(e.target.value);
 		if (textareaRef.current) {
 			textareaRef.current.style.height = "auto";
 			textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
@@ -135,7 +134,7 @@ export function ChatInput() {
 			try {
 				const supabase = createSupabaseBrowserClient();
 				await supabase.storage.from("chat_attachments").remove([item.preUploadPath]);
-			} catch (_) {}
+			} catch (_) { }
 		}
 		setUploads((prev) => prev.filter((u) => u.id !== id));
 	};
@@ -170,25 +169,19 @@ export function ChatInput() {
 		}
 	}
 
-	useEffect(() => {
-		if (!isLoading) {
-			setIsSubmitting(false);
-		}
-	}, [isLoading]);
-
+	
 	const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		// Guard against concurrent submissions and pre-isLoading window
 		const hasUploads = uploads.length > 0;
 		const isUploadingAny = uploads.some((u) => u.status === "uploading" || u.status === "queued");
-		if (isLoading || isSubmitting || isUploadingAny) {
+		if (status !== "ready" || isUploadingAny) {
 			if (isUploadingAny) {
 				toast("Uploading attachments…", { description: "Please wait for uploads to finish." });
 			}
 			return;
 		}
 		if (!input.trim() && !hasUploads) return;
-		setIsSubmitting(true);
 
 		try {
 			if (uploads.length > 0) {
@@ -208,7 +201,7 @@ export function ChatInput() {
 					if (pathname !== targetPath) {
 						router.push(targetPath, { scroll: false } as any);
 					}
-				} catch {}
+				} catch { }
 			}
 
 			// Persist the user's message so it isn’t lost on refresh
@@ -216,9 +209,8 @@ export function ChatInput() {
 			if (currentChatId) {
 				const created = await db.messages.createMessage(
 					currentChatId,
-					input.trim(),
 					"user",
-					model,
+					model
 				);
 				createdMessageId = created.id;
 
@@ -243,11 +235,12 @@ export function ChatInput() {
 							ex: CACHE_TTL_SECONDS,
 						}),
 					});
-				} catch (_) {}
+				} catch (_) { }
 			}
 
 			// Start streaming immediately
-			handleSubmit(e);
+			sendMessage({ text: input });
+			setInput('');
 
 			// Finalize attachments in the background
 			if (uploads.length > 0 && createdMessageId) {
@@ -271,7 +264,7 @@ export function ChatInput() {
 									window.dispatchEvent(
 										new CustomEvent("chat:attachments-finalized", { detail: { messageId: createdMessageId } }),
 									);
-								} catch {}
+								} catch { }
 							}
 						}),
 					),
@@ -293,7 +286,6 @@ export function ChatInput() {
 			setUploads([]);
 		} catch (error) {
 			console.error("Error in chat submission:", error);
-			setIsSubmitting(false);
 		}
 
 	};
@@ -315,14 +307,14 @@ export function ChatInput() {
 						value={input}
 						onChange={handleTextareaChange}
 						placeholder="Type your message..."
-						disabled={isLoading || isSubmitting}
+						disabled={status !== "ready"}
 						className="flex-1 text-[15px] text-foreground-primary bg-transparent border-none resize-none outline-none min-h-[48px] max-h-[200px] px-3 py-2 placeholder:text-foreground-muted"
 						rows={1}
 						onKeyDown={(e) => {
 							if (e.key === "Enter" && !e.shiftKey) {
 								e.preventDefault();
 								const isUploadingAny = uploads.some((u) => u.status === "uploading" || u.status === "queued");
-								if (!isLoading && !isSubmitting && !isUploadingAny) {
+								if (status === "ready" && !isUploadingAny) {
 									formRef.current?.requestSubmit();
 								}
 							}
@@ -365,14 +357,13 @@ export function ChatInput() {
 							<Button
 								type="submit"
 								disabled={
-									isLoading ||
-									isSubmitting ||
+									status !== "ready" ||
 									uploads.some((u) => u.status === "uploading" || u.status === "queued") ||
 									(!input.trim() && uploads.length === 0)
 								}
 								className="rounded-full p-2 flex items-center justify-center bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-foreground-muted"
 							>
-								{isLoading ? (
+								{status !== "ready" ? (
 									<div className="h-5 w-5 animate-spin rounded-full border-2 border-foreground border-t-transparent" />
 								) : (
 									<Send className="h-5 w-5" />
