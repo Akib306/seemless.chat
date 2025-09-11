@@ -134,6 +134,7 @@ export function SearchModal({ collapsed = false }: SearchModalProps) {
 	const lastRequestIdRef = useRef(0);
 	const prevNormalizedRef = useRef<string>("");
 
+
 	/**
 	 * Format an ISO timestamp into a human-readable relative string.
 	 * @param dateString ISO datetime
