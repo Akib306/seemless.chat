@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/select";
 import { Send, Paperclip } from "lucide-react";
 import { useChatContext } from "@/contexts/chat-context";
-import { CACHE_TTL_SECONDS } from "@/lib/cache/config";
 import * as db from "@/lib/db/client";
 import { createClient as createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { getSignedPreUploadUrl, finalizePreUpload } from "@/app/actions/attachment-actions";
@@ -28,16 +27,18 @@ type UploadItem = {
 	error?: string;
 };
 
-export function ChatInput() {
 
+
+
+
+export function ChatInput() {
+	
 	const [input, setInput] = useState('')
 	const {
-		sendMessage,
+		sendUserMessage,
 		status,
 		model,
 		setModel,
-		chatId,
-		setChatId,
 	} = useChatContext();
 
 	const router = useRouter();
@@ -119,6 +120,9 @@ export function ChatInput() {
 		);
 	}, [uploads.length]);
 
+
+
+
 	// Handle file selection: pre-upload immediately
 	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (!e.target.files || e.target.files.length === 0) return;
@@ -169,7 +173,6 @@ export function ChatInput() {
 		}
 	}
 
-	
 	const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		// Guard against concurrent submissions and pre-isLoading window
@@ -189,99 +192,57 @@ export function ChatInput() {
 				console.log("Files to attach:", fileNames);
 			}
 
-			// Handle chat creation for new chats
-			let currentChatId = chatId;
-			if (!currentChatId) {
-				const chat = await db.chats.createChat("New Chat");
-				currentChatId = chat.id;
-				setChatId(chat.id);
-				// Navigate immediately so sidebar highlights and URL reflects the new chat
-				try {
-					const targetPath = `/chat/${chat.id}`;
-					if (pathname !== targetPath) {
-						router.push(targetPath, { scroll: false } as any);
-					}
-				} catch { }
-			}
+			
 
-			// Persist the user's message so it isn’t lost on refresh
-			let createdMessageId: string | null = null;
-			if (currentChatId) {
-				const created = await db.messages.createMessage(
-					currentChatId,
-					"user",
-					model
-				);
-				createdMessageId = created.id;
-
-				// Write-through cache: append the user message to cached array
-				try {
-					const key = `cache:v1:messages:byChat:${currentChatId}`;
-					await fetch("/api/cache/write-through", {
-						method: "POST",
-						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify({
-							key,
-							append: [
-								{
-									id: createdMessageId || Date.now().toString(),
-									chat_id: currentChatId,
-									content: input.trim(),
-									role: "user",
-									model_used: model,
-									created_at: new Date().toISOString(),
-								},
-							],
-							ex: CACHE_TTL_SECONDS,
-						}),
-					});
-				} catch (_) { }
-			}
 
 			// Start streaming immediately
-			sendMessage({ text: input });
+
+			sendUserMessage({
+				text: input,
+			}, ({ chatId, messageId }) => {
+				// if (uploads.length > 0 && messageId) {
+				// 	const uploadedItems = uploads.filter((u) => u.status === "uploaded" && !!u.preUploadPath);
+				// 	Promise.allSettled(
+				// 		uploadedItems.map((u) =>
+				// 			finalizePreUpload(
+				// 				messageId,
+				// 				u.preUploadPath as string,
+				// 				u.file.name,
+				// 				u.file.size,
+				// 				u.file.type,
+				// 			).then((res) => {
+				// 				// @ts-ignore runtime narrowing
+				// 				if (res?.error) {
+				// 					toast.error("File failed", { description: u.file.name });
+				// 				} else {
+				// 					toast.success("File attached", { description: u.file.name });
+				// 					// Notify UI to refresh attachments immediately for this message
+				// 					try {
+				// 						window.dispatchEvent(
+				// 							new CustomEvent("chat:attachments-finalized", { detail: { messageId } }),
+				// 						);
+				// 					} catch { }
+				// 				}
+				// 			}),
+				// 		),
+				// 	);
+				// }
+		
+				// After creating the chat and storing the first message
+				if (!chatId) {
+					// Fallback to attachment names when no text is provided
+					if (input.trim() == "") {
+						const attachmentNames = uploads.map((u) => u.file.name).slice(0, 4).join(", ");
+						const titleSource = input.trim() || attachmentNames || "New Chat";
+						generateTitleAsync(chatId, titleSource);
+					} else {
+						generateTitleAsync(chatId, input.trim());
+					}
+				}
+			})
 			setInput('');
 
-			// Finalize attachments in the background
-			if (uploads.length > 0 && createdMessageId) {
-				const uploadedItems = uploads.filter((u) => u.status === "uploaded" && !!u.preUploadPath);
-				Promise.allSettled(
-					uploadedItems.map((u) =>
-						finalizePreUpload(
-							createdMessageId,
-							u.preUploadPath as string,
-							u.file.name,
-							u.file.size,
-							u.file.type,
-						).then((res) => {
-							// @ts-ignore runtime narrowing
-							if (res?.error) {
-								toast.error("File failed", { description: u.file.name });
-							} else {
-								toast.success("File attached", { description: u.file.name });
-								// Notify UI to refresh attachments immediately for this message
-								try {
-									window.dispatchEvent(
-										new CustomEvent("chat:attachments-finalized", { detail: { messageId: createdMessageId } }),
-									);
-								} catch { }
-							}
-						}),
-					),
-				);
-			}
 
-			// After creating the chat and storing the first message
-			if (!chatId && currentChatId) {
-				// Fallback to attachment names when no text is provided
-				if (input.trim() == "") {
-					const attachmentNames = uploads.map((u) => u.file.name).slice(0, 4).join(", ");
-					const titleSource = input.trim() || attachmentNames || "New Chat";
-					generateTitleAsync(currentChatId, titleSource);
-				} else {
-					generateTitleAsync(currentChatId, input.trim());
-				}
-			}
 
 			setUploads([]);
 		} catch (error) {
