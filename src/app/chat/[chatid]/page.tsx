@@ -10,6 +10,10 @@ import {
 import { CACHE_TTL_SECONDS } from "@/lib/cache/config";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { type Message } from "@/types/db";
+import { AppUIMessage } from "@/types/ui";
+import { convertToUIMessage } from "@/lib/utils/message-mapper";
+
 // SSR: keep minimal
 
 // Ensure this route is always evaluated on the server and not cached
@@ -34,10 +38,18 @@ export default async function ChatPage({
 	
 	const cacheKey = `cache:v1:messages:byChat:${chatid}`;
 	const cached = await redis.get<any[]>(cacheKey);
+
+
 	let initialMessages = cached as any[] | null;
+
 	if (!initialMessages) {
 		initialMessages = await db.messages.getMessagesByChatId(chatid);
 	}
+
+	const uiMessages: AppUIMessage[] = await Promise.all(initialMessages.map(async (msg: Message) => {
+		const parts = await db.messageParts.getPartsByMessageId(msg.id);
+		return convertToUIMessage(msg, parts);
+	}));
 
 	if (!cached) {
 		try {
@@ -62,5 +74,5 @@ export default async function ChatPage({
 			]);
 		} catch {}
 	}
-	return <ChatClientServer chatId={chatid} initialMessages={initialMessages} />;
+	return <ChatClientServer chatId={chatid} initialMessages={uiMessages} />;
 }

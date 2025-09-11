@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/select";
 import { Send, Paperclip } from "lucide-react";
 import { useChatContext } from "@/contexts/chat-context";
-import { CACHE_TTL_SECONDS } from "@/lib/cache/config";
 import * as db from "@/lib/db/client";
 import { createClient as createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { getSignedPreUploadUrl, finalizePreUpload } from "@/app/actions/attachment-actions";
@@ -28,29 +27,31 @@ type UploadItem = {
 	error?: string;
 };
 
+
+
+
+
 export function ChatInput() {
+	
+	const [input, setInput] = useState('')
 	const {
-		input,
-		handleInputChange,
-		handleSubmit,
-		isLoading,
+		sendUserMessage,
+		status,
 		model,
 		setModel,
-		chatId,
-		setChatId,
+		chatId: currentChatId,
 	} = useChatContext();
 
 	const router = useRouter();
 	const pathname = usePathname();
 
 	const [uploads, setUploads] = useState<UploadItem[]>([]);
-	const [isSubmitting, setIsSubmitting] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const formRef = useRef<HTMLFormElement>(null);
 	// Auto-resize textarea as content grows
 	const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		handleInputChange(e);
+		setInput(e.target.value);
 		if (textareaRef.current) {
 			textareaRef.current.style.height = "auto";
 			textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
@@ -120,6 +121,9 @@ export function ChatInput() {
 		);
 	}, [uploads.length]);
 
+
+
+
 	// Handle file selection: pre-upload immediately
 	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (!e.target.files || e.target.files.length === 0) return;
@@ -135,7 +139,7 @@ export function ChatInput() {
 			try {
 				const supabase = createSupabaseBrowserClient();
 				await supabase.storage.from("chat_attachments").remove([item.preUploadPath]);
-			} catch (_) {}
+			} catch (_) { }
 		}
 		setUploads((prev) => prev.filter((u) => u.id !== id));
 	};
@@ -170,25 +174,18 @@ export function ChatInput() {
 		}
 	}
 
-	useEffect(() => {
-		if (!isLoading) {
-			setIsSubmitting(false);
-		}
-	}, [isLoading]);
-
 	const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		// Guard against concurrent submissions and pre-isLoading window
 		const hasUploads = uploads.length > 0;
 		const isUploadingAny = uploads.some((u) => u.status === "uploading" || u.status === "queued");
-		if (isLoading || isSubmitting || isUploadingAny) {
+		if (status !== "ready" || isUploadingAny) {
 			if (isUploadingAny) {
 				toast("Uploading attachments…", { description: "Please wait for uploads to finish." });
 			}
 			return;
 		}
 		if (!input.trim() && !hasUploads) return;
-		setIsSubmitting(true);
 
 		try {
 			if (uploads.length > 0) {
@@ -196,104 +193,53 @@ export function ChatInput() {
 				console.log("Files to attach:", fileNames);
 			}
 
-			// Handle chat creation for new chats
-			let currentChatId = chatId;
-			if (!currentChatId) {
-				const chat = await db.chats.createChat("New Chat");
-				currentChatId = chat.id;
-				setChatId(chat.id);
-				// Navigate immediately so sidebar highlights and URL reflects the new chat
-				try {
-					const targetPath = `/chat/${chat.id}`;
-					if (pathname !== targetPath) {
-						router.push(targetPath, { scroll: false } as any);
-					}
-				} catch {}
-			}
-
-			// Persist the user's message so it isn’t lost on refresh
-			let createdMessageId: string | null = null;
-			if (currentChatId) {
-				const created = await db.messages.createMessage(
-					currentChatId,
-					input.trim(),
-					"user",
-					model,
-				);
-				createdMessageId = created.id;
-
-				// Write-through cache: append the user message to cached array
-				try {
-					const key = `cache:v1:messages:byChat:${currentChatId}`;
-					await fetch("/api/cache/write-through", {
-						method: "POST",
-						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify({
-							key,
-							append: [
-								{
-									id: createdMessageId || Date.now().toString(),
-									chat_id: currentChatId,
-									content: input.trim(),
-									role: "user",
-									model_used: model,
-									created_at: new Date().toISOString(),
-								},
-							],
-							ex: CACHE_TTL_SECONDS,
-						}),
-					});
-				} catch (_) {}
-			}
-
+			// Capture values at send time
+			const titleSourceAtSend = input.trim() || uploads.slice(0, 4).map((u) => u.file.name).join(", ") || "New Chat";
 			// Start streaming immediately
-			handleSubmit(e);
 
-			// Finalize attachments in the background
-			if (uploads.length > 0 && createdMessageId) {
-				const uploadedItems = uploads.filter((u) => u.status === "uploaded" && !!u.preUploadPath);
-				Promise.allSettled(
-					uploadedItems.map((u) =>
-						finalizePreUpload(
-							createdMessageId,
-							u.preUploadPath as string,
-							u.file.name,
-							u.file.size,
-							u.file.type,
-						).then((res) => {
-							// @ts-ignore runtime narrowing
-							if (res?.error) {
-								toast.error("File failed", { description: u.file.name });
-							} else {
-								toast.success("File attached", { description: u.file.name });
-								// Notify UI to refresh attachments immediately for this message
-								try {
-									window.dispatchEvent(
-										new CustomEvent("chat:attachments-finalized", { detail: { messageId: createdMessageId } }),
-									);
-								} catch {}
-							}
-						}),
-					),
-				);
-			}
-
-			// After creating the chat and storing the first message
-			if (!chatId && currentChatId) {
-				// Fallback to attachment names when no text is provided
-				if (input.trim() == "") {
-					const attachmentNames = uploads.map((u) => u.file.name).slice(0, 4).join(", ");
-					const titleSource = input.trim() || attachmentNames || "New Chat";
-					generateTitleAsync(currentChatId, titleSource);
-				} else {
-					generateTitleAsync(currentChatId, input.trim());
+			sendUserMessage({
+				text: input,
+			}, ({ chatId, messageId, isNewChat }) => {
+				if (uploads.length > 0 && messageId) {
+					const uploadedItems = uploads.filter((u) => u.status === "uploaded" && !!u.preUploadPath);
+					Promise.allSettled(
+						uploadedItems.map((u) =>
+							finalizePreUpload(
+								messageId,
+								u.preUploadPath as string,
+								u.file.name,
+								u.file.size,
+								u.file.type,
+							).then((res) => {
+								// @ts-ignore runtime narrowing
+								if (res?.error) {
+									toast.error("File failed", { description: u.file.name });
+								} else {
+									toast.success("File attached", { description: u.file.name });
+									// Notify UI to refresh attachments immediately for this message
+									try {
+										window.dispatchEvent(
+											new CustomEvent("chat:attachments-finalized", { detail: { messageId } }),
+										);
+									} catch { }
+								}
+							}),
+						),
+					);
 				}
-			}
+		
+				// Generate title only for the first message of a new chat
+				if (isNewChat && chatId) {
+					generateTitleAsync(chatId, titleSourceAtSend);
+				}
+			})
+			setInput('');
+
+
 
 			setUploads([]);
 		} catch (error) {
 			console.error("Error in chat submission:", error);
-			setIsSubmitting(false);
 		}
 
 	};
@@ -315,14 +261,14 @@ export function ChatInput() {
 						value={input}
 						onChange={handleTextareaChange}
 						placeholder="Type your message..."
-						disabled={isLoading || isSubmitting}
-						className="flex-1 text-[15px] text-foreground-primary bg-transparent border-none resize-none outline-hidden min-h-[48px] max-h-[200px] px-3 py-2 placeholder:text-foreground-muted"
+						disabled={status !== "ready"}
+						className="flex-1 text-[15px] text-foreground-primary bg-transparent border-none resize-none outline-none min-h-[48px] max-h-[200px] px-3 py-2 placeholder:text-foreground-muted"
 						rows={1}
 						onKeyDown={(e) => {
 							if (e.key === "Enter" && !e.shiftKey) {
 								e.preventDefault();
 								const isUploadingAny = uploads.some((u) => u.status === "uploading" || u.status === "queued");
-								if (!isLoading && !isSubmitting && !isUploadingAny) {
+								if (status === "ready" && !isUploadingAny) {
 									formRef.current?.requestSubmit();
 								}
 							}
@@ -365,14 +311,13 @@ export function ChatInput() {
 							<Button
 								type="submit"
 								disabled={
-									isLoading ||
-									isSubmitting ||
+									status !== "ready" ||
 									uploads.some((u) => u.status === "uploading" || u.status === "queued") ||
 									(!input.trim() && uploads.length === 0)
 								}
 								className="rounded-full p-2 flex items-center justify-center bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-foreground-muted"
 							>
-								{isLoading ? (
+								{status !== "ready" ? (
 									<div className="h-5 w-5 animate-spin rounded-full border-2 border-foreground border-t-transparent" />
 								) : (
 									<Send className="h-5 w-5" />

@@ -82,7 +82,6 @@ export function MessageAttachments({ messageId, chatId, content, isUser }: Messa
         .from("messages")
         .select("id, created_at")
         .eq("chat_id", chatId)
-        .eq("content", content)
         .eq("role", "user")
         .order("created_at", { ascending: false })
         .limit(1);

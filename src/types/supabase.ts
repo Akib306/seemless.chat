@@ -140,6 +140,80 @@ export type Database = {
 					},
 				];
 			};
+			message_parts: {
+				Row: {
+					id: string;
+					message_id: string;
+					idx: number;
+					type: string;
+					state: string | null;
+					text: string | null;
+					url: string | null;
+					media_type: string | null;
+					filename: string | null;
+					title: string | null;
+					tool_name: string | null;
+					tool_call_id: string | null;
+					tool_input: Json | null;
+					tool_output: Json | null;
+					error_text: string | null;
+					data_name: string | null;
+					data: Json | null;
+					provider_metadata: Json | null;
+					created_at: string;
+				};
+				Insert: {
+					id?: string;
+					message_id: string;
+					idx: number;
+					type: string;
+					state?: string | null;
+					text?: string | null;
+					url?: string | null;
+					media_type?: string | null;
+					filename?: string | null;
+					title?: string | null;
+					tool_name?: string | null;
+					tool_call_id?: string | null;
+					tool_input?: Json | null;
+					tool_output?: Json | null;
+					error_text?: string | null;
+					data_name?: string | null;
+					data?: Json | null;
+					provider_metadata?: Json | null;
+					created_at?: string;
+				};
+				Update: {
+					id?: string;
+					message_id?: string;
+					idx?: number;
+					type?: string;
+					state?: string | null;
+					text?: string | null;
+					url?: string | null;
+					media_type?: string | null;
+					filename?: string | null;
+					title?: string | null;
+					tool_name?: string | null;
+					tool_call_id?: string | null;
+					tool_input?: Json | null;
+					tool_output?: Json | null;
+					error_text?: string | null;
+					data_name?: string | null;
+					data?: Json | null;
+					provider_metadata?: Json | null;
+					created_at?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: "message_parts_message_id_fkey";
+						columns: ["message_id"];
+						isOneToOne: false;
+						referencedRelation: "messages";
+						referencedColumns: ["id"];
+					},
+				];
+			};
 			profiles: {
 				Row: {
 					created_at: string;

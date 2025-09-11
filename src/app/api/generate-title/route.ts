@@ -18,7 +18,7 @@ async function generateTitle(message: string): Promise<string> {
       - Examples: "React Auth Setup", "Database Design", "Python Debug"
 
       Title:`,
-			maxTokens: 15, // Reduced for shorter titles
+			maxOutputTokens: 16, // Reduced for shorter titles
 		});
 
 		// Clean up the response and ensure it's not too long

@@ -3,7 +3,6 @@ create table if not exists messages (
   chat_id           uuid         not null references chats(id) on delete cascade,
   user_id           uuid         not null references profiles(id) on delete cascade,
   role              text         not null check (role in ('user','assistant')),
-  content           text         not null,
   model_used        text,
   tokens_used       integer      not null default 0,
   created_at        timestamptz  not null default now()

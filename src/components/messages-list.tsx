@@ -53,10 +53,19 @@ export function MessagesList() {
 										<div className="max-w-[80%] sm:max-w-[75%]">
 											{/* Persisted attachments for this message */}
 											{/* We don't have chat_id on UI message type; resolve via context later if needed */}
-											<MessageAttachments messageId={message.id} chatId={chatId ?? ""} content={message.content} isUser={isUser} />
+											<MessageAttachments messageId={message.id} chatId={chatId ?? ""} content={Array.isArray((message as any).parts)
+												? ((message as any).parts as any[])
+													.filter((p: any) => p?.type === "text")
+													.map((p: any) => p.text)
+													.join("")
+												: ""} isUser={isUser} />
 											<div className="rounded-2xl bg-primary text-primary-foreground px-4 py-3 shadow-md">
 												<p className="whitespace-pre-wrap leading-relaxed text-[15px]">
-													{message.content}
+													{Array.isArray((message as any).parts)
+														? ((message as any).parts as any[]).map((part: any, i: number) =>
+															part?.type === "text" ? <span key={i}>{part.text}</span> : null,
+														)
+														: null}
 												</p>
 											</div>
 										</div>
@@ -69,7 +78,12 @@ export function MessagesList() {
 													</div>
 												}
 											>
-												<MarkdownMessage content={message.content} />
+												<MarkdownMessage content={Array.isArray((message as any).parts)
+													? ((message as any).parts as any[])
+														.filter((p: any) => p?.type === "text")
+														.map((p: any) => p.text)
+														.join("")
+													: ""} />
 											</Suspense>
 										</div>
 									)}

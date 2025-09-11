@@ -1,5 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Chat, Message, Profile } from "@/types/db";
+import type {
+	Chat,
+	Message,
+	Profile,
+	MessagePart,
+	MessagePartInsert,
+	MessagePartUpdate,
+} from "@/types/db";
 
 // Core utilities that work with any Supabase client
 export function createDbUtils(
@@ -161,7 +168,6 @@ export function createDbUtils(
 	const messages = {
 		async createMessage(
 			chatId: string,
-			content: string,
 			role: "user" | "assistant",
 			modelUsed?: string,
 			userId?: string,
@@ -174,7 +180,6 @@ export function createDbUtils(
 				.insert({
 					chat_id: chatId,
 					user_id: id,
-					content,
 					role,
 					model_used: modelUsed,
 				})
@@ -197,19 +202,7 @@ export function createDbUtils(
 			return data || [];
 		},
 
-		async updateMessage(
-			messageId: string,
-			newContent: string,
-		): Promise<Message[]> {
-			const { data, error } = await supabase
-				.from("messages")
-				.update({ content: newContent })
-				.eq("id", messageId)
-				.select("*");
-
-			if (error) throw error;
-			return data || [];
-		},
+		// removed legacy content updates; messages now use parts
 
 		async deleteMessage(messageId: string): Promise<boolean> {
 			const { error } = await supabase
@@ -233,6 +226,110 @@ export function createDbUtils(
 
 			if (error) throw error;
 			return data || [];
+		},
+	};
+
+	// ===== MESSAGE PARTS =====
+	const messageParts = {
+		async getPartsByMessageId(messageId: string): Promise<MessagePart[]> {
+			const { data, error } = await supabase
+				.from("message_parts")
+				.select("*")
+				.eq("message_id", messageId)
+				.order("idx", { ascending: true });
+
+			if (error)
+				throw new Error(`Failed to fetch message parts: ${error.message}`);
+			return data || [];
+		},
+
+		async createPart(
+			messageId: string,
+			part: Omit<MessagePartInsert, "message_id">,
+		): Promise<MessagePart> {
+			const { data, error } = await supabase
+				.from("message_parts")
+				.insert({ ...part, message_id: messageId })
+				.select("*")
+				.single();
+
+			if (error)
+				throw new Error(`Failed to create message part: ${error.message}`);
+			return data as MessagePart;
+		},
+
+		async createParts(
+			messageId: string,
+			parts: Array<Omit<MessagePartInsert, "message_id">>,
+		): Promise<MessagePart[]> {
+			if (parts.length === 0) return [];
+			const rows = parts.map((p) => ({ ...p, message_id: messageId }));
+			const { data, error } = await supabase
+				.from("message_parts")
+				.insert(rows)
+				.select("*")
+				.order("idx", { ascending: true });
+
+			if (error)
+				throw new Error(`Failed to create message parts: ${error.message}`);
+			return (data as MessagePart[]) || [];
+		},
+
+		async upsertParts(
+			messageId: string,
+			parts: Array<Omit<MessagePartInsert, "message_id">>,
+		): Promise<MessagePart[]> {
+			if (parts.length === 0) return [];
+			const rows = parts.map((p) => ({ ...p, message_id: messageId }));
+			const { data, error } = await supabase
+				.from("message_parts")
+				.upsert(rows, { onConflict: "message_id,idx" })
+				.select("*")
+				.order("idx", { ascending: true });
+
+			if (error)
+				throw new Error(`Failed to upsert message parts: ${error.message}`);
+			return (data as MessagePart[]) || [];
+		},
+
+		async updatePart(
+			partId: string,
+			updates: MessagePartUpdate,
+		): Promise<MessagePart> {
+			const { data, error } = await supabase
+				.from("message_parts")
+				.update(updates)
+				.eq("id", partId)
+				.select("*")
+				.single();
+
+			if (error)
+				throw new Error(`Failed to update message part: ${error.message}`);
+			return data as MessagePart;
+		},
+
+		async deletePart(partId: string): Promise<boolean> {
+			const { error } = await supabase
+				.from("message_parts")
+				.delete()
+				.eq("id", partId);
+
+			if (error)
+				throw new Error(`Failed to delete message part: ${error.message}`);
+			return true;
+		},
+
+		async deletePartsByMessageId(messageId: string): Promise<boolean> {
+			const { error } = await supabase
+				.from("message_parts")
+				.delete()
+				.eq("message_id", messageId);
+
+			if (error)
+				throw new Error(
+					`Failed to delete message parts for message ${messageId}: ${error.message}`,
+				);
+			return true;
 		},
 	};
 
@@ -417,6 +514,7 @@ export function createDbUtils(
 		profiles,
 		chats,
 		messages,
+		messageParts,
 		subscriptions,
 		apiUsage,
 		search,
