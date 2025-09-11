@@ -58,7 +58,7 @@ export function MessagesList() {
 													.filter((p: any) => p?.type === "text")
 													.map((p: any) => p.text)
 													.join("")
-												: (message as any).content ?? ""} isUser={isUser} />
+												: ""} isUser={isUser} />
 											<div className="rounded-2xl bg-primary text-primary-foreground px-4 py-3 shadow-md">
 												<p className="whitespace-pre-wrap leading-relaxed text-[15px]">
 													{Array.isArray((message as any).parts)
@@ -83,7 +83,7 @@ export function MessagesList() {
 														.filter((p: any) => p?.type === "text")
 														.map((p: any) => p.text)
 														.join("")
-													: (message as any).content ?? ""} />
+													: ""} />
 											</Suspense>
 										</div>
 									)}

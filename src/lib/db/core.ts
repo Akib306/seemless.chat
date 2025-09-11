@@ -202,19 +202,7 @@ export function createDbUtils(
 			return data || [];
 		},
 
-		async updateMessage(
-			messageId: string,
-			newContent: string,
-		): Promise<Message[]> {
-			const { data, error } = await supabase
-				.from("messages")
-				.update({ content: newContent })
-				.eq("id", messageId)
-				.select("*");
-
-			if (error) throw error;
-			return data || [];
-		},
+		// removed legacy content updates; messages now use parts
 
 		async deleteMessage(messageId: string): Promise<boolean> {
 			const { error } = await supabase
