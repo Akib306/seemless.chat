@@ -39,6 +39,7 @@ export function ChatInput() {
 		status,
 		model,
 		setModel,
+		chatId: currentChatId,
 	} = useChatContext();
 
 	const router = useRouter();
@@ -192,52 +193,45 @@ export function ChatInput() {
 				console.log("Files to attach:", fileNames);
 			}
 
-			
-
-
+			// Capture values at send time
+			const isNewChatAtSend = !currentChatId;
+			const titleSourceAtSend = input.trim() || uploads.slice(0, 4).map((u) => u.file.name).join(", ") || "New Chat";
 			// Start streaming immediately
 
 			sendUserMessage({
 				text: input,
 			}, ({ chatId, messageId }) => {
-				// if (uploads.length > 0 && messageId) {
-				// 	const uploadedItems = uploads.filter((u) => u.status === "uploaded" && !!u.preUploadPath);
-				// 	Promise.allSettled(
-				// 		uploadedItems.map((u) =>
-				// 			finalizePreUpload(
-				// 				messageId,
-				// 				u.preUploadPath as string,
-				// 				u.file.name,
-				// 				u.file.size,
-				// 				u.file.type,
-				// 			).then((res) => {
-				// 				// @ts-ignore runtime narrowing
-				// 				if (res?.error) {
-				// 					toast.error("File failed", { description: u.file.name });
-				// 				} else {
-				// 					toast.success("File attached", { description: u.file.name });
-				// 					// Notify UI to refresh attachments immediately for this message
-				// 					try {
-				// 						window.dispatchEvent(
-				// 							new CustomEvent("chat:attachments-finalized", { detail: { messageId } }),
-				// 						);
-				// 					} catch { }
-				// 				}
-				// 			}),
-				// 		),
-				// 	);
-				// }
+				if (uploads.length > 0 && messageId) {
+					const uploadedItems = uploads.filter((u) => u.status === "uploaded" && !!u.preUploadPath);
+					Promise.allSettled(
+						uploadedItems.map((u) =>
+							finalizePreUpload(
+								messageId,
+								u.preUploadPath as string,
+								u.file.name,
+								u.file.size,
+								u.file.type,
+							).then((res) => {
+								// @ts-ignore runtime narrowing
+								if (res?.error) {
+									toast.error("File failed", { description: u.file.name });
+								} else {
+									toast.success("File attached", { description: u.file.name });
+									// Notify UI to refresh attachments immediately for this message
+									try {
+										window.dispatchEvent(
+											new CustomEvent("chat:attachments-finalized", { detail: { messageId } }),
+										);
+									} catch { }
+								}
+							}),
+						),
+					);
+				}
 		
-				// After creating the chat and storing the first message
-				if (!chatId) {
-					// Fallback to attachment names when no text is provided
-					if (input.trim() == "") {
-						const attachmentNames = uploads.map((u) => u.file.name).slice(0, 4).join(", ");
-						const titleSource = input.trim() || attachmentNames || "New Chat";
-						generateTitleAsync(chatId, titleSource);
-					} else {
-						generateTitleAsync(chatId, input.trim());
-					}
+				// Generate title only for newly created chats
+				if (isNewChatAtSend && chatId) {
+					generateTitleAsync(chatId, titleSourceAtSend);
 				}
 			})
 			setInput('');
