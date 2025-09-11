@@ -16,7 +16,7 @@ type ChatContextType = UseChatHelpers<AppUIMessage> & {
 	setChatId: React.Dispatch<React.SetStateAction<string | undefined>>;
 	sendUserMessage: (
 		options: { text: string } & Record<string, unknown>,
-		onAfterSend?: (detail: { chatId: string; messageId: string }) => void | Promise<void>,
+		onAfterSend?: (detail: { chatId: string; messageId: string; isNewChat: boolean }) => void | Promise<void>,
 	) => Promise<void>;
 };
 
@@ -94,11 +94,12 @@ export const ChatProvider = ({
 
 	async function sendUserMessage(
 		options: { text: string } & Record<string, unknown>,
-		onAfterSend?: (detail: { chatId: string; messageId: string }) => void | Promise<void>,
+		onAfterSend?: (detail: { chatId: string; messageId: string; isNewChat: boolean }) => void | Promise<void>,
 	) {
 		const { text } = options;
 		
 		let cid = latestChatId.current;
+		const isNewAtSend = !cid;
 		if (!cid && !creatingChatRef.current) {
 			creatingChatRef.current = db.chats.createChat("New Chat").then((createdChat) => {
 				latestChatId.current = createdChat.id; // keep id for persistence
@@ -118,7 +119,7 @@ export const ChatProvider = ({
 
 				// Fire callback ASAP with real ids
 				try {
-					if (onAfterSend) await onAfterSend({ chatId: effectiveChatId, messageId: created.id });
+					if (onAfterSend) await onAfterSend({ chatId: effectiveChatId, messageId: created.id, isNewChat: isNewAtSend });
 				} catch { }
 
 				const parts = mapUiPartsToDbParts([{ type: "text", text }] as any);

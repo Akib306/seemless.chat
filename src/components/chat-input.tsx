@@ -194,13 +194,12 @@ export function ChatInput() {
 			}
 
 			// Capture values at send time
-			const isNewChatAtSend = !currentChatId;
 			const titleSourceAtSend = input.trim() || uploads.slice(0, 4).map((u) => u.file.name).join(", ") || "New Chat";
 			// Start streaming immediately
 
 			sendUserMessage({
 				text: input,
-			}, ({ chatId, messageId }) => {
+			}, ({ chatId, messageId, isNewChat }) => {
 				if (uploads.length > 0 && messageId) {
 					const uploadedItems = uploads.filter((u) => u.status === "uploaded" && !!u.preUploadPath);
 					Promise.allSettled(
@@ -229,8 +228,8 @@ export function ChatInput() {
 					);
 				}
 		
-				// Generate title only for newly created chats
-				if (isNewChatAtSend && chatId) {
+				// Generate title only for the first message of a new chat
+				if (isNewChat && chatId) {
 					generateTitleAsync(chatId, titleSourceAtSend);
 				}
 			})
