@@ -2,6 +2,22 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
+	// Handle provider landing on the Site URL with ?code=... as early as possible,
+	// before any Supabase client work. This avoids edge/env issues preventing the
+	// exchange from happening.
+	const earlyPath = request.nextUrl.pathname;
+	const earlyIsApi = earlyPath.startsWith("/api");
+	if (!earlyIsApi) {
+		const earlyCode = request.nextUrl.searchParams.get("code");
+		if (earlyCode) {
+			const nextParam = request.nextUrl.searchParams.get("next") ?? "/chat";
+			const url = request.nextUrl.clone();
+			url.pathname = "/api/auth/oauth";
+			url.search = `?code=${encodeURIComponent(earlyCode)}&next=${encodeURIComponent(nextParam)}`;
+			return NextResponse.redirect(url);
+		}
+	}
+
 	let supabaseResponse = NextResponse.next({
 		request,
 	});
