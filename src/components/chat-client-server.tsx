@@ -23,6 +23,6 @@ export default function ChatClientServer({
 	initialMessages,
 }: ChatClientServerProps) {
 	return (
-		<ChatClientInteractive chatId={chatId} initialMessages={initialMessages} />
+		<ChatClientInteractive key={chatId ?? "new"} chatId={chatId} initialMessages={initialMessages} />
 	);
 }
