@@ -39,11 +39,32 @@ export async function updateSession(request: NextRequest) {
 		data: { user },
 	} = await supabase.auth.getUser();
 
+	// Allow API routes (including OAuth callback under `/api/auth/*`) to pass through
+	// without redirect guards so that auth code exchanges can complete successfully
+	const path = request.nextUrl.pathname;
+	const isApiRoute = path.startsWith("/api");
+
+	// If a provider redirected back to the Site URL with ?code=..., immediately
+	// forward to our OAuth handler so the session can be established. This covers
+	// cases where the provider/Supabase falls back to the Site URL instead of our
+	// provided redirectTo, which would otherwise strand the user on the homepage.
+	if (!isApiRoute) {
+		const code = request.nextUrl.searchParams.get("code");
+		if (code) {
+			const nextParam = request.nextUrl.searchParams.get("next") ?? "/chat";
+			const url = request.nextUrl.clone();
+			url.pathname = "/api/auth/oauth";
+			url.search = `?code=${encodeURIComponent(code)}&next=${encodeURIComponent(nextParam)}`;
+			return NextResponse.redirect(url);
+		}
+	}
+
 	if (
 		!user &&
-		!request.nextUrl.pathname.startsWith("/login") &&
-		!request.nextUrl.pathname.startsWith("/auth") &&
-		request.nextUrl.pathname !== "/"
+		!isApiRoute &&
+		!path.startsWith("/login") &&
+		!path.startsWith("/auth") &&
+		path !== "/"
 	) {
 		// This check protects all routes that aren't explicitly excluded.
 		// Protected routes include: /chat, /protected, etc.
