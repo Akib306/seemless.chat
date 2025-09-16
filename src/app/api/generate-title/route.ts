@@ -6,7 +6,7 @@ import { createServerDb } from "@/lib/db/server";
 async function generateTitle(message: string): Promise<string> {
 	try {
 		const result = await generateText({
-			model: openai("gpt-4.1-nano-2025-04-14"), // Cheap and fast
+			model: google("gemini-2.0-flash-lite"), // Cheap and fast
 			prompt: `Generate a concise, descriptive title (max 4-5 words) for a chat that starts with this user message or attachment names: "${message}"
 
       Guidelines:
