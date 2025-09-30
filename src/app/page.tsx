@@ -1,5 +1,3 @@
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { GlowEffectButton } from "@/components/glow-effect-button";
 import AppBackground from "@/components/app-background";
 
