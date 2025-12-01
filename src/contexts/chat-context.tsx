@@ -3,11 +3,19 @@ import { createContext, useContext, useRef, useState } from "react";
 import { useChat, UseChatHelpers } from "@ai-sdk/react";
 import * as db from "@/lib/db/client";
 import { useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { CACHE_TTL_SECONDS } from "@/lib/cache/config";
 import { AppUIMessage } from "@/types/ui";
 import { DefaultChatTransport } from "ai";
 import { mapUiPartsToDbParts } from "@/lib/utils/message-mapper";
+
+const generateTempChatId = () => {
+	const cryptoObj = globalThis.crypto;
+	if (cryptoObj?.randomUUID) {
+		return `temp-${cryptoObj.randomUUID()}`;
+	}
+	return `temp-${Math.random().toString(36).slice(2, 11)}`;
+};
 
 type ChatContextType = UseChatHelpers<AppUIMessage> & {
 	model: string;
@@ -33,7 +41,7 @@ export const ChatProvider = ({
 }) => {
 	const [model, setModel] = useState("gemini-2.0-flash");
 	const [chatIdState, setChatId] = useState(chatId);
-	const router = useRouter();
+	const [chatSessionId] = useState(() => chatId ?? generateTempChatId());
 	const pathname = usePathname();
 
 	const latestChatId = useRef(chatIdState);
@@ -45,7 +53,7 @@ export const ChatProvider = ({
 	}, [chatIdState]);
 
 	const chat = useChat({
-		id: chatIdState,
+		id: chatSessionId,
 		messages: initialMessages,
 		transport: new DefaultChatTransport({ api: "/api/chat" }),
 		onFinish: async ({ message }) => {
@@ -103,6 +111,7 @@ export const ChatProvider = ({
 		if (!cid && !creatingChatRef.current) {
 			creatingChatRef.current = db.chats.createChat("New Chat").then((createdChat) => {
 				latestChatId.current = createdChat.id; // keep id for persistence
+				setChatId(createdChat.id);
 				return createdChat.id;
 			});
 		}
