@@ -38,6 +38,8 @@ export const ChatProvider = ({
 	const latestChatId = useRef(chatIdState);
 	const creatingChatRef = useRef<Promise<string> | null>(null);
 	const firstUserPersistPromiseRef = useRef<Promise<void> | null>(null);
+	// Track if we need to navigate after streaming completes (for new chats)
+	const needsNavigationRef = useRef(false);
 
 	useEffect(() => {
 		latestChatId.current = chatIdState;
@@ -83,10 +85,11 @@ export const ChatProvider = ({
 						}),
 					});
 				} catch { }
-				// Navigate to the chat page after streaming completes.
+				// Navigate to the chat page after streaming completes (for new chats).
 				// This triggers a proper page refresh with server-side data.
-				const targetPath = `/chat/${resolvedChatId}`;
-				if (window.location.pathname !== targetPath) {
+				if (needsNavigationRef.current) {
+					needsNavigationRef.current = false;
+					const targetPath = `/chat/${resolvedChatId}`;
 					try { router.replace(targetPath); } catch { /* noop */ }
 				}
 			} catch { }
@@ -102,6 +105,8 @@ export const ChatProvider = ({
 		let cid = latestChatId.current;
 		const isNewAtSend = !cid;
 		if (!cid && !creatingChatRef.current) {
+			// Mark that we need to navigate after streaming completes
+			needsNavigationRef.current = true;
 			creatingChatRef.current = db.chats.createChat("New Chat").then((createdChat) => {
 				latestChatId.current = createdChat.id; // keep id for persistence only
 				// NOTE: Do NOT call setChatId here - it would reset useChat's internal messages
