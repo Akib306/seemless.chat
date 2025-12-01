@@ -3,6 +3,7 @@ import { createContext, useContext, useRef, useState } from "react";
 import { useChat, UseChatHelpers } from "@ai-sdk/react";
 import * as db from "@/lib/db/client";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { CACHE_TTL_SECONDS } from "@/lib/cache/config";
 import { AppUIMessage } from "@/types/ui";
 import { DefaultChatTransport } from "ai";
@@ -32,6 +33,7 @@ export const ChatProvider = ({
 }) => {
 	const [model, setModel] = useState("gemini-2.0-flash");
 	const [chatIdState, setChatId] = useState(chatId);
+	const router = useRouter();
 
 	const latestChatId = useRef(chatIdState);
 	const creatingChatRef = useRef<Promise<string> | null>(null);
@@ -81,11 +83,11 @@ export const ChatProvider = ({
 						}),
 					});
 				} catch { }
-				// Use history.replaceState to update URL without remounting the component.
-				// This preserves the streaming state during new chat creation.
+				// Navigate to the chat page after streaming completes.
+				// This triggers a proper page refresh with server-side data.
 				const targetPath = `/chat/${resolvedChatId}`;
 				if (window.location.pathname !== targetPath) {
-					try { window.history.replaceState(null, '', targetPath); } catch { /* noop */ }
+					try { router.replace(targetPath); } catch { /* noop */ }
 				}
 			} catch { }
 		},
@@ -101,8 +103,9 @@ export const ChatProvider = ({
 		const isNewAtSend = !cid;
 		if (!cid && !creatingChatRef.current) {
 			creatingChatRef.current = db.chats.createChat("New Chat").then((createdChat) => {
-				latestChatId.current = createdChat.id; // keep id for persistence
-				setChatId(createdChat.id);
+				latestChatId.current = createdChat.id; // keep id for persistence only
+				// NOTE: Do NOT call setChatId here - it would reset useChat's internal messages
+				// The chatIdState will be updated after streaming completes via router.replace()
 				return createdChat.id;
 			});
 		}
