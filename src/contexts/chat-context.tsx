@@ -133,6 +133,13 @@ export const ChatProvider = ({
 						body: JSON.stringify({ key, append: [created], ex: CACHE_TTL_SECONDS }),
 					});
 				} catch { }
+				// Navigate to the concrete chat route as soon as the first user message is persisted
+				try {
+					const targetPath = `/chat/${effectiveChatId}`;
+					if (pathname !== targetPath) {
+						router.replace(targetPath);
+					}
+				} catch { }
 			} catch { }
 		})();
 		// Track the first user-message persistence to coordinate navigation timing
