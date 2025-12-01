@@ -3,7 +3,6 @@ import { createContext, useContext, useRef, useState } from "react";
 import { useChat, UseChatHelpers } from "@ai-sdk/react";
 import * as db from "@/lib/db/client";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { CACHE_TTL_SECONDS } from "@/lib/cache/config";
 import { AppUIMessage } from "@/types/ui";
 import { DefaultChatTransport } from "ai";
@@ -33,7 +32,6 @@ export const ChatProvider = ({
 }) => {
 	const [model, setModel] = useState("gemini-2.0-flash");
 	const [chatIdState, setChatId] = useState(chatId);
-	const router = useRouter();
 
 	const latestChatId = useRef(chatIdState);
 	const creatingChatRef = useRef<Promise<string> | null>(null);
@@ -68,7 +66,7 @@ export const ChatProvider = ({
 			const dbParts = mapUiPartsToDbParts(message.parts);
 			await db.messageParts.createParts(created.id, dbParts);
 
-			// After stream completes: ensure first user message persisted before caching/navigating
+			// After stream completes: ensure first user message persisted before caching
 			try {
 				if (firstUserPersistPromiseRef.current) {
 					try { await firstUserPersistPromiseRef.current; } catch { }
@@ -85,13 +83,10 @@ export const ChatProvider = ({
 						}),
 					});
 				} catch { }
-				// Navigate to the chat page after streaming completes (for new chats).
-				// This triggers a proper page refresh with server-side data.
-				if (needsNavigationRef.current) {
-					needsNavigationRef.current = false;
-					const targetPath = `/chat/${resolvedChatId}`;
-					try { router.replace(targetPath); } catch { /* noop */ }
-				}
+				// URL was already updated via history.replaceState in sendUserMessage.
+				// Don't navigate here - it would cause a page reload and interrupt the UX.
+				// The messages are persisted and will load correctly on manual refresh.
+				needsNavigationRef.current = false;
 			} catch { }
 		},
 	});
