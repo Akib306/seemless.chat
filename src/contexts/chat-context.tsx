@@ -3,7 +3,6 @@ import { createContext, useContext, useRef, useState } from "react";
 import { useChat, UseChatHelpers } from "@ai-sdk/react";
 import * as db from "@/lib/db/client";
 import { useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
 import { CACHE_TTL_SECONDS } from "@/lib/cache/config";
 import { AppUIMessage } from "@/types/ui";
 import { DefaultChatTransport } from "ai";
@@ -33,8 +32,6 @@ export const ChatProvider = ({
 }) => {
 	const [model, setModel] = useState("gemini-2.0-flash");
 	const [chatIdState, setChatId] = useState(chatId);
-	const router = useRouter();
-	const pathname = usePathname();
 
 	const latestChatId = useRef(chatIdState);
 	const creatingChatRef = useRef<Promise<string> | null>(null);
@@ -84,9 +81,11 @@ export const ChatProvider = ({
 						}),
 					});
 				} catch { }
+				// Use history.replaceState to update URL without remounting the component.
+				// This preserves the streaming state during new chat creation.
 				const targetPath = `/chat/${resolvedChatId}`;
-				if (pathname !== targetPath) {
-					try { router.replace(targetPath); } catch { /* noop */ }
+				if (window.location.pathname !== targetPath) {
+					try { window.history.replaceState(null, '', targetPath); } catch { /* noop */ }
 				}
 			} catch { }
 		},
@@ -133,11 +132,12 @@ export const ChatProvider = ({
 						body: JSON.stringify({ key, append: [created], ex: CACHE_TTL_SECONDS }),
 					});
 				} catch { }
-				// Navigate to the concrete chat route as soon as the first user message is persisted
+				// Update URL to the concrete chat route without remounting the component.
+				// Using history.replaceState preserves the streaming state during new chat creation.
 				try {
 					const targetPath = `/chat/${effectiveChatId}`;
-					if (pathname !== targetPath) {
-						router.replace(targetPath);
+					if (window.location.pathname !== targetPath) {
+						window.history.replaceState(null, '', targetPath);
 					}
 				} catch { }
 			} catch { }
