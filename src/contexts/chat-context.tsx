@@ -52,7 +52,6 @@ export const ChatProvider = ({
 		messages: initialMessages,
 		transport: new DefaultChatTransport({ api: "/api/chat" }),
 		onFinish: async ({ message }) => {
-			console.log(chatIdState)
 			let resolvedChatId = latestChatId.current;
 			if (!resolvedChatId && creatingChatRef.current) {
 				try {
@@ -94,6 +93,26 @@ export const ChatProvider = ({
 			} catch { }
 		},
 	});
+
+	// Reset chat state when navigating to a new chat
+	// Track the initialMessages array reference - it's a new array on each server render
+	const prevInitialMessagesRef = useRef(initialMessages);
+	useEffect(() => {
+		// If initialMessages reference changed and it's empty, but we have client-side state, reset
+		const isNewEmptyChat = initialMessages !== prevInitialMessagesRef.current && initialMessages.length === 0;
+		const hasClientState = latestChatId.current !== undefined || chat.messages.length > 0;
+		
+		if (isNewEmptyChat && hasClientState) {
+			chat.setMessages([]);
+			// Reset refs for new chat
+			latestChatId.current = undefined;
+			creatingChatRef.current = null;
+			firstUserPersistPromiseRef.current = null;
+			needsNavigationRef.current = false;
+			setChatId(undefined);
+		}
+		prevInitialMessagesRef.current = initialMessages;
+	}, [initialMessages, chat]);
 
 	async function sendUserMessage(
 		options: { text: string } & Record<string, unknown>,
