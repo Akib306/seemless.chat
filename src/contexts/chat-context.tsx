@@ -32,6 +32,10 @@ export const ChatProvider = ({
 }) => {
 	const [model, setModel] = useState("gemini-2.0-flash");
 	const [chatIdState, setChatId] = useState(chatId);
+	
+	// Use a stable ID for useChat even when chatId is undefined (new chat)
+	// This ensures useChat properly tracks messages before the real chat ID is created
+	const [stableUseChatId] = useState(() => chatId ?? `temp-${crypto.randomUUID()}`);
 
 	const latestChatId = useRef(chatIdState);
 	const creatingChatRef = useRef<Promise<string> | null>(null);
@@ -44,7 +48,7 @@ export const ChatProvider = ({
 	}, [chatIdState]);
 
 	const chat = useChat({
-		id: chatIdState,
+		id: stableUseChatId,
 		messages: initialMessages,
 		transport: new DefaultChatTransport({ api: "/api/chat" }),
 		onFinish: async ({ message }) => {
@@ -111,7 +115,8 @@ export const ChatProvider = ({
 		}
 
 		// Start streaming immediately (do not block on chat creation)
-		(chat as any).sendMessage({ text });
+		// sendMessage adds the user message to messages array AND triggers AI response
+		chat.sendMessage({ text });
 
 		// Background: persist + callback + cache
 		const persistUser = (async () => {
