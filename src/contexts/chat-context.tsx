@@ -94,7 +94,7 @@ export const ChatProvider = ({
 				} catch { }
 				const targetPath = `/chat/${resolvedChatId}`;
 				if (pathname !== targetPath) {
-					try { window.history.replaceState(null, "", targetPath); } catch { /* noop */ }
+					try { router.replace(targetPath); } catch { /* noop */ }
 				}
 			} catch { }
 		},
@@ -140,6 +140,14 @@ export const ChatProvider = ({
 						method: "POST",
 						body: JSON.stringify({ key, append: [created], ex: CACHE_TTL_SECONDS }),
 					});
+				} catch { }
+
+				// Navigate to the concrete chat route as soon as the first user message is persisted
+				try {
+					const targetPath = `/chat/${effectiveChatId}`;
+					if (pathname !== targetPath) {
+						router.replace(targetPath);
+					}
 				} catch { }
 			} catch { }
 		})();
