@@ -7,6 +7,7 @@ import { CACHE_TTL_SECONDS } from "@/lib/cache/config";
 import { AppUIMessage } from "@/types/ui";
 import { DefaultChatTransport } from "ai";
 import { mapUiPartsToDbParts } from "@/lib/utils/message-mapper";
+import { toast } from "sonner";
 
 type ChatContextType = UseChatHelpers<AppUIMessage> & {
 	model: string;
@@ -30,7 +31,7 @@ export const ChatProvider = ({
 	initialMessages: AppUIMessage[];
 	chatId: string | undefined;
 }) => {
-	const [model, setModel] = useState("gemini-2.0-flash");
+	const [model, setModel] = useState("gpt-4.1-nano");
 	const [chatIdState, setChatId] = useState(chatId);
 	
 	// Use a stable ID for useChat even when chatId is undefined (new chat)
@@ -47,10 +48,33 @@ export const ChatProvider = ({
 		latestChatId.current = chatIdState;
 	}, [chatIdState]);
 
+	// Create a ref to track the current model for the body callback
+	const modelRef = useRef(model);
+	useEffect(() => {
+		modelRef.current = model;
+	}, [model]);
+
 	const chat = useChat({
 		id: stableUseChatId,
 		messages: initialMessages,
 		transport: new DefaultChatTransport({ api: "/api/chat" }),
+		body: { model },
+		onError: (error) => {
+			console.error("Chat error:", error);
+			// Parse user-friendly error message
+			let errorMessage = "Something went wrong. Please try again.";
+			const errorText = error.message || String(error);
+			
+			if (errorText.includes("quota") || errorText.includes("RESOURCE_EXHAUSTED")) {
+				errorMessage = "API quota exceeded. Please try a different model or wait a moment.";
+			} else if (errorText.includes("rate limit") || errorText.includes("429")) {
+				errorMessage = "Rate limit reached. Please wait a moment and try again.";
+			} else if (errorText.includes("API key") || errorText.includes("unauthorized") || errorText.includes("401")) {
+				errorMessage = "API authentication error. Please check the configuration.";
+			}
+			
+			toast.error("Chat Error", { description: errorMessage });
+		},
 		onFinish: async ({ message }) => {
 			let resolvedChatId = latestChatId.current;
 			if (!resolvedChatId && creatingChatRef.current) {
