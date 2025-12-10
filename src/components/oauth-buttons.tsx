@@ -11,7 +11,6 @@ export function OAuthButtons({
 	className,
 	...props
 }: React.ComponentPropsWithoutRef<"div">) {
-	const redirectedTo: string = "/chat";
 	const [isLoading, setIsLoading] = useState<{
 		github: boolean;
 		google: boolean;
@@ -30,7 +29,7 @@ export function OAuthButtons({
 			const { error } = await supabase.auth.signInWithOAuth({
 				provider,
 				options: {
-					redirectTo: `${window.location.origin}/api/auth/oauth?next=${redirectedTo}`,
+					redirectTo: `${window.location.origin}/api/auth/oauth`,
 				},
 			});
 
