@@ -62,17 +62,13 @@ export const ChatProvider = ({
 		messages: initialMessages,
 		transport: transportRef.current,
 		// Pass model dynamically via experimental_prepareRequestBody
-		experimental_prepareRequestBody: ({ messages, id }) => {
-			console.log("Preparing request body with model:", modelRef.current);
-			return {
-				messages,
-				model: modelRef.current,
-				id,
-			};
-		},
+		experimental_prepareRequestBody: ({ messages, id }) => ({
+			messages,
+			model: modelRef.current,
+			id,
+		}),
 		onError: (error) => {
 			console.error("Chat error:", error);
-			console.log("Chat status after error:", "error triggered");
 			// Parse user-friendly error message
 			let errorMessage = "Something went wrong. Please try again.";
 			const errorText = error.message || String(error);
@@ -88,7 +84,6 @@ export const ChatProvider = ({
 			toast.error("Chat Error", { description: errorMessage });
 		},
 		onFinish: async ({ message }) => {
-			console.log("onFinish called with message:", message);
 			let resolvedChatId = latestChatId.current;
 			if (!resolvedChatId && creatingChatRef.current) {
 				try {
@@ -131,11 +126,6 @@ export const ChatProvider = ({
 		},
 	});
 
-	// Debug: Log status changes
-	useEffect(() => {
-		console.log("Chat status changed to:", chat.status);
-	}, [chat.status]);
-
 	// Reset chat state when navigating to a new chat
 	// Track the initialMessages array reference - it's a new array on each server render
 	const prevInitialMessagesRef = useRef(initialMessages);
@@ -177,8 +167,6 @@ export const ChatProvider = ({
 
 		// Start streaming immediately (do not block on chat creation)
 		// sendMessage adds the user message to messages array AND triggers AI response
-		console.log("Calling chat.sendMessage with:", { text, model: modelRef.current });
-		console.log("Current chat status before send:", chat.status);
 		chat.sendMessage({ text });
 
 		// Background: persist + callback + cache
