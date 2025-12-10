@@ -7,7 +7,13 @@ import { openai } from "@ai-sdk/openai";
 export async function POST(req: Request) {
 	let { messages, model } = await req.json();
 
-	console.log(messages[0])
+	// Default to GPT 4.1 Nano if no model specified (Gemini quota often exceeded)
+	if (!model) {
+		model = "gpt-4.1-nano";
+	}
+	
+	console.log("Model:", model);
+	console.log("First message:", messages[0]);
 
 	// Define the system prompt with LaTeX instructions
 	const systemPrompt = `You are a helpful AI assistant. Follow these formatting rules for mathematical content:
@@ -42,10 +48,11 @@ export async function POST(req: Request) {
 				modelProvider = google("models/gemini-1.5-pro");
 				break;
 			case "gpt-4.1-nano":
-				modelProvider = openai("gpt-4.1-nano-2025-04-14");
-				break;
+			modelProvider = openai("gpt-4.1-nano-2025-04-14");
+			break;
 			default:
-				modelProvider = google("models/gemini-2.0-flash");
+				// Default to GPT 4.1 Nano to avoid Gemini quota issues
+				modelProvider = openai("gpt-4.1-nano-2025-04-14");
 		}
 
 		const stream = await streamText({
