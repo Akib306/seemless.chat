@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ThemeSwitcher } from "@/components/theme-switcher";
+// import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils"; // optional helper; replace with your own if needed
 
-const navLinks = [
-  { href: "/features", label: "Features" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/changelog", label: "Changelog" },
-];
+// const navLinks = [
+//   { href: "/features", label: "Features" },
+//   { href: "/pricing", label: "Pricing" },
+//   { href: "/changelog", label: "Changelog" },
+// ];
 
 function NavItem({ href, label, active }: { href: string; label: string; active: boolean }) {
   return (
@@ -67,18 +67,18 @@ export function Navbar() {
         </div>
 
         {/* Center: Nav items (hide on mobile for cleanliness) */}
-        <div className="hidden md:flex items-center gap-1">
+        {/* <div className="hidden md:flex items-center gap-1">
           {navLinks.map((l) => (
             <NavItem key={l.href} href={l.href} label={l.label} active={pathname === l.href} />
           ))}
-        </div>
+        </div> */}
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
 					<Button asChild size="sm" variant="secondary" className="text-white/80 hover:text-white">
 						<Link href="/auth/login">Login</Link>
 					</Button>
-          <ThemeSwitcher />
+          {/* <ThemeSwitcher /> */}
         </div>
       </nav>
     </div>
