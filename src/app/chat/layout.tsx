@@ -3,6 +3,7 @@ import { ChatSidebar } from "@/components/chat-sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { MessagesCacheProvider } from "@/contexts/messages-cache-context";
 
 // Ensure this route tree is always evaluated on the server and not cached
 export const dynamic = "force-dynamic";
@@ -22,14 +23,16 @@ export default async function ChatLayout({
         redirect("/auth/login");
     }
     return (
-        <div className="flex h-full w-full">
-            <SidebarProvider>
-                <ChatSidebar />
-                <main className="flex-1 chat-theme">
-					{children}
-					<Toaster position="top-center" richColors />
-				</main>
-			</SidebarProvider>
-		</div>
-	);
+        <MessagesCacheProvider>
+            <div className="flex h-full w-full">
+                <SidebarProvider>
+                    <ChatSidebar />
+                    <main className="flex-1 chat-theme">
+                        {children}
+                        <Toaster position="top-center" richColors />
+                    </main>
+                </SidebarProvider>
+            </div>
+        </MessagesCacheProvider>
+    );
 }

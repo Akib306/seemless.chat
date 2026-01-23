@@ -1,6 +1,6 @@
 "use client";
 import type React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Search, Clock, Command } from "lucide-react";
 import {
 	CommandDialog,
@@ -13,6 +13,7 @@ import {
 import { Button } from "./ui/button";
 import { search } from "@/lib/db/client";
 import { useRouter } from "next/navigation";
+import { useMessagesCache } from "@/contexts/messages-cache-context";
 
 // Simple in-memory LRU cache with TTL for search results
 type SearchCacheEntry = { results: any[]; timestamp: number };
@@ -131,6 +132,7 @@ export function SearchModal({ collapsed = false }: SearchModalProps) {
 	const [query, setQuery] = useState("");
 	const [results, setResults] = useState<any[]>([]);
 	const router = useRouter();
+	const { isCached, setMessages, setIsLoading } = useMessagesCache();
 	const lastRequestIdRef = useRef(0);
 	const prevNormalizedRef = useRef<string>("");
 
@@ -248,10 +250,43 @@ export function SearchModal({ collapsed = false }: SearchModalProps) {
 		};
 	}, [query, open]);
 
-	const handleSelect = (chatId: string, messageId: string) => {
-		setOpen(false);
-		router.push(`/chat/${chatId}`);
-	};
+	// Navigate to chat using client-side routing when cached
+	const handleSelect = useCallback(
+		async (chatId: string, _messageId: string) => {
+			setOpen(false);
+			const targetPath = `/chat/${chatId}`;
+			
+			if (window.location.pathname === targetPath) {
+				return; // Already on this chat
+			}
+
+			// If cached, use shallow navigation to avoid server re-render
+			if (isCached(chatId)) {
+				window.history.pushState(null, "", targetPath);
+				window.dispatchEvent(new PopStateEvent("popstate"));
+			} else {
+				// Not cached - prefetch then navigate with shallow routing
+				setIsLoading(true);
+				try {
+					const response = await fetch(`/api/messages/${encodeURIComponent(chatId)}`);
+					if (response.ok) {
+						const data = await response.json();
+						setMessages(chatId, data.messages ?? []);
+						window.history.pushState(null, "", targetPath);
+						window.dispatchEvent(new PopStateEvent("popstate"));
+					} else {
+						// Fallback to full navigation
+						router.push(targetPath);
+					}
+				} catch {
+					router.push(targetPath);
+				} finally {
+					setIsLoading(false);
+				}
+			}
+		},
+		[isCached, setMessages, setIsLoading, router]
+	);
 
 	return (
 		<>

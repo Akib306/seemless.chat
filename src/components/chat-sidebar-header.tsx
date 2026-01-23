@@ -3,26 +3,35 @@
 import { SidebarHeader, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { Button } from "./ui/button";
 import { LogoMark } from "@/components/ui/logo";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { Edit, ArrowBigUp, Command } from "lucide-react";
 import { SearchModal } from "./search-modal";
 
 export function ChatSidebarHeader() {
-	const router = useRouter();
 	const { state } = useSidebar();
+
+	// Navigate to new chat using client-side routing
+	const handleNewChat = useCallback(() => {
+		const targetPath = "/chat";
+		if (window.location.pathname === targetPath) {
+			return; // Already on new chat
+		}
+		// Use shallow navigation to avoid server re-render
+		window.history.pushState(null, "", targetPath);
+		window.dispatchEvent(new PopStateEvent("popstate"));
+	}, []);
 
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
 			if (event.key.toLowerCase() === "o" && event.metaKey && event.shiftKey) {
 				event.preventDefault();
-				router.push("/chat");
+				handleNewChat();
 			}
 		};
 
 		document.addEventListener("keydown", handleKeyDown);
 		return () => document.removeEventListener("keydown", handleKeyDown);
-	}, [router]);
+	}, [handleNewChat]);
 
 	return (
 		<SidebarHeader>
@@ -40,7 +49,7 @@ export function ChatSidebarHeader() {
 						<Button
 							variant="ghost"
 							className="w-full justify-start gap-2 py-2 px-2 h-10 rounded-lg text-base"
-							onClick={() => router.push("/chat")}
+							onClick={handleNewChat}
 						>
 							<div className="flex items-center justify-between w-full">
 								<div className="flex items-center gap-2">
@@ -77,7 +86,7 @@ export function ChatSidebarHeader() {
 							variant="ghost"
 							size="icon"
 							className="h-10 w-10 text-foreground-primary"
-							onClick={() => router.push("/chat")}
+							onClick={handleNewChat}
 						>
 							<Edit className="h-5 w-5 text-foreground-primary" />
 						</Button>

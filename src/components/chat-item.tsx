@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { EllipsisVertical, Trash2, Edit2, Pin, PinOff } from "lucide-react";
 
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Chat } from "@/types/db";
 import { useChatActions } from "@/hooks/use-chat-actions";
+import { useMessagesCache } from "@/contexts/messages-cache-context";
 
 // Track last time each chat was warmed to avoid redundant requests while allowing re-warm
 // after a short hover interval (10–15s) regardless of cache TTL
@@ -29,6 +30,8 @@ interface ChatItemProps {
 }
 
 export function ChatItem({ chat, isActive }: ChatItemProps) {
+	const router = useRouter();
+	const { isCached, setMessages, setIsLoading } = useMessagesCache();
 	const {
 		handleDeleteChat,
 		handleStartRename,
@@ -42,33 +45,80 @@ export function ChatItem({ chat, isActive }: ChatItemProps) {
 
 	const chatIsRenaming = isRenaming(chat.id);
 
+	// Navigate to chat using client-side routing when cached
+	const handleNavigate = React.useCallback(
+		async (e: React.MouseEvent) => {
+			e.preventDefault();
+
+			const targetPath = `/chat/${chat.id}`;
+			if (window.location.pathname === targetPath) {
+				return; // Already on this chat
+			}
+
+			// If cached, use shallow navigation (history.pushState) to avoid server re-render
+			if (isCached(chat.id)) {
+				window.history.pushState(null, "", targetPath);
+				// Dispatch popstate to notify ChatContainer of URL change
+				window.dispatchEvent(new PopStateEvent("popstate"));
+			} else {
+				// Not cached - prefetch then navigate with shallow routing
+				setIsLoading(true);
+				try {
+					const response = await fetch(`/api/messages/${encodeURIComponent(chat.id)}`);
+					if (response.ok) {
+						const data = await response.json();
+						setMessages(chat.id, data.messages ?? []);
+						// Now navigate shallowly since we have the data
+						window.history.pushState(null, "", targetPath);
+						window.dispatchEvent(new PopStateEvent("popstate"));
+					} else {
+						// Fallback to full navigation
+						router.push(targetPath);
+					}
+				} catch {
+					// Fallback to full navigation
+					router.push(targetPath);
+				} finally {
+					setIsLoading(false);
+				}
+			}
+		},
+		[chat.id, isCached, setMessages, setIsLoading, router]
+	);
+
 	// Warm this chat's messages cache on hover/focus to make navigation instant
 	const warmOnIntent = React.useCallback(() => {
 		if (!chat?.id) return;
+		
+		// Skip warming if already cached client-side
+		if (isCached(chat.id)) return;
+		
 		const last = warmedChatTimestamps.get(chat.id) || 0;
 		if (Date.now() - last < HOVER_REWARM_INTERVAL_MS) return;
 		// Optimistically stamp now; if request fails, allow retry by clearing the stamp
 		warmedChatTimestamps.set(chat.id, Date.now());
-		try {
-			const controller = new AbortController();
-			const id = setTimeout(() => controller.abort(), 10_000);
-			fetch(`/api/cache/warm-chat?chatId=${encodeURIComponent(chat.id)}`, {
-				method: "GET",
-				cache: "no-store",
-				signal: controller.signal,
-			})
-				.then(() => {
-					// Success keeps the timestamp; nothing else to do
-				})
-				.catch(() => {
-					// On failure, remove timestamp so we can retry on next hover
+
+		// Prefetch to client-side cache instead of just warming Redis
+		const controller = new AbortController();
+		const id = setTimeout(() => controller.abort(), 10_000);
+		fetch(`/api/messages/${encodeURIComponent(chat.id)}`, {
+			method: "GET",
+			cache: "no-store",
+			signal: controller.signal,
+		})
+			.then(async (res) => {
+				if (res.ok) {
+					const data = await res.json();
+					setMessages(chat.id, data.messages ?? []);
+				} else {
 					warmedChatTimestamps.delete(chat.id);
-				})
-				.finally(() => clearTimeout(id));
-		} catch {
-			warmedChatTimestamps.delete(chat.id);
-		}
-	}, [chat?.id]);
+				}
+			})
+			.catch(() => {
+				warmedChatTimestamps.delete(chat.id);
+			})
+			.finally(() => clearTimeout(id));
+	}, [chat?.id, isCached, setMessages]);
 
 	return (
 		<SidebarMenuItem className="px-2 py-0" key={chat.id}>
@@ -116,9 +166,10 @@ export function ChatItem({ chat, isActive }: ChatItemProps) {
 						</div>
 					</div>
 				) : (
-					<Link
+					<a
 						href={`/chat/${chat.id}`}
-						className="w-full"
+						className="w-full cursor-pointer"
+						onClick={handleNavigate}
 						onMouseEnter={warmOnIntent}
 						onFocus={warmOnIntent}
 					>
@@ -183,7 +234,7 @@ export function ChatItem({ chat, isActive }: ChatItemProps) {
 								</DropdownMenuContent>
 							</DropdownMenu>
 						</div>
-					</Link>
+					</a>
 				)}
 			</SidebarMenuButton>
 		</SidebarMenuItem>

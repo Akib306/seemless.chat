@@ -11,7 +11,7 @@ import {
 
 import * as db from "@/lib/db/client";
 import { Chat } from "@/types/db";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { ChatSidebarHeader } from "@/components/chat-sidebar-header";
 import { ChatItem } from "@/components/chat-item";
@@ -25,20 +25,43 @@ type ChatWithPin = Chat & { pinned_at?: string | null };
 
 const supabase = createClient();
 
+/**
+ * Extract chatId from a pathname like /chat/abc123
+ */
+function extractChatIdFromPath(path: string): string | null {
+	const segments = path.split("/");
+	if (segments.length >= 3 && segments[1] === "chat") {
+		return segments[2] || null;
+	}
+	return null;
+}
+
 export function ChatSidebar({
 	...props
 }: React.ComponentProps<typeof Sidebar>) {
 	const router = useRouter();
-	const pathname = usePathname();
+	const nextPathname = usePathname();
+	
+	// Track current path from both Next.js router and manual popstate events
+	const [currentPath, setCurrentPath] = useState(nextPathname);
+	
+	// Update path when Next.js router changes (e.g., full page navigation)
+	useEffect(() => {
+		setCurrentPath(nextPathname);
+	}, [nextPathname]);
+	
+	// Listen for popstate events (from client-side navigation)
+	useEffect(() => {
+		const handlePopState = () => {
+			setCurrentPath(window.location.pathname);
+		};
+		window.addEventListener("popstate", handlePopState);
+		return () => window.removeEventListener("popstate", handlePopState);
+	}, []);
+	
 	const currentChatId = useMemo(() => {
-		const segments = pathname.split("/");
-		// pathname starts with "" due to leading slash
-		// e.g., "/chat/123" => ["", "chat", "123"]
-		if (segments.length >= 3 && segments[1] === "chat") {
-			return segments[2] || null;
-		}
-		return null;
-	}, [pathname]);
+		return extractChatIdFromPath(currentPath);
+	}, [currentPath]);
 	const [chatHistory, setChatHistory] = useState<ChatWithPin[]>([]);
 	const [profile, setProfile] = useState<Profile | null>(null);
 	const [userEmail, setUserEmail] = useState<string | null>(null);
