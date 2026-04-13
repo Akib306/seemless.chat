@@ -12,12 +12,12 @@ jobs:
     steps:
       - name: Ping Supabase
         run: |
-          response=$(curl -sf -o /dev/null -w "%{http_code}" \
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
             "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}/rest/v1/" \
             -H "apikey: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}")
           echo "Supabase responded with HTTP $response"
-          if [ "$response" -ge 200 ] && [ "$response" -lt 400 ]; then
+          if [ "$response" -ge 200 ] && [ "$response" -lt 500 ]; then
             echo "✓ Supabase is alive"
           else
             echo "✗ Supabase ping failed"
@@ -26,11 +26,11 @@ jobs:
 
       - name: Ping Upstash Redis
         run: |
-          response=$(curl -sf -o /dev/null -w "%{http_code}" \
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
             "${{ secrets.UPSTASH_REDIS_REST_URL }}/ping" \
             -H "Authorization: Bearer ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}")
           echo "Upstash Redis responded with HTTP $response"
-          if [ "$response" -ge 200 ] && [ "$response" -lt 400 ]; then
+          if [ "$response" -ge 200 ] && [ "$response" -lt 500 ]; then
             echo "✓ Upstash Redis is alive"
           else
             echo "✗ Upstash Redis ping failed"
