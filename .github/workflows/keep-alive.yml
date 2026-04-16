@@ -24,15 +24,36 @@ jobs:
             exit 1
           fi
 
-      - name: Ping Upstash Redis
+      - name: Exercise Upstash Redis
+        env:
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
         run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" \
-            "${{ secrets.UPSTASH_REDIS_REST_URL }}/ping" \
-            -H "Authorization: Bearer ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}")
-          echo "Upstash Redis responded with HTTP $response"
-          if [ "$response" -ge 200 ] && [ "$response" -lt 500 ]; then
-            echo "✓ Upstash Redis is alive"
+          set -e
+          key="keepalive:$(date -u +%Y%m%d%H%M%S)"
+          value="alive-$GITHUB_RUN_ID"
+
+          # Pipeline a real SET (with 1 hour TTL), GET, INCR, and DEL so the
+          # database registers actual command usage rather than just a PING.
+          response=$(curl -s -w "\n%{http_code}" \
+            -X POST "$UPSTASH_REDIS_REST_URL/pipeline" \
+            -H "Authorization: Bearer $UPSTASH_REDIS_REST_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "[
+              [\"SET\", \"$key\", \"$value\", \"EX\", \"3600\"],
+              [\"GET\", \"$key\"],
+              [\"INCR\", \"keepalive:counter\"],
+              [\"DEL\", \"$key\"]
+            ]")
+
+          body=$(echo "$response" | sed '$d')
+          status=$(echo "$response" | tail -n1)
+          echo "Upstash Redis responded with HTTP $status"
+          echo "Response body: $body"
+
+          if [ "$status" -ge 200 ] && [ "$status" -lt 300 ]; then
+            echo "✓ Upstash Redis commands executed successfully"
           else
-            echo "✗ Upstash Redis ping failed"
+            echo "✗ Upstash Redis command execution failed"
             exit 1
           fi
