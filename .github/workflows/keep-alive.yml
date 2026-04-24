@@ -58,18 +58,25 @@ jobs:
           key="keepalive:$(date -u +%Y%m%d%H%M%S)"
           value="alive-$GITHUB_RUN_ID"
 
+          # Build compact JSON with jq so Upstash's pipeline parser doesn't
+          # trip on whitespace or shell-escaped quotes.
+          payload=$(jq -cn \
+            --arg k "$key" \
+            --arg v "$value" \
+            '[
+              ["SET", $k, $v, "EX", "3600"],
+              ["GET", $k],
+              ["INCR", "keepalive:counter"],
+              ["DEL", $k]
+            ]')
+
           # Pipeline a real SET (with 1 hour TTL), GET, INCR, and DEL so the
           # database registers actual command usage rather than just a PING.
           response=$(curl -s -w "\n%{http_code}" \
             -X POST "$UPSTASH_REDIS_REST_URL/pipeline" \
             -H "Authorization: Bearer $UPSTASH_REDIS_REST_TOKEN" \
             -H "Content-Type: application/json" \
-            -d "[
-              [\"SET\", \"$key\", \"$value\", \"EX\", \"3600\"],
-              [\"GET\", \"$key\"],
-              [\"INCR\", \"keepalive:counter\"],
-              [\"DEL\", \"$key\"]
-            ]")
+            --data-raw "$payload")
 
           body=$(echo "$response" | sed '$d')
           status=$(echo "$response" | tail -n1)
