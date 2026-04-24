@@ -10,18 +10,43 @@ jobs:
   ping-services:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase
+      - name: Supabase sign-in (keep-alive)
+        env:
+          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          KEEPALIVE_EMAIL: seemless.chat@gmail.com
+          KEEPALIVE_PASSWORD: admin1234
         run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" \
-            "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}/rest/v1/" \
-            -H "apikey: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}")
-          echo "Supabase responded with HTTP $response"
-          if [ "$response" -ge 200 ] && [ "$response" -lt 500 ]; then
-            echo "✓ Supabase is alive"
-          else
-            echo "✗ Supabase ping failed"
+          set -e
+
+          # A real password sign-in against GoTrue counts as genuine user
+          # activity and resets the free-tier inactivity/pause timer, whereas
+          # a plain REST ping against an empty schema does not.
+          response=$(curl -s -w "\n%{http_code}" \
+            -X POST "$SUPABASE_URL/auth/v1/token?grant_type=password" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"email\":\"$KEEPALIVE_EMAIL\",\"password\":\"$KEEPALIVE_PASSWORD\"}")
+
+          body=$(echo "$response" | sed '$d')
+          status=$(echo "$response" | tail -n1)
+          echo "Supabase auth responded with HTTP $status"
+
+          if [ "$status" -ne 200 ]; then
+            echo "✗ Supabase sign-in failed"
+            echo "Response body: $body"
             exit 1
+          fi
+
+          echo "✓ Supabase sign-in succeeded"
+
+          access_token=$(echo "$body" | sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p')
+
+          if [ -n "$access_token" ]; then
+            curl -s -o /dev/null -X POST "$SUPABASE_URL/auth/v1/logout" \
+              -H "apikey: $SUPABASE_ANON_KEY" \
+              -H "Authorization: Bearer $access_token" || true
+            echo "✓ Signed out keep-alive session"
           fi
 
       - name: Exercise Upstash Redis
