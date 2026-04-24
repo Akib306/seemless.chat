@@ -54,38 +54,40 @@ jobs:
           UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
         run: |
-          set -e
+          set -eo pipefail
+
+          # Strip any trailing slash from the REST URL so we don't end up with
+          # double slashes in the paths below.
+          base="${UPSTASH_REDIS_REST_URL%/}"
           key="keepalive:$(date -u +%Y%m%d%H%M%S)"
           value="alive-$GITHUB_RUN_ID"
 
-          # Build compact JSON with jq so Upstash's pipeline parser doesn't
-          # trip on whitespace or shell-escaped quotes.
-          payload=$(jq -cn \
-            --arg k "$key" \
-            --arg v "$value" \
-            '[
-              ["SET", $k, $v, "EX", "3600"],
-              ["GET", $k],
-              ["INCR", "keepalive:counter"],
-              ["DEL", $k]
-            ]')
+          # Run commands via the URL-path REST form (POST $URL/cmd/arg1/arg2).
+          # Unlike the /pipeline JSON body form, this path has no JSON parsing
+          # so it can't trip on whitespace, quoting, or content-type quirks.
+          # Four sequential round-trips is fine here — more activity is better
+          # for the free-tier keep-alive anyway.
+          run_cmd() {
+            local label="$1"
+            local method="$2"
+            local path="$3"
+            local response status body
+            response=$(curl -sS -w "\n%{http_code}" \
+              -X "$method" "$base/$path" \
+              -H "Authorization: Bearer $UPSTASH_REDIS_REST_TOKEN")
+            body=$(echo "$response" | sed '$d')
+            status=$(echo "$response" | tail -n1)
+            if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
+              echo "✗ $label failed (HTTP $status): $body"
+              return 1
+            fi
+            echo "  $label → HTTP $status $body"
+          }
 
-          # Pipeline a real SET (with 1 hour TTL), GET, INCR, and DEL so the
-          # database registers actual command usage rather than just a PING.
-          response=$(curl -s -w "\n%{http_code}" \
-            -X POST "$UPSTASH_REDIS_REST_URL/pipeline" \
-            -H "Authorization: Bearer $UPSTASH_REDIS_REST_TOKEN" \
-            -H "Content-Type: application/json" \
-            --data-raw "$payload")
+          echo "→ Exercising Upstash Redis"
+          run_cmd "SETEX" POST "setex/$key/3600/$value"
+          run_cmd "GET"   GET  "get/$key"
+          run_cmd "INCR"  POST "incr/keepalive:counter"
+          run_cmd "DEL"   POST "del/$key"
 
-          body=$(echo "$response" | sed '$d')
-          status=$(echo "$response" | tail -n1)
-          echo "Upstash Redis responded with HTTP $status"
-          echo "Response body: $body"
-
-          if [ "$status" -ge 200 ] && [ "$status" -lt 300 ]; then
-            echo "✓ Upstash Redis commands executed successfully"
-          else
-            echo "✗ Upstash Redis command execution failed"
-            exit 1
-          fi
+          echo "✓ Upstash Redis commands executed successfully"
