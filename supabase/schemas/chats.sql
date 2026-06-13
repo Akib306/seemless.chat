@@ -2,6 +2,7 @@ create table if not exists chats (
   id         uuid         not null primary key default uuid_generate_v4(),
   user_id    uuid         not null references profiles(id) on delete cascade,
   title      text,
+  pinned_at  timestamptz,
   created_at timestamptz  not null default now(),
   updated_at timestamptz  not null default now()
 );

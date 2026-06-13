@@ -92,7 +92,23 @@ export function createDbUtils(
 				.order("pinned_at", { ascending: false, nullsFirst: false })
 				.order("updated_at", { ascending: false });
 
-			if (error) throw new Error(`Failed to fetch chats: ${error.message}`);
+			if (error) {
+				if (error.message.toLowerCase().includes("pinned_at")) {
+					const fallback = await supabase
+						.from("chats")
+						.select("*")
+						.eq("user_id", id)
+						.order("updated_at", { ascending: false });
+
+					if (fallback.error) {
+						throw new Error(`Failed to fetch chats: ${fallback.error.message}`);
+					}
+
+					return fallback.data || [];
+				}
+
+				throw new Error(`Failed to fetch chats: ${error.message}`);
+			}
 			return data || [];
 		},
 

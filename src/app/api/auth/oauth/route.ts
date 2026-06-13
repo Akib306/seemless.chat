@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 // The client you created from the Server-Side Auth instructions
 import { createClient } from "@/lib/supabase/server";
-import { createServerDb } from "@/lib/db/server";
 import { warmUserCacheIfNeeded } from "@/lib/cache/warm";
 
 export async function GET(request: Request) {
-	const db = await createServerDb();
 	const { searchParams, origin } = new URL(request.url);
 	const code = searchParams.get("code");
 	// if "next" is in param, use it as the redirect URL
@@ -19,10 +17,14 @@ export async function GET(request: Request) {
 			const { data } = await supabase.auth.getUser();
 			if (data.user) {
 				try {
-					await db.profiles.getProfile(data.user.id);
-				} catch (error) {
-					// Profile doesn't exist yet, create it for new OAuth users
-					await db.profiles.createProfile(data.user.id);
+					await supabase
+						.from("profiles")
+						.upsert(
+							{ id: data.user.id },
+							{ onConflict: "id", ignoreDuplicates: true },
+						);
+				} catch {
+					// Profile creation should not block a valid OAuth login.
 				}
 				// Warm caches for recent chats immediately after login to avoid cold starts
 				try {
