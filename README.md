@@ -145,4 +145,4 @@ Supabase CLI (installed globally):
 
 ## 📄 License
 
-License to be determined.
+License to be determined.  
